@@ -51,6 +51,7 @@ import androidx.core.content.ContextCompat
 import com.tuempresa.inventariovial.camera.createPhotoFile
 import com.tuempresa.inventariovial.camera.loadCorrectlyOrientedBitmap
 import com.tuempresa.inventariovial.location.getCurrentGpsLocation
+import com.tuempresa.inventariovial.location.GeoLocation
 import com.tuempresa.inventariovial.model.RoadAssetType
 import com.tuempresa.inventariovial.model.SignalizationType
 import com.tuempresa.inventariovial.ui.theme.InventarioVialTheme
@@ -82,11 +83,11 @@ import com.tuempresa.inventariovial.viewmodel.InventoryViewModel
 // Se usa para guardar la ubicación final de un elemento.
 // =========================================================
 
-data class GeoLocation(
-    val latitude: Double,
-    val longitude: Double,
-    val accuracyHorizontal: Float
-)
+//data class GeoLocation(
+//    val latitude: Double,
+//    val longitude: Double,
+//    val accuracyHorizontal: Float
+//)
 
 
 class MainActivity : ComponentActivity() {
@@ -4379,212 +4380,6 @@ fun Sic17Fields(
 // CAPTURA DE UBICACIÓN GPS FINAL
 // =========================================================
 
-@Composable
-fun FinalLocationCapture(
-    location: GeoLocation?,
-    onLocationCaptured: (GeoLocation) -> Unit
-) {
-
-    val context =
-        LocalContext.current
-
-    var locating by remember {
-        mutableStateOf(false)
-    }
-
-    var errorMessage by remember {
-        mutableStateOf<String?>(null)
-    }
-
-
-    fun hasLocationPermission(): Boolean {
-
-        val finePermission =
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-
-        val coarsePermission =
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-
-        return finePermission || coarsePermission
-    }
-
-
-    fun captureFinalLocation() {
-
-        if (!hasLocationPermission()) {
-
-            errorMessage =
-                "No hay permiso de ubicación. Regresa al formulario y autoriza el GPS."
-
-            return
-        }
-
-
-        locating = true
-        errorMessage = null
-
-
-        getCurrentGpsLocation(
-            context = context,
-
-            onSuccess = {
-                    latitude,
-                    longitude,
-                    accuracy ->
-
-                onLocationCaptured(
-                    GeoLocation(
-                        latitude = latitude,
-                        longitude = longitude,
-                        accuracyHorizontal = accuracy
-                    )
-                )
-
-                locating = false
-            },
-
-            onError = { error ->
-
-                locating = false
-                errorMessage = error
-            }
-        )
-    }
-
-
-    Spacer(
-        modifier =
-            Modifier.height(12.dp)
-    )
-
-
-    SectionTitle(
-        "Ubicación GPS final"
-    )
-
-
-    Text(
-        text =
-            "Captura la posición al finalizar el elemento o tramo. " +
-                    "Para elementos puntuales puede dejarse sin registrar.",
-        style =
-            MaterialTheme.typography.bodySmall
-    )
-
-
-    Spacer(
-        modifier =
-            Modifier.height(8.dp)
-    )
-
-
-    OutlinedButton(
-        onClick = {
-            captureFinalLocation()
-        },
-
-        enabled =
-            !locating,
-
-        modifier =
-            Modifier.fillMaxWidth()
-    ) {
-
-        Text(
-            if (locating) {
-                "Obteniendo ubicación final..."
-            } else if (location == null) {
-                "Capturar ubicación final"
-            } else {
-                "Actualizar ubicación final"
-            }
-        )
-    }
-
-
-    if (location != null) {
-
-        Spacer(
-            modifier =
-                Modifier.height(8.dp)
-        )
-
-
-        Card(
-            modifier =
-                Modifier.fillMaxWidth()
-        ) {
-
-            Column(
-                modifier =
-                    Modifier.padding(16.dp)
-            ) {
-
-                Text(
-                    text =
-                        "✓ Ubicación final obtenida",
-                    fontWeight =
-                        FontWeight.Bold
-                )
-
-
-                Text(
-                    text =
-                        "Latitud: ${
-                            String.format(
-                                Locale.US,
-                                "%.8f",
-                                location.latitude
-                            )
-                        }"
-                )
-
-
-                Text(
-                    text =
-                        "Longitud: ${
-                            String.format(
-                                Locale.US,
-                                "%.8f",
-                                location.longitude
-                            )
-                        }"
-                )
-
-
-                Text(
-                    text =
-                        "Precisión: ${
-                            String.format(
-                                Locale.US,
-                                "± %.1f m",
-                                location.accuracyHorizontal
-                            )
-                        }"
-                )
-            }
-        }
-    }
-
-
-    errorMessage?.let { error ->
-
-        Spacer(
-            modifier =
-                Modifier.height(8.dp)
-        )
-
-        ErrorText(
-            error
-        )
-    }
-}
 
 
 // =========================================================
