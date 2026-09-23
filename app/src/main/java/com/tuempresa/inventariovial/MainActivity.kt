@@ -1,22 +1,13 @@
 package com.tuempresa.inventariovial
 
 import android.Manifest
-import android.annotation.SuppressLint
-import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Matrix
-import android.media.ExifInterface
-import android.net.Uri
 import android.os.Bundle
-
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,7 +22,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -43,14 +33,13 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -59,23 +48,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
-
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
-import com.google.android.gms.tasks.CancellationTokenSource
-
+import com.tuempresa.inventariovial.camera.createPhotoFile
+import com.tuempresa.inventariovial.camera.loadCorrectlyOrientedBitmap
+import com.tuempresa.inventariovial.location.getCurrentGpsLocation
+import com.tuempresa.inventariovial.model.RoadAssetType
+import com.tuempresa.inventariovial.model.SignalizationType
 import com.tuempresa.inventariovial.ui.theme.InventarioVialTheme
-
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-
-import androidx.compose.runtime.LaunchedEffect
-
 
 class MainActivity : ComponentActivity() {
 
@@ -93,248 +76,6 @@ class MainActivity : ComponentActivity() {
 }
 
 
-// =========================================================
-// MODELOS DE NAVEGACIÓN
-// =========================================================
-
-enum class RoadAssetType(
-    val title: String,
-    val subtitle: String,
-    val sicCode: String
-) {
-    SIGNALIZATION(
-        "Señalización y seguridad",
-        "Vertical, horizontal, tachas y seguridad vial",
-        "SIC-21 / SIC-22"
-    ),
-
-    CULVERT(
-        "Alcantarilla",
-        "Obras de drenaje",
-        "SIC-18"
-    ),
-
-    DITCH(
-        "Cuneta",
-        "Cunetas, canales y drenaje",
-        "SIC-19"
-    ),
-
-    FORD(
-        "Badén",
-        "Badén / drenaje transversal",
-        "SIC-20"
-    ),
-
-    BRIDGE(
-        "Puente",
-        "Inventario de puente",
-        "SIC-17"
-    )
-}
-
-
-enum class SignalizationType(
-    val title: String,
-    val subtitle: String,
-    val sicCode: String
-) {
-    VERTICAL(
-        "Señal vertical",
-        "Reglamento, preventiva, informativa, poste km, semáforo o SOS",
-        "SIC-22"
-    ),
-
-    HORIZONTAL_MARKS(
-        "Marcas horizontales",
-        "Marcas centrales, laterales o centrales y laterales",
-        "SIC-21"
-    ),
-
-    HORIZONTAL_STUDS(
-        "Tachas",
-        "Tachas centrales, laterales o centrales y laterales",
-        "SIC-21"
-    ),
-
-    SAFETY(
-        "Seguridad vial",
-        "Guardavías, postes delineadores, barreras y resaltos",
-        "SIC-21"
-    )
-}
-
-
-// =========================================================
-// FOTO
-// =========================================================
-
-data class CapturedPhoto(
-    val file: File,
-    val uri: Uri
-)
-
-
-fun createPhotoFile(
-    context: Context,
-    prefix: String
-): CapturedPhoto {
-
-    val directory = File(
-        context.filesDir,
-        "images"
-    )
-
-    if (!directory.exists()) {
-        directory.mkdirs()
-    }
-
-    val timestamp = SimpleDateFormat(
-        "yyyyMMdd_HHmmss",
-        Locale.US
-    ).format(Date())
-
-    val safePrefix = prefix
-        .uppercase()
-        .replace("Ñ", "N")
-        .replace("Á", "A")
-        .replace("É", "E")
-        .replace("Í", "I")
-        .replace("Ó", "O")
-        .replace("Ú", "U")
-        .replace(" ", "_")
-
-    val file = File.createTempFile(
-        "${safePrefix}_${timestamp}_",
-        ".jpg",
-        directory
-    )
-
-    val uri = FileProvider.getUriForFile(
-        context,
-        "${context.packageName}.fileprovider",
-        file
-    )
-
-    return CapturedPhoto(
-        file = file,
-        uri = uri
-    )
-}
-
-
-fun loadCorrectlyOrientedBitmap(
-    path: String
-): Bitmap? {
-
-    val bitmap = BitmapFactory.decodeFile(path)
-        ?: return null
-
-    return try {
-
-        val exif = ExifInterface(path)
-
-        val orientation = exif.getAttributeInt(
-            ExifInterface.TAG_ORIENTATION,
-            ExifInterface.ORIENTATION_NORMAL
-        )
-
-        val matrix = Matrix()
-
-        when (orientation) {
-
-            ExifInterface.ORIENTATION_ROTATE_90 ->
-                matrix.postRotate(90f)
-
-            ExifInterface.ORIENTATION_ROTATE_180 ->
-                matrix.postRotate(180f)
-
-            ExifInterface.ORIENTATION_ROTATE_270 ->
-                matrix.postRotate(270f)
-
-            ExifInterface.ORIENTATION_FLIP_HORIZONTAL ->
-                matrix.postScale(-1f, 1f)
-
-            ExifInterface.ORIENTATION_FLIP_VERTICAL ->
-                matrix.postScale(1f, -1f)
-        }
-
-        if (orientation == ExifInterface.ORIENTATION_NORMAL) {
-
-            bitmap
-
-        } else {
-
-            Bitmap.createBitmap(
-                bitmap,
-                0,
-                0,
-                bitmap.width,
-                bitmap.height,
-                matrix,
-                true
-            )
-        }
-
-    } catch (_: Exception) {
-
-        bitmap
-    }
-}
-
-
-// =========================================================
-// GPS
-// =========================================================
-
-@SuppressLint("MissingPermission")
-fun getCurrentGpsLocation(
-    context: Context,
-    onSuccess: (
-        latitude: Double,
-        longitude: Double,
-        accuracy: Float
-    ) -> Unit,
-    onError: (String) -> Unit
-) {
-
-    val client =
-        LocationServices.getFusedLocationProviderClient(
-            context
-        )
-
-    val cancellationToken =
-        CancellationTokenSource()
-
-    client.getCurrentLocation(
-        Priority.PRIORITY_HIGH_ACCURACY,
-        cancellationToken.token
-    )
-        .addOnSuccessListener { location ->
-
-            if (location != null) {
-
-                onSuccess(
-                    location.latitude,
-                    location.longitude,
-                    location.accuracy
-                )
-
-            } else {
-
-                onError(
-                    "No se pudo obtener la ubicación. Verifica que el GPS esté activado."
-                )
-            }
-        }
-        .addOnFailureListener { error ->
-
-            onError(
-                error.message
-                    ?: "Error obteniendo ubicación GPS."
-            )
-        }
-}
 
 
 // =========================================================
