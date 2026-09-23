@@ -36,7 +36,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -60,16 +59,53 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+
+import com.tuempresa.inventariovial.model.form.Sic17FormState
+import com.tuempresa.inventariovial.model.form.Sic18FormState
+import com.tuempresa.inventariovial.model.form.Sic19FormState
+import com.tuempresa.inventariovial.model.form.Sic20FormState
+import com.tuempresa.inventariovial.model.form.Sic21FormState
+import com.tuempresa.inventariovial.model.form.Sic22FormState
+
+import androidx.compose.runtime.collectAsState
+
+import androidx.lifecycle.ViewModelProvider
+
+import com.tuempresa.inventariovial.model.form.InventorySaveRequest
+import com.tuempresa.inventariovial.model.form.SicFormDetail
+
+import com.tuempresa.inventariovial.viewmodel.InventoryViewModel
+
 class MainActivity : ComponentActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreate(
+        savedInstanceState: Bundle?
+    ) {
+
+        super.onCreate(
+            savedInstanceState
+        )
 
         enableEdgeToEdge()
 
+
+        val inventoryViewModel =
+
+            ViewModelProvider(
+                this
+            )[
+                InventoryViewModel::class.java
+            ]
+
+
         setContent {
+
             InventarioVialTheme {
-                InventarioVialApp()
+
+                InventarioVialApp(
+                    inventoryViewModel =
+                        inventoryViewModel
+                )
             }
         }
     }
@@ -83,7 +119,10 @@ class MainActivity : ComponentActivity() {
 // =========================================================
 
 @Composable
-fun InventarioVialApp() {
+fun InventarioVialApp(
+    inventoryViewModel:
+    InventoryViewModel
+) {
 
     var selectedAsset by remember {
         mutableStateOf<RoadAssetType?>(null)
@@ -93,13 +132,16 @@ fun InventarioVialApp() {
         mutableStateOf<SignalizationType?>(null)
     }
 
-    var recordsToday by remember {
-        mutableIntStateOf(0)
-    }
+    val recordsToday by
+    inventoryViewModel
+        .recordsToday
+        .collectAsState()
 
-    var pendingSync by remember {
-        mutableIntStateOf(0)
-    }
+
+    val pendingSync by
+    inventoryViewModel
+        .pendingSync
+        .collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -144,12 +186,11 @@ fun InventarioVialApp() {
 
                     SignalizationFormScreen(
                         signalizationType = selectedSignalization!!,
+                        inventoryViewModel = inventoryViewModel,
                         onBack = {
                             selectedSignalization = null
                         },
                         onSave = {
-                            recordsToday++
-                            pendingSync++
                             selectedSignalization = null
                             selectedAsset = null
                         }
@@ -161,12 +202,11 @@ fun InventarioVialApp() {
 
                     AssetFormScreen(
                         assetType = selectedAsset!!,
+                        inventoryViewModel = inventoryViewModel,
                         onBack = {
                             selectedAsset = null
                         },
                         onSave = {
-                            recordsToday++
-                            pendingSync++
                             selectedAsset = null
                         }
                     )
@@ -513,6 +553,7 @@ fun AssetButton(
 @Composable
 fun SignalizationFormScreen(
     signalizationType: SignalizationType,
+    inventoryViewModel: InventoryViewModel,
     onBack: () -> Unit,
     onSave: () -> Unit
 ) {
@@ -595,6 +636,54 @@ fun SignalizationFormScreen(
 
     var formError by remember {
         mutableStateOf<String?>(null)
+    }
+
+    // =========================================================
+    // ESTADOS SIC CALIFICADOS
+    // =========================================================
+
+    var sic21State by remember(signalizationType) {
+
+        mutableStateOf(
+
+            when (signalizationType) {
+
+                SignalizationType.HORIZONTAL_MARKS ->
+                    Sic21FormState(
+                        classCode = "18",
+                        typeCode = "1",
+                        materialCode = "5",
+                        conditionCode = "1"
+                    )
+
+                SignalizationType.SAFETY ->
+                    Sic21FormState(
+                        classCode = "19",
+                        typeCode = "1",
+                        materialCode = "1",
+                        conditionCode = "1"
+                    )
+
+                SignalizationType.HORIZONTAL_STUDS ->
+                    Sic21FormState(
+                        classCode = "20",
+                        typeCode = "1",
+                        materialCode = "4",
+                        conditionCode = "1"
+                    )
+
+                SignalizationType.VERTICAL ->
+                    Sic21FormState()
+            }
+        )
+    }
+
+
+    var sic22State by remember(signalizationType) {
+
+        mutableStateOf(
+            Sic22FormState()
+        )
     }
 
 
@@ -1202,17 +1291,27 @@ fun SignalizationFormScreen(
 
             when (signalizationType) {
 
-                SignalizationType.VERTICAL ->
-                    VerticalSignalFields()
+                SignalizationType.VERTICAL -> {
 
-                SignalizationType.HORIZONTAL_MARKS ->
-                    HorizontalMarksFields()
+                    Sic22Fields(
+                        state = sic22State,
+                        onStateChange = {
+                            sic22State = it
+                        }
+                    )
+                }
 
-                SignalizationType.HORIZONTAL_STUDS ->
-                    HorizontalStudsFields()
+                SignalizationType.HORIZONTAL_MARKS,
+                SignalizationType.HORIZONTAL_STUDS,
+                SignalizationType.SAFETY -> {
 
-                SignalizationType.SAFETY ->
-                    SafetyElementFields()
+                    Sic21Fields(
+                        state = sic21State,
+                        onStateChange = {
+                            sic21State = it
+                        }
+                    )
+                }
             }
         }
 
@@ -1290,21 +1389,144 @@ fun SignalizationFormScreen(
                                 "Debes ingresar el PR de inicio."
                         }
 
+                        startDistance.trim().isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar la distancia desde el PR de inicio."
+                        }
+
+
+                        endPr.trim().isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar el PR de fin."
+                        }
+
+
+                        endDistance.trim().isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar la distancia desde el PR de fin."
+                        }
+
+
+                        signalizationType ==
+                                SignalizationType.VERTICAL &&
+                                sic22State.usesSignalCode &&
+                                sic22State.signalCode
+                                    .trim()
+                                    .isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar el código de la señal."
+                        }
+
+
+                        signalizationType ==
+                                SignalizationType.VERTICAL &&
+                                sic22State
+                                    .usesKilometerPostNumber &&
+                                sic22State
+                                    .kilometerPostNumber
+                                    .trim()
+                                    .isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar el número del poste kilométrico."
+                        }
+
                         else -> {
                             formError = null
 
-                            // Programa la subida de la foto a Drive.
-                            // Si no hay Internet, WorkManager esperará
-                            // hasta que vuelva a haber conexión.
-                            photoPath?.let { path ->
+                            val path = photoPath
 
-                                scheduleDriveUpload(
-                                    context = context,
-                                    photoPath = path
+                            if (path == null) {
+
+                                formError =
+                                    "No se encontró la fotografía."
+
+                            } else {
+
+                                val detail =
+                                    when (signalizationType) {
+
+                                        SignalizationType.VERTICAL ->
+                                            SicFormDetail.Sic22(
+                                                sic22State
+                                            )
+
+                                        SignalizationType.HORIZONTAL_MARKS,
+                                        SignalizationType.HORIZONTAL_STUDS,
+                                        SignalizationType.SAFETY ->
+                                            SicFormDetail.Sic21(
+                                                sic21State
+                                            )
+                                    }
+
+                                inventoryViewModel.saveRecord(
+
+                                    request =
+                                        InventorySaveRequest(
+
+                                            sicCode =
+                                                if (
+                                                    signalizationType ==
+                                                    SignalizationType.VERTICAL
+                                                ) {
+                                                    "SIC-22"
+                                                } else {
+                                                    "SIC-21"
+                                                },
+
+                                            assetType =
+                                                signalizationType.name,
+
+                                            routeCode = route,
+
+                                            roadbedCode = roadbed,
+
+                                            startPrCode = startPr,
+
+                                            startDistanceM =
+                                                startDistance,
+
+                                            endPrCode = endPr,
+
+                                            endDistanceM =
+                                                endDistance,
+
+                                            sideCode =
+                                                codeFromOption(
+                                                    side
+                                                ),
+
+                                            latitude = latitude!!,
+
+                                            longitude = longitude!!,
+
+                                            gpsAccuracyM =
+                                                gpsAccuracy,
+
+                                            surveyDate =
+                                                registrationDate,
+
+                                            observations =
+                                                observations,
+
+                                            photoPath = path,
+
+                                            detail = detail
+                                        ),
+
+                                    onSuccess = {
+                                        onSave()
+                                    },
+
+                                    onError = { error ->
+                                        formError = error
+                                    }
                                 )
                             }
-
-                            onSave()
                         }
                     }
                 },
@@ -1329,265 +1551,307 @@ fun SignalizationFormScreen(
 
 // =========================================================
 // SIC-22 · SEÑALIZACIÓN VERTICAL
+// INVENTARIO VIAL CALIFICADO
 // =========================================================
 
 @Composable
-fun VerticalSignalFields() {
+fun Sic22Fields(
+    state: Sic22FormState,
+    onStateChange: (Sic22FormState) -> Unit
+) {
 
-    var type by remember {
-        mutableStateOf("2 - Preventivo")
-    }
+    val typeOptions = listOf(
+        "1 - Reglamento",
+        "2 - Preventivo",
+        "3 - Informativo",
+        "4 - Poste Kilométrico",
+        "5 - Semáforos",
+        "6 - Postes SOS"
+    )
 
-    var material by remember {
-        mutableStateOf("2 - Acero")
-    }
+    val materialOptions = listOf(
+        "1 - Fibra de vidrio",
+        "2 - Acero",
+        "3 - Concreto",
+        "4 - Madera",
+        "5 - Otro"
+    )
 
-    var signalCode by remember {
-        mutableStateOf("")
-    }
+    val conditionOptions = listOf(
+        "1 - Buena · no tiene problema",
+        "2 - Regular · dañado pero se puede leer",
+        "3 - Mala · no se puede leer o ausente"
+    )
 
-    var kilometerPostNumber by remember {
-        mutableStateOf("")
-    }
-
-    var condition by remember {
-        mutableStateOf("1 - Buena")
-    }
-
-    // Requerimientos extra del cliente
-    var signWidth by remember {
-        mutableStateOf("")
-    }
-
-    var signHeight by remember {
-        mutableStateOf("")
-    }
-
-    var lowerEdgeHeight by remember {
-        mutableStateOf("")
-    }
 
     SectionTitle(
         "SIC-22 · Señalización vertical"
     )
 
     Text(
-        text =
-            "Clase: 20 - Señalización Vertical",
-        fontWeight =
-            FontWeight.Bold
+        "Inventario Vial Calificado",
+        fontWeight = FontWeight.Bold,
+        style =
+            MaterialTheme.typography.bodySmall
     )
 
-    Spacer(
-        modifier =
-            Modifier.height(8.dp)
-    )
 
     Text(
-        text = "Tipo",
+        "Clase: 20 - Señalización Vertical",
         fontWeight =
             FontWeight.Bold
+    )
+
+
+    Text(
+        "Tipo",
+        fontWeight = FontWeight.Bold
     )
 
     ChoiceSelector(
-        options = listOf(
-            "1 - Reglamento",
-            "2 - Preventivo",
-            "3 - Informativo",
-            "4 - Poste Kilométrico",
-            "5 - Semáforos",
-            "6 - Postes SOS"
+        options = typeOptions,
+        selected = optionForCode(
+            typeOptions,
+            state.typeCode
         ),
-        selected = type,
         onSelected = {
-            type = it
+
+            val newType =
+                codeFromOption(it)
+
+            onStateChange(
+                state.copy(
+                    typeCode = newType,
+
+                    signalCode =
+                        if (
+                            newType == "1" ||
+                            newType == "2" ||
+                            newType == "3"
+                        )
+                            state.signalCode
+                        else
+                            "",
+
+                    kilometerPostNumber =
+                        if (newType == "4")
+                            state.kilometerPostNumber
+                        else
+                            ""
+                )
+            )
         }
     )
 
-    Spacer(
-        modifier =
-            Modifier.height(8.dp)
-    )
 
     Text(
-        text = "Material",
-        fontWeight =
-            FontWeight.Bold
+        "Material",
+        fontWeight = FontWeight.Bold
     )
 
     ChoiceSelector(
-        options = listOf(
-            "1 - Fibra de vidrio",
-            "2 - Acero",
-            "3 - Concreto",
-            "4 - Madera",
-            "5 - Otro"
+        options = materialOptions,
+        selected = optionForCode(
+            materialOptions,
+            state.materialCode
         ),
-        selected = material,
         onSelected = {
-            material = it
+
+            onStateChange(
+                state.copy(
+                    materialCode =
+                        codeFromOption(it)
+                )
+            )
         }
     )
 
-    if (
-        type.startsWith("1") ||
-        type.startsWith("2") ||
-        type.startsWith("3")
-    ) {
 
-        Spacer(
-            modifier =
-                Modifier.height(10.dp)
-        )
+    if (state.usesSignalCode) {
 
         OutlinedTextField(
-            value = signalCode,
+            value =
+                state.signalCode,
+
             onValueChange = {
-                signalCode =
-                    it.uppercase()
+
+                onStateChange(
+                    state.copy(
+                        signalCode =
+                            it.uppercase()
+                    )
+                )
             },
+
             label = {
                 Text(
                     "Código de señal"
                 )
             },
+
             placeholder = {
                 Text(
                     "Ej. P-2B, R30, I5"
                 )
             },
-            supportingText = {
-                Text(
-                    "Por ahora es texto libre para admitir cualquier código del catálogo."
-                )
-            },
+
             modifier =
                 Modifier.fillMaxWidth()
         )
     }
 
-    if (type.startsWith("4")) {
 
-        Spacer(
-            modifier =
-                Modifier.height(10.dp)
-        )
+    if (
+        state.usesKilometerPostNumber
+    ) {
 
         OutlinedTextField(
             value =
-                kilometerPostNumber,
+                state.kilometerPostNumber,
+
             onValueChange = {
-                kilometerPostNumber =
-                    it
+
+                onStateChange(
+                    state.copy(
+                        kilometerPostNumber = it
+                    )
+                )
             },
+
             label = {
                 Text(
                     "Número del poste kilométrico"
                 )
             },
+
             modifier =
                 Modifier.fillMaxWidth()
         )
     }
 
-    Spacer(
-        modifier =
-            Modifier.height(12.dp)
-    )
 
     Text(
-        text = "Condición",
-        fontWeight =
-            FontWeight.Bold
+        "Condición",
+        fontWeight = FontWeight.Bold
     )
 
     ChoiceSelector(
-        options = listOf(
-            "1 - Buena · no tiene problema",
-            "2 - Regular · dañado pero se puede leer",
-            "3 - Mala · no se puede leer o ausente"
+        options = conditionOptions,
+        selected = optionForCode(
+            conditionOptions,
+            state.conditionCode
         ),
-        selected = condition,
         onSelected = {
-            condition = it
+
+            onStateChange(
+                state.copy(
+                    conditionCode =
+                        codeFromOption(it)
+                )
+            )
         }
     )
+
 
     Spacer(
         modifier =
             Modifier.height(18.dp)
     )
 
+
     SectionTitle(
-        "Medición de señal · requisito del cliente"
+        "Mediciones adicionales del cliente"
     )
 
     Text(
         text =
-            "Estos campos complementan SIC-22 y luego pueden automatizarse con ARCore.",
+            "Estos tres campos complementan al SIC-22; no forman parte de las columnas oficiales del formato.",
         style =
             MaterialTheme.typography.bodySmall
     )
 
-    Spacer(
-        modifier =
-            Modifier.height(10.dp)
-    )
 
     OutlinedTextField(
-        value = signWidth,
+        value =
+            state.signWidthM,
+
         onValueChange = {
-            signWidth = it
+
+            onStateChange(
+                state.copy(
+                    signWidthM = it
+                )
+            )
         },
+
         label = {
             Text(
                 "Ancho de señal (m)"
             )
         },
+
         modifier =
             Modifier.fillMaxWidth()
     )
 
+
     OutlinedTextField(
-        value = signHeight,
+        value =
+            state.signHeightM,
+
         onValueChange = {
-            signHeight = it
+
+            onStateChange(
+                state.copy(
+                    signHeightM = it
+                )
+            )
         },
+
         label = {
             Text(
                 "Alto de señal (m)"
             )
         },
+
         modifier =
             Modifier.fillMaxWidth()
     )
+
 
     OutlinedTextField(
-        value = lowerEdgeHeight,
+        value =
+            state.lowerEdgeHeightM,
+
         onValueChange = {
-            lowerEdgeHeight = it
-        },
-        label = {
-            Text(
-                "Altura piso → borde inferior (m)"
+
+            onStateChange(
+                state.copy(
+                    lowerEdgeHeightM = it
+                )
             )
         },
+
+        label = {
+            Text(
+                "Altura suelo → borde inferior (m)"
+            )
+        },
+
         modifier =
             Modifier.fillMaxWidth()
     )
 
-    Spacer(
-        modifier =
-            Modifier.height(10.dp)
-    )
 
     OutlinedButton(
         onClick = {
-            // Próxima fase: ARCore
+            // Futura integración ARCore.
         },
+
         modifier =
             Modifier.fillMaxWidth()
     ) {
+
         Text(
             "Medir con cámara · próximamente"
         )
@@ -1596,280 +1860,187 @@ fun VerticalSignalFields() {
 
 
 // =========================================================
-// SIC-21 · MARCAS HORIZONTALES
+// SIC-21
+// SEGURIDAD Y SEÑALIZACIÓN HORIZONTAL
+// INVENTARIO VIAL CALIFICADO
 // =========================================================
 
 @Composable
-fun HorizontalMarksFields() {
+fun Sic21Fields(
+    state: Sic21FormState,
+    onStateChange: (Sic21FormState) -> Unit
+) {
 
-    var type by remember {
-        mutableStateOf("1 - Central")
-    }
+    val typeOptions =
+        when (state.classCode) {
 
-    var material by remember {
-        mutableStateOf("5 - Otro")
-    }
+            "18" -> listOf(
+                "1 - Central",
+                "2 - Lateral",
+                "3 - Central y Lateral"
+            )
 
-    var condition by remember {
-        mutableStateOf("1 - Buena")
-    }
+            "19" -> listOf(
+                "1 - Guardavías",
+                "2 - Postes Delineadores",
+                "3 - Barreras de Contención",
+                "4 - Resaltos"
+            )
+
+            "20" -> listOf(
+                "1 - Central",
+                "2 - Lateral",
+                "3 - Central y Lateral"
+            )
+
+            else ->
+                listOf(
+                    "1 - Otro"
+                )
+        }
+
+
+    val materialOptions = listOf(
+        "1 - Acero",
+        "2 - Concreto",
+        "3 - Mampostería",
+        "4 - Plástico",
+        "5 - Otro"
+    )
+
+
+    val conditionOptions =
+        when (state.classCode) {
+
+            "18" -> listOf(
+                "1 - Buena · no tiene problema",
+                "2 - Regular · todavía visible",
+                "3 - Mala · apenas visible"
+            )
+
+            "20" -> listOf(
+                "1 - Buena · no tiene problema",
+                "2 - Regular · dañada o ausente en menos del 30%",
+                "3 - Mala · dañada o ausente en más del 30%"
+            )
+
+            "19" -> listOf(
+                "1 - Buena · no tiene problema",
+                "2 - Regular · dañada o ausente en menos del 30%",
+                "3 - Mala · dañada o ausente en más del 30%"
+            )
+
+            else ->
+                listOf(
+                    "1 - Buena",
+                    "2 - Regular",
+                    "3 - Mala"
+                )
+        }
+
+
+    val classDescription =
+        when (state.classCode) {
+
+            "18" ->
+                "18 - Señalización Horizontal - Marcas"
+
+            "19" ->
+                "19 - Seguridad"
+
+            "20" ->
+                "20 - Señalización Horizontal - Tachas"
+
+            else ->
+                state.classCode
+        }
+
 
     SectionTitle(
-        "SIC-21 · Señalización horizontal - Marcas"
+        "SIC-21 · Seguridad y señalización horizontal"
     )
+
+    Text(
+        "Inventario Vial Calificado",
+        fontWeight = FontWeight.Bold,
+        style =
+            MaterialTheme.typography.bodySmall
+    )
+
 
     Text(
         text =
-            "Clase: 18 - Señalización Horizontal-Marcas",
+            "Clase: $classDescription",
         fontWeight =
             FontWeight.Bold
     )
 
-    Spacer(
-        modifier =
-            Modifier.height(8.dp)
-    )
 
     Text(
-        text = "Tipo",
-        fontWeight =
-            FontWeight.Bold
+        "Tipo",
+        fontWeight = FontWeight.Bold
     )
 
     ChoiceSelector(
-        options = listOf(
-            "1 - Central",
-            "2 - Lateral",
-            "3 - Central y Lateral"
+        options = typeOptions,
+        selected = optionForCode(
+            typeOptions,
+            state.typeCode
         ),
-        selected = type,
         onSelected = {
-            type = it
+
+            onStateChange(
+                state.copy(
+                    typeCode =
+                        codeFromOption(it)
+                )
+            )
         }
     )
 
+
     Text(
-        text = "Material",
-        fontWeight =
-            FontWeight.Bold
+        "Material",
+        fontWeight = FontWeight.Bold
     )
 
     ChoiceSelector(
-        options = listOf(
-            "1 - Acero",
-            "2 - Concreto",
-            "3 - Mampostería",
-            "4 - Plástico",
-            "5 - Otro"
+        options = materialOptions,
+        selected = optionForCode(
+            materialOptions,
+            state.materialCode
         ),
-        selected = material,
         onSelected = {
-            material = it
+
+            onStateChange(
+                state.copy(
+                    materialCode =
+                        codeFromOption(it)
+                )
+            )
         }
     )
 
+
     Text(
-        text = "Condición",
-        fontWeight =
-            FontWeight.Bold
+        "Condición",
+        fontWeight = FontWeight.Bold
     )
 
     ChoiceSelector(
-        options = listOf(
-            "1 - Buena · no tiene problema",
-            "2 - Regular · todavía visible / afectación menor al 30%",
-            "3 - Mala · apenas visible / afectación mayor al 30%"
+        options = conditionOptions,
+        selected = optionForCode(
+            conditionOptions,
+            state.conditionCode
         ),
-        selected = condition,
         onSelected = {
-            condition = it
-        }
-    )
-}
 
-
-// =========================================================
-// SIC-21 · TACHAS
-// =========================================================
-
-@Composable
-fun HorizontalStudsFields() {
-
-    var type by remember {
-        mutableStateOf("1 - Central")
-    }
-
-    var material by remember {
-        mutableStateOf("4 - Plástico")
-    }
-
-    var condition by remember {
-        mutableStateOf("1 - Buena")
-    }
-
-    SectionTitle(
-        "SIC-21 · Señalización horizontal - Tachas"
-    )
-
-    Text(
-        text =
-            "Clase: 20 - Señalización Horizontal-Tachas",
-        fontWeight =
-            FontWeight.Bold
-    )
-
-    Spacer(
-        modifier =
-            Modifier.height(8.dp)
-    )
-
-    Text(
-        text = "Tipo",
-        fontWeight =
-            FontWeight.Bold
-    )
-
-    ChoiceSelector(
-        options = listOf(
-            "1 - Central",
-            "2 - Lateral",
-            "3 - Central y Lateral"
-        ),
-        selected = type,
-        onSelected = {
-            type = it
-        }
-    )
-
-    Text(
-        text = "Material",
-        fontWeight =
-            FontWeight.Bold
-    )
-
-    ChoiceSelector(
-        options = listOf(
-            "1 - Acero",
-            "2 - Concreto",
-            "3 - Mampostería",
-            "4 - Plástico",
-            "5 - Otro"
-        ),
-        selected = material,
-        onSelected = {
-            material = it
-        }
-    )
-
-    Text(
-        text = "Condición",
-        fontWeight =
-            FontWeight.Bold
-    )
-
-    ChoiceSelector(
-        options = listOf(
-            "1 - Buena · no tiene problema",
-            "2 - Regular · dañada/ausente en menos del 30%",
-            "3 - Mala · dañada/ausente en más del 30%"
-        ),
-        selected = condition,
-        onSelected = {
-            condition = it
-        }
-    )
-}
-
-
-// =========================================================
-// SIC-21 · SEGURIDAD VIAL
-// =========================================================
-
-@Composable
-fun SafetyElementFields() {
-
-    var type by remember {
-        mutableStateOf("1 - Guardavías")
-    }
-
-    var material by remember {
-        mutableStateOf("1 - Acero")
-    }
-
-    var condition by remember {
-        mutableStateOf("1 - Buena")
-    }
-
-    SectionTitle(
-        "SIC-21 · Seguridad vial"
-    )
-
-    Text(
-        text =
-            "Clase: 19 - Seguridad",
-        fontWeight =
-            FontWeight.Bold
-    )
-
-    Spacer(
-        modifier =
-            Modifier.height(8.dp)
-    )
-
-    Text(
-        text = "Tipo",
-        fontWeight =
-            FontWeight.Bold
-    )
-
-    ChoiceSelector(
-        options = listOf(
-            "1 - Guardavías",
-            "2 - Postes Delineadores",
-            "3 - Barreras de Contención",
-            "4 - Resaltos"
-        ),
-        selected = type,
-        onSelected = {
-            type = it
-        }
-    )
-
-    Text(
-        text = "Material",
-        fontWeight =
-            FontWeight.Bold
-    )
-
-    ChoiceSelector(
-        options = listOf(
-            "1 - Acero",
-            "2 - Concreto",
-            "3 - Mampostería",
-            "4 - Plástico",
-            "5 - Otro"
-        ),
-        selected = material,
-        onSelected = {
-            material = it
-        }
-    )
-
-    Text(
-        text = "Condición",
-        fontWeight =
-            FontWeight.Bold
-    )
-
-    ChoiceSelector(
-        options = listOf(
-            "1 - Buena · no tiene problema",
-            "2 - Regular · dañado/ausente en menos del 30%",
-            "3 - Mala · muy dañado/ausente en más del 30%"
-        ),
-        selected = condition,
-        onSelected = {
-            condition = it
+            onStateChange(
+                state.copy(
+                    conditionCode =
+                        codeFromOption(it)
+                )
+            )
         }
     )
 }
@@ -1882,6 +2053,7 @@ fun SafetyElementFields() {
 @Composable
 fun AssetFormScreen(
     assetType: RoadAssetType,
+    inventoryViewModel: InventoryViewModel,
     onBack: () -> Unit,
     onSave: () -> Unit
 ) {
@@ -1962,6 +2134,34 @@ fun AssetFormScreen(
 
     var formError by remember {
         mutableStateOf<String?>(null)
+    }
+
+    // =========================================================
+    // ESTADOS SIC CALIFICADOS
+    // =========================================================
+
+    var sic17State by remember(assetType) {
+        mutableStateOf(
+            Sic17FormState()
+        )
+    }
+
+    var sic18State by remember(assetType) {
+        mutableStateOf(
+            Sic18FormState()
+        )
+    }
+
+    var sic19State by remember(assetType) {
+        mutableStateOf(
+            Sic19FormState()
+        )
+    }
+
+    var sic20State by remember(assetType) {
+        mutableStateOf(
+            Sic20FormState()
+        )
     }
 
 
@@ -2118,7 +2318,7 @@ fun AssetFormScreen(
                     "CUNETA"
 
                 RoadAssetType.FORD ->
-                    "BADEN"
+                    "SIC20"
 
                 RoadAssetType.BRIDGE ->
                     "PUENTE"
@@ -2179,6 +2379,26 @@ fun AssetFormScreen(
     val needsSide =
         assetType == RoadAssetType.DITCH ||
                 assetType == RoadAssetType.FORD
+
+    val sideOptions =
+        when (assetType) {
+
+            RoadAssetType.DITCH ->
+                listOf(
+                    "D - Derecho",
+                    "I - Izquierdo"
+                )
+
+            RoadAssetType.FORD ->
+                listOf(
+                    "D - Derecho",
+                    "I - Izquierdo",
+                    "S - Sin objeto"
+                )
+
+            else ->
+                emptyList()
+        }
 
 
     LazyColumn(
@@ -2577,11 +2797,7 @@ fun AssetFormScreen(
                 )
 
                 ChoiceSelector(
-                    options = listOf(
-                        "D - Derecho",
-                        "I - Izquierdo",
-                        "S - Sin objeto"
-                    ),
+                    options = sideOptions,
                     selected = side,
                     onSelected = {
                         side = it
@@ -2598,19 +2814,48 @@ fun AssetFormScreen(
 
             when (assetType) {
 
-                RoadAssetType.CULVERT ->
-                    CulvertFields()
+                RoadAssetType.CULVERT -> {
 
-                RoadAssetType.DITCH ->
-                    DitchFields()
+                    Sic18Fields(
+                        state = sic18State,
+                        onStateChange = {
+                            sic18State = it
+                        }
+                    )
+                }
 
-                RoadAssetType.FORD ->
-                    FordFields()
+                RoadAssetType.DITCH -> {
 
-                RoadAssetType.BRIDGE ->
-                    BridgeFields()
+                    Sic19Fields(
+                        state = sic19State,
+                        onStateChange = {
+                            sic19State = it
+                        }
+                    )
+                }
+
+                RoadAssetType.FORD -> {
+
+                    Sic20Fields(
+                        state = sic20State,
+                        onStateChange = {
+                            sic20State = it
+                        }
+                    )
+                }
+
+                RoadAssetType.BRIDGE -> {
+
+                    Sic17Fields(
+                        state = sic17State,
+                        onStateChange = {
+                            sic17State = it
+                        }
+                    )
+                }
 
                 RoadAssetType.SIGNALIZATION -> {
+
                     Text(
                         "Use el módulo Señalización y seguridad."
                     )
@@ -2692,21 +2937,259 @@ fun AssetFormScreen(
                                 "Debes ingresar el PR de inicio."
                         }
 
+                        startDistance.trim().isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar la distancia desde el PR de inicio."
+                        }
+
+
+                        needsEndLocation &&
+                                endPr.trim().isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar el PR de fin."
+                        }
+
+
+                        needsEndLocation &&
+                                endDistance.trim().isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar la distancia desde el PR de fin."
+                        }
+
+
+                        // =========================================================
+                        // VALIDACIÓN SIC-17
+                        // =========================================================
+
+                        assetType == RoadAssetType.BRIDGE &&
+                                sic17State.dimension1LengthM
+                                    .trim()
+                                    .isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar la longitud del puente."
+                        }
+
+
+                        assetType == RoadAssetType.BRIDGE &&
+                                sic17State.dimension2LowerHeightM
+                                    .trim()
+                                    .isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar la altura libre inferior."
+                        }
+
+
+                        assetType == RoadAssetType.BRIDGE &&
+                                sic17State.dimension3UpperHeightM
+                                    .trim()
+                                    .isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar la altura libre superior. Si no existe limitación, usa 00.00."
+                        }
+
+
+                        // =========================================================
+                        // VALIDACIÓN SIC-18
+                        // =========================================================
+
+                        assetType == RoadAssetType.CULVERT &&
+                                sic18State.spans
+                                    .trim()
+                                    .isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar el número de ojos / vanos."
+                        }
+
+
+                        assetType == RoadAssetType.CULVERT &&
+                                sic18State.dimension1M
+                                    .trim()
+                                    .isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar la Dimensión 1."
+                        }
+
+
+                        assetType == RoadAssetType.CULVERT &&
+                                sic18State.dimension2M
+                                    .trim()
+                                    .isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar la Dimensión 2."
+                        }
+
+
+                        // =========================================================
+                        // VALIDACIÓN SIC-20
+                        // =========================================================
+
+                        assetType == RoadAssetType.FORD &&
+                                sic20State.dimension1M
+                                    .trim()
+                                    .isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar la Dimensión 1."
+                        }
+
+
+                        assetType == RoadAssetType.FORD &&
+                                sic20State.usesDimension2 &&
+                                sic20State.dimension2M
+                                    .trim()
+                                    .isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar la Dimensión 2."
+                        }
+
                         else -> {
                             formError = null
 
-                            // Programa la subida de la foto a Drive.
-                            // Si no hay Internet, WorkManager esperará
-                            // hasta que vuelva a haber conexión.
-                            photoPath?.let { path ->
+                            val path = photoPath
 
-                                scheduleDriveUpload(
-                                    context = context,
-                                    photoPath = path
+                            if (path == null) {
+
+                                formError =
+                                    "No se encontró la fotografía."
+
+                            } else {
+
+                                val detail =
+                                    when (assetType) {
+
+                                        RoadAssetType.BRIDGE ->
+                                            SicFormDetail.Sic17(
+                                                sic17State
+                                            )
+
+                                        RoadAssetType.CULVERT ->
+                                            SicFormDetail.Sic18(
+                                                sic18State
+                                            )
+
+                                        RoadAssetType.DITCH ->
+                                            SicFormDetail.Sic19(
+                                                sic19State
+                                            )
+
+                                        RoadAssetType.FORD ->
+                                            SicFormDetail.Sic20(
+                                                sic20State
+                                            )
+
+                                        RoadAssetType.SIGNALIZATION -> {
+                                            formError =
+                                                "Utilice el módulo de señalización."
+                                            return@Button
+                                        }
+                                    }
+
+                                val actualAssetType =
+                                    when (assetType) {
+
+                                        RoadAssetType.BRIDGE ->
+                                            "PUENTE"
+
+                                        RoadAssetType.CULVERT ->
+                                            "ALCANTARILLA"
+
+                                        RoadAssetType.DITCH ->
+                                            "DRENAJE"
+
+                                        RoadAssetType.FORD ->
+                                            when (
+                                                sic20State.classCode
+                                            ) {
+                                                "12" -> "BADEN"
+                                                "13" -> "TUNEL"
+                                                "14" -> "MURO"
+                                                else -> "SIC20"
+                                            }
+
+                                        RoadAssetType.SIGNALIZATION ->
+                                            "SENALIZACION"
+                                    }
+
+                                inventoryViewModel.saveRecord(
+
+                                    request =
+                                        InventorySaveRequest(
+
+                                            sicCode =
+                                                assetType.sicCode,
+
+                                            assetType =
+                                                actualAssetType,
+
+                                            routeCode = route,
+
+                                            roadbedCode = roadbed,
+
+                                            startPrCode = startPr,
+
+                                            startDistanceM =
+                                                startDistance,
+
+                                            endPrCode =
+                                                if (needsEndLocation) {
+                                                    endPr
+                                                } else {
+                                                    null
+                                                },
+
+                                            endDistanceM =
+                                                if (needsEndLocation) {
+                                                    endDistance
+                                                } else {
+                                                    null
+                                                },
+
+                                            sideCode =
+                                                if (needsSide) {
+                                                    codeFromOption(
+                                                        side
+                                                    )
+                                                } else {
+                                                    null
+                                                },
+
+                                            latitude = latitude!!,
+
+                                            longitude = longitude!!,
+
+                                            gpsAccuracyM =
+                                                gpsAccuracy,
+
+                                            surveyDate =
+                                                registrationDate,
+
+                                            observations =
+                                                observations,
+
+                                            photoPath = path,
+
+                                            detail = detail
+                                        ),
+
+                                    onSuccess = {
+                                        onSave()
+                                    },
+
+                                    onError = { error ->
+                                        formError = error
+                                    }
                                 )
                             }
-
-                            onSave()
                         }
                     }
                 },
@@ -2731,59 +3214,27 @@ fun AssetFormScreen(
 
 // =========================================================
 // SIC-18 · ALCANTARILLAS
+// INVENTARIO VIAL CALIFICADO
 // =========================================================
 
 @Composable
-fun CulvertFields() {
+fun Sic18Fields(
+    state: Sic18FormState,
+    onStateChange: (Sic18FormState) -> Unit
+) {
 
-    var culvertClass by remember {
-        mutableStateOf(
-            "06 - Alcantarilla Definitiva"
-        )
-    }
-
-    var type by remember {
-        mutableStateOf("1 - Concreto")
-    }
-
-    var spans by remember {
-        mutableStateOf("1")
-    }
-
-    var section by remember {
-        mutableStateOf(
-            "2 - Circular / Ovalada"
-        )
-    }
-
-    var dimension1 by remember {
-        mutableStateOf("")
-    }
-
-    var dimension2 by remember {
-        mutableStateOf("")
-    }
-
-    var structuralCondition by remember {
-        mutableStateOf("1 - Buena")
-    }
-
-    var functionalCondition by remember {
-        mutableStateOf(
-            "1 - Buena · limpia"
-        )
-    }
-
-    val definitive =
-        culvertClass.startsWith("06")
+    val classOptions = listOf(
+        "06 - Alcantarilla Definitiva",
+        "07 - Alcantarilla Estructura Artesanal"
+    )
 
     val typeOptions =
-        if (definitive) {
+        if (state.classCode == "06") {
 
             listOf(
                 "1 - Concreto",
                 "2 - Mampostería",
-                "3 - Acero / TMC",
+                "3 - Acero",
                 "4 - Polietileno HDPE",
                 "5 - Otro"
             )
@@ -2798,68 +3249,98 @@ fun CulvertFields() {
             )
         }
 
+    val sectionOptions = listOf(
+        "1 - Marco",
+        "2 - Circular / Ovalada",
+        "3 - Arco",
+        "4 - Pórtico",
+        "5 - Otro"
+    )
+
+    val structuralOptions = listOf(
+        "1 - Buena",
+        "2 - Regular",
+        "3 - Mala"
+    )
+
+    val functionalOptions = listOf(
+        "1 - Buena · limpia",
+        "2 - Regular · parcialmente obstruida",
+        "3 - Mala · totalmente obstruida"
+    )
+
+
     SectionTitle(
-        "SIC-18 · Alcantarilla"
+        "SIC-18 · Alcantarillas"
     )
 
     Text(
-        text = "Clase",
-        fontWeight =
-            FontWeight.Bold
+        "Inventario Vial Calificado",
+        fontWeight = FontWeight.Bold,
+        style =
+            MaterialTheme.typography.bodySmall
+    )
+
+
+    Text(
+        "Clase",
+        fontWeight = FontWeight.Bold
     )
 
     ChoiceSelector(
-        options = listOf(
-            "06 - Alcantarilla Definitiva",
-            "07 - Estructura Artesanal"
+        options = classOptions,
+        selected = optionForCode(
+            classOptions,
+            state.classCode
         ),
-        selected = culvertClass,
         onSelected = {
-            culvertClass = it
-            type = "1 - Concreto"
+
+            onStateChange(
+                state.copy(
+                    classCode =
+                        codeFromOption(it),
+                    typeCode = "1"
+                )
+            )
         }
     )
 
-    Spacer(
-        modifier =
-            Modifier.height(8.dp)
-    )
 
     Text(
-        text = "Tipo / material",
-        fontWeight =
-            FontWeight.Bold
+        "Tipo / material",
+        fontWeight = FontWeight.Bold
     )
 
     ChoiceSelector(
-        options =
+        options = typeOptions,
+        selected = optionForCode(
             typeOptions,
-        selected =
-            type,
+            state.typeCode
+        ),
         onSelected = {
-            type = it
+
+            onStateChange(
+                state.copy(
+                    typeCode =
+                        codeFromOption(it)
+                )
+            )
         }
     )
 
-    if (definitive) {
-
-        Text(
-            text =
-                "Nota: el manual usa HDPE. Si el cliente usa PVC, debe confirmarse su codificación.",
-            style =
-                MaterialTheme.typography.bodySmall
-        )
-    }
-
-    Spacer(
-        modifier =
-            Modifier.height(10.dp)
-    )
 
     OutlinedTextField(
-        value = spans,
-        onValueChange = {
-            spans = it
+        value = state.spans,
+        onValueChange = { value ->
+
+            onStateChange(
+                state.copy(
+                    spans =
+                        value.filter {
+                            it.isDigit()
+                        }
+                )
+            )
         },
         label = {
             Text(
@@ -2870,273 +3351,294 @@ fun CulvertFields() {
             Modifier.fillMaxWidth()
     )
 
-    Spacer(
-        modifier =
-            Modifier.height(10.dp)
-    )
 
     Text(
-        text = "Sección transversal",
-        fontWeight =
-            FontWeight.Bold
+        "Sección transversal",
+        fontWeight = FontWeight.Bold
     )
 
     ChoiceSelector(
-        options = listOf(
-            "1 - Marco",
-            "2 - Circular / Ovalada",
-            "3 - Arco",
-            "4 - Pórtico",
-            "5 - Otro"
+        options = sectionOptions,
+        selected = optionForCode(
+            sectionOptions,
+            state.crossSectionCode
         ),
-        selected = section,
         onSelected = {
-            section = it
+
+            onStateChange(
+                state.copy(
+                    crossSectionCode =
+                        codeFromOption(it)
+                )
+            )
         }
     )
 
-    Spacer(
-        modifier =
-            Modifier.height(10.dp)
-    )
 
     OutlinedTextField(
-        value = dimension1,
+        value = state.dimension1M,
         onValueChange = {
-            dimension1 = it
+
+            onStateChange(
+                state.copy(
+                    dimension1M = it
+                )
+            )
         },
         label = {
             Text(
-                if (
-                    section.startsWith("2")
-                )
-                    "Dimensión 1 · diámetro (m)"
-                else
-                    "Dimensión 1 · ancho (m)"
+                "Dimensión 1 · ancho o diámetro (m)"
             )
         },
         modifier =
             Modifier.fillMaxWidth()
     )
 
-    if (
-        !section.startsWith("2")
-    ) {
 
-        OutlinedTextField(
-            value = dimension2,
-            onValueChange = {
-                dimension2 = it
-            },
-            label = {
-                Text(
-                    "Dimensión 2 · altura (m)"
+    OutlinedTextField(
+        value = state.dimension2M,
+        onValueChange = {
+
+            onStateChange(
+                state.copy(
+                    dimension2M = it
                 )
-            },
-            modifier =
-                Modifier.fillMaxWidth()
-        )
-    }
-
-    Spacer(
+            )
+        },
+        label = {
+            Text(
+                "Dimensión 2 · altura (m)"
+            )
+        },
         modifier =
-            Modifier.height(12.dp)
+            Modifier.fillMaxWidth()
     )
 
+
     Text(
-        text =
-            "Condición estructural",
-        fontWeight =
-            FontWeight.Bold
+        "Condición estructural",
+        fontWeight = FontWeight.Bold
     )
 
     ChoiceSelector(
-        options = listOf(
-            "1 - Buena",
-            "2 - Regular",
-            "3 - Mala"
+        options = structuralOptions,
+        selected = optionForCode(
+            structuralOptions,
+            state.structuralConditionCode
         ),
-        selected =
-            structuralCondition,
         onSelected = {
-            structuralCondition = it
+
+            onStateChange(
+                state.copy(
+                    structuralConditionCode =
+                        codeFromOption(it)
+                )
+            )
         }
     )
 
+
     Text(
-        text =
-            "Condición funcional",
-        fontWeight =
-            FontWeight.Bold
+        "Condición funcional",
+        fontWeight = FontWeight.Bold
     )
 
     ChoiceSelector(
-        options = listOf(
-            "1 - Buena · limpia",
-            "2 - Regular · parcialmente obstruida",
-            "3 - Mala · totalmente obstruida"
+        options = functionalOptions,
+        selected = optionForCode(
+            functionalOptions,
+            state.functionalConditionCode
         ),
-        selected =
-            functionalCondition,
         onSelected = {
-            functionalCondition = it
+
+            onStateChange(
+                state.copy(
+                    functionalConditionCode =
+                        codeFromOption(it)
+                )
+            )
         }
     )
 }
 
 
 // =========================================================
-// SIC-19 · CUNETAS / DRENAJE
+// SIC-19 · CUNETAS Y DRENAJE
+// INVENTARIO VIAL CALIFICADO
 // =========================================================
 
 @Composable
-fun DitchFields() {
+fun Sic19Fields(
+    state: Sic19FormState,
+    onStateChange: (Sic19FormState) -> Unit
+) {
 
-    var elementClass by remember {
-        mutableStateOf("08 - Cuneta")
-    }
+    val classOptions = listOf(
+        "08 - Cuneta",
+        "09 - Canal",
+        "10 - Bajada de Agua",
+        "11 - Zanja de Drenaje",
+        "12 - Zanja de Coronación",
+        "13 - Cuneta de Banqueta"
+    )
 
-    var type by remember {
-        mutableStateOf("1 - Tierra")
-    }
+    val typeOptions = listOf(
+        "1 - Tierra",
+        "2 - Concreto",
+        "3 - Mampostería",
+        "4 - Otro"
+    )
 
-    var section by remember {
-        mutableStateOf("1 - Triangular")
-    }
+    val sectionOptions = listOf(
+        "1 - Triangular",
+        "2 - Trapezoidal",
+        "3 - Rectangular",
+        "4 - Otro"
+    )
 
-    var structuralCondition by remember {
-        mutableStateOf("1 - Buena")
-    }
+    val structuralOptions = listOf(
+        "1 - Buena",
+        "2 - Regular",
+        "3 - Mala"
+    )
 
-    var functionalCondition by remember {
-        mutableStateOf(
-            "1 - Buena · limpia"
-        )
-    }
+    val functionalOptions = listOf(
+        "1 - Buena · limpia",
+        "2 - Regular · parcialmente obstruida",
+        "3 - Mala · totalmente obstruida"
+    )
+
 
     SectionTitle(
         "SIC-19 · Cunetas y drenaje"
     )
 
     Text(
-        text = "Clase",
-        fontWeight =
-            FontWeight.Bold
+        "Inventario Vial Calificado",
+        fontWeight = FontWeight.Bold,
+        style =
+            MaterialTheme.typography.bodySmall
     )
 
-    ChoiceSelector(
-        options = listOf(
-            "08 - Cuneta",
-            "09 - Canal",
-            "10 - Bajada de Agua",
-            "11 - Zanja de Drenaje",
-            "12 - Zanja de Coronación",
-            "13 - Cuneta de Banqueta"
-        ),
-        selected =
-            elementClass,
-        onSelected = {
-            elementClass = it
-        }
-    )
-
-    Spacer(
-        modifier =
-            Modifier.height(8.dp)
-    )
 
     Text(
-        text = "Tipo",
-        fontWeight =
-            FontWeight.Bold
+        "Clase",
+        fontWeight = FontWeight.Bold
     )
 
     ChoiceSelector(
-        options = listOf(
-            "1 - Tierra",
-            "2 - Concreto",
-            "3 - Mampostería",
-            "4 - Otro"
+        options = classOptions,
+        selected = optionForCode(
+            classOptions,
+            state.classCode
         ),
-        selected = type,
         onSelected = {
-            type = it
+
+            onStateChange(
+                state.copy(
+                    classCode =
+                        codeFromOption(it)
+                )
+            )
         }
     )
 
-    Spacer(
-        modifier =
-            Modifier.height(8.dp)
+
+    Text(
+        "Tipo",
+        fontWeight = FontWeight.Bold
     )
+
+    ChoiceSelector(
+        options = typeOptions,
+        selected = optionForCode(
+            typeOptions,
+            state.typeCode
+        ),
+        onSelected = {
+
+            onStateChange(
+                state.copy(
+                    typeCode =
+                        codeFromOption(it)
+                )
+            )
+        }
+    )
+
+
+    Text(
+        "Sección transversal",
+        fontWeight = FontWeight.Bold
+    )
+
+    ChoiceSelector(
+        options = sectionOptions,
+        selected = optionForCode(
+            sectionOptions,
+            state.crossSectionCode
+        ),
+        onSelected = {
+
+            onStateChange(
+                state.copy(
+                    crossSectionCode =
+                        codeFromOption(it)
+                )
+            )
+        }
+    )
+
+
+    Text(
+        "Condición estructural",
+        fontWeight = FontWeight.Bold
+    )
+
+    ChoiceSelector(
+        options = structuralOptions,
+        selected = optionForCode(
+            structuralOptions,
+            state.structuralConditionCode
+        ),
+        onSelected = {
+
+            onStateChange(
+                state.copy(
+                    structuralConditionCode =
+                        codeFromOption(it)
+                )
+            )
+        }
+    )
+
+
+    Text(
+        "Condición funcional",
+        fontWeight = FontWeight.Bold
+    )
+
+    ChoiceSelector(
+        options = functionalOptions,
+        selected = optionForCode(
+            functionalOptions,
+            state.functionalConditionCode
+        ),
+        onSelected = {
+
+            onStateChange(
+                state.copy(
+                    functionalConditionCode =
+                        codeFromOption(it)
+                )
+            )
+        }
+    )
+
 
     Text(
         text =
-            "Sección transversal",
-        fontWeight =
-            FontWeight.Bold
-    )
-
-    ChoiceSelector(
-        options = listOf(
-            "1 - Triangular",
-            "2 - Trapezoidal",
-            "3 - Rectangular",
-            "4 - Otro"
-        ),
-        selected = section,
-        onSelected = {
-            section = it
-        }
-    )
-
-    Spacer(
-        modifier =
-            Modifier.height(8.dp)
-    )
-
-    Text(
-        text =
-            "Condición estructural",
-        fontWeight =
-            FontWeight.Bold
-    )
-
-    ChoiceSelector(
-        options = listOf(
-            "1 - Buena",
-            "2 - Regular",
-            "3 - Mala"
-        ),
-        selected =
-            structuralCondition,
-        onSelected = {
-            structuralCondition = it
-        }
-    )
-
-    Text(
-        text =
-            "Condición funcional",
-        fontWeight =
-            FontWeight.Bold
-    )
-
-    ChoiceSelector(
-        options = listOf(
-            "1 - Buena · limpia",
-            "2 - Regular · parcialmente obstruida",
-            "3 - Mala · totalmente obstruida"
-        ),
-        selected =
-            functionalCondition,
-        onSelected = {
-            functionalCondition = it
-        }
-    )
-
-    Text(
-        text =
-            "La longitud se obtiene mediante Ubicación inicio y Ubicación fin.",
+            "La ubicación inicio y fin identifican el tramo. La longitud curva se calculará posteriormente a partir de la geometría/trayectoria.",
         style =
             MaterialTheme.typography.bodySmall
     )
@@ -3144,203 +3646,422 @@ fun DitchFields() {
 
 
 // =========================================================
-// SIC-20 · BADÉN
+// SIC-20 · BADENES, TÚNELES Y MUROS
+// INVENTARIO VIAL CALIFICADO
 // =========================================================
 
 @Composable
-fun FordFields() {
+fun Sic20Fields(
+    state: Sic20FormState,
+    onStateChange: (Sic20FormState) -> Unit
+) {
 
-    var type by remember {
-        mutableStateOf(
-            "2 - Concreto"
-        )
-    }
+    val classOptions = listOf(
+        "12 - Badén",
+        "13 - Túnel",
+        "14 - Muro"
+    )
 
-    var dimension1 by remember {
-        mutableStateOf("")
-    }
+    val typeOptions =
+        when (state.classCode) {
 
-    var dimension2 by remember {
-        mutableStateOf("")
-    }
+            "12" -> listOf(
+                "1 - Gavión",
+                "2 - Concreto",
+                "3 - Mampostería",
+                "4 - Concreto ciclópeo",
+                "5 - Piedra",
+                "6 - Otro"
+            )
 
-    var structuralCondition by remember {
-        mutableStateOf("1 - Buena")
-    }
+            "13" -> listOf(
+                "1 - Concreto",
+                "2 - Mampostería",
+                "3 - Concreto ciclópeo",
+                "4 - Roca",
+                "5 - Otro"
+            )
 
-    var functionalCondition by remember {
-        mutableStateOf(
-            "1 - Buena · limpia"
-        )
-    }
+            "14" -> listOf(
+                "1 - Gavión",
+                "2 - Concreto",
+                "3 - Mampostería",
+                "4 - Concreto ciclópeo",
+                "5 - Piedra",
+                "6 - Otro"
+            )
+
+            else ->
+                listOf(
+                    "1 - Otro"
+                )
+        }
+
+
+    val structuralOptions = listOf(
+        "1 - Buena · no tiene problema",
+        "2 - Regular · puede tener problemas",
+        "3 - Mala · necesita repararse"
+    )
+
+    val functionalOptions = listOf(
+        "1 - Buena · limpia",
+        "2 - Regular · parcialmente obstruida",
+        "3 - Mala · totalmente obstruida"
+    )
+
 
     SectionTitle(
-        "SIC-20 · Badén"
+        "SIC-20 · Badenes, túneles y muros"
     )
 
     Text(
-        text =
-            "Clase: 12 - Badén",
-        fontWeight =
-            FontWeight.Bold
+        "Inventario Vial Calificado",
+        fontWeight = FontWeight.Bold,
+        style =
+            MaterialTheme.typography.bodySmall
     )
 
-    Spacer(
-        modifier =
-            Modifier.height(8.dp)
-    )
 
     Text(
-        text = "Tipo",
-        fontWeight =
-            FontWeight.Bold
+        "Clase",
+        fontWeight = FontWeight.Bold
     )
 
     ChoiceSelector(
-        options = listOf(
-            "1 - Gavión",
-            "2 - Concreto",
-            "3 - Mampostería",
-            "4 - Concreto ciclópeo",
-            "5 - Piedra",
-            "6 - Otro"
+        options = classOptions,
+        selected = optionForCode(
+            classOptions,
+            state.classCode
         ),
-        selected = type,
         onSelected = {
-            type = it
+
+            onStateChange(
+                state.copy(
+                    classCode =
+                        codeFromOption(it),
+
+                    typeCode =
+                        if (
+                            codeFromOption(it) ==
+                            "12"
+                        )
+                            "2"
+                        else
+                            "1",
+
+                    dimension2M = ""
+                )
+            )
         }
     )
 
-    Spacer(
-        modifier =
-            Modifier.height(10.dp)
+
+    Text(
+        "Tipo",
+        fontWeight = FontWeight.Bold
     )
 
+    ChoiceSelector(
+        options = typeOptions,
+        selected = optionForCode(
+            typeOptions,
+            state.typeCode
+        ),
+        onSelected = {
+
+            onStateChange(
+                state.copy(
+                    typeCode =
+                        codeFromOption(it)
+                )
+            )
+        }
+    )
+
+
     OutlinedTextField(
-        value = dimension1,
+        value = state.dimension1M,
         onValueChange = {
-            dimension1 = it
-        },
-        label = {
-            Text(
-                "Dimensión 1 · ancho de rodadura (m)"
+
+            onStateChange(
+                state.copy(
+                    dimension1M = it
+                )
             )
         },
+        label = {
+
+            Text(
+                when (state.classCode) {
+
+                    "12" ->
+                        "Dimensión 1 · ancho de rodadura (m)"
+
+                    "13" ->
+                        "Dimensión 1 · ancho del túnel (m)"
+
+                    "14" ->
+                        "Dimensión 1 · altura promedio del muro (m)"
+
+                    else ->
+                        "Dimensión 1 (m)"
+                }
+            )
+        },
+
         modifier =
             Modifier.fillMaxWidth()
     )
 
-    OutlinedTextField(
-        value = dimension2,
-        onValueChange = {
-            dimension2 = it
-        },
-        label = {
-            Text(
-                "Dimensión 2 · ancho total con protección contra erosión (m)"
-            )
-        },
-        modifier =
-            Modifier.fillMaxWidth()
-    )
 
-    Spacer(
-        modifier =
-            Modifier.height(12.dp)
-    )
+    if (state.usesDimension2) {
+
+        OutlinedTextField(
+            value =
+                state.dimension2M,
+
+            onValueChange = {
+
+                onStateChange(
+                    state.copy(
+                        dimension2M = it
+                    )
+                )
+            },
+
+            label = {
+
+                Text(
+                    when (state.classCode) {
+
+                        "12" ->
+                            "Dimensión 2 · ancho total con protección contra erosión (m)"
+
+                        "13" ->
+                            "Dimensión 2 · altura útil (m)"
+
+                        else ->
+                            "Dimensión 2 (m)"
+                    }
+                )
+            },
+
+            modifier =
+                Modifier.fillMaxWidth()
+        )
+    }
+
 
     Text(
-        text =
-            "Condición estructural",
-        fontWeight =
-            FontWeight.Bold
+        "Condición estructural",
+        fontWeight = FontWeight.Bold
     )
 
     ChoiceSelector(
-        options = listOf(
-            "1 - Buena · no tiene problema",
-            "2 - Regular · puede tener problemas",
-            "3 - Mala · necesita repararse"
+        options = structuralOptions,
+        selected = optionForCode(
+            structuralOptions,
+            state.structuralConditionCode
         ),
-        selected =
-            structuralCondition,
         onSelected = {
-            structuralCondition = it
+
+            onStateChange(
+                state.copy(
+                    structuralConditionCode =
+                        codeFromOption(it)
+                )
+            )
         }
     )
 
-    Text(
-        text =
+
+    if (state.usesFunctionalCondition) {
+
+        Text(
             "Condición funcional",
-        fontWeight =
-            FontWeight.Bold
-    )
+            fontWeight = FontWeight.Bold
+        )
 
-    ChoiceSelector(
-        options = listOf(
-            "1 - Buena · limpia",
-            "2 - Regular · parcialmente obstruida",
-            "3 - Mala · totalmente obstruida"
-        ),
-        selected =
-            functionalCondition,
-        onSelected = {
-            functionalCondition = it
-        }
-    )
+        ChoiceSelector(
+            options = functionalOptions,
+            selected = optionForCode(
+                functionalOptions,
+                state.functionalConditionCode
+            ),
+            onSelected = {
+
+                onStateChange(
+                    state.copy(
+                        functionalConditionCode =
+                            codeFromOption(it)
+                    )
+                )
+            }
+        )
+    }
 }
 
 
 // =========================================================
-// SIC-17 · PUENTE · BASE INICIAL
+// SIC-17 · PUENTES
+// INVENTARIO VIAL CALIFICADO
 // =========================================================
 
 @Composable
-fun BridgeFields() {
+fun Sic17Fields(
+    state: Sic17FormState,
+    onStateChange: (Sic17FormState) -> Unit
+) {
 
-    var bridgeCode by remember {
-        mutableStateOf("")
-    }
-
-    var bridgeName by remember {
-        mutableStateOf("")
-    }
-
-    var bridgeClass by remember {
-        mutableStateOf(
-            "01 - Puente Definitivo"
-        )
-    }
-
-    var spans by remember {
-        mutableStateOf("")
-    }
-
-    var length by remember {
-        mutableStateOf("")
-    }
-
-    var lowerHeight by remember {
-        mutableStateOf("")
-    }
-
-    var structuralCondition by remember {
-        mutableStateOf("1 - Buena")
-    }
-
-    var functionalCondition by remember {
-        mutableStateOf("1 - Buena")
-    }
-
-    SectionTitle(
-        "SIC-17 · Puente · base inicial"
+    val classOptions = listOf(
+        "01 - Puente Definitivo",
+        "02 - Puente Provisional",
+        "03 - Estructura Artesanal",
+        "04 - Puente Histórico"
     )
 
+    val typeOptions =
+        when (state.classCode) {
+
+            "01" -> listOf(
+                "1 - Losa",
+                "2 - Losa con Vigas",
+                "3 - Celular estilo Alcantarilla",
+                "4 - Pórtico",
+                "5 - Reticulado",
+                "6 - Arco",
+                "7 - Atirantado",
+                "8 - Colgante",
+                "9 - Otro"
+            )
+
+            "02" -> listOf(
+                "1 - Modular",
+                "2 - Yawata",
+                "3 - Otro"
+            )
+
+            "03" -> listOf(
+                "1 - Vigas de Troncos de Madera",
+                "2 - Vigas de Rieles de Ferrocarril",
+                "3 - Otro"
+            )
+
+            "04" -> listOf(
+                "1 - Mampostería de Piedra",
+                "2 - Otro"
+            )
+
+            else -> listOf(
+                "1 - Otro"
+            )
+        }
+
+    val inventoriedOptions = listOf(
+        "S - Sí",
+        "N - No"
+    )
+
+    val structuralOptions = listOf(
+        "1 - Buena",
+        "2 - Regular",
+        "3 - Mala"
+    )
+
+    val functionalOptions = listOf(
+        "1 - Buena · limpia",
+        "2 - Regular · parcialmente obstruida",
+        "3 - Mala · totalmente obstruida"
+    )
+
+    val serviceOptions = listOf(
+        "0 - Fuera de servicio",
+        "1 - Vehicular",
+        "2 - Ferroviario",
+        "3 - Peatonal",
+        "4 - Otro"
+    )
+
+    val singularityOptions = listOf(
+        "1 - Río",
+        "2 - Quebrada",
+        "3 - Canal",
+        "4 - Camino",
+        "5 - Vía Férrea",
+        "6 - Otro"
+    )
+
+
+    SectionTitle(
+        "SIC-17 · Puentes"
+    )
+
+    Text(
+        "Inventario Vial Calificado",
+        fontWeight = FontWeight.Bold,
+        style = MaterialTheme.typography.bodySmall
+    )
+
+
+    Text(
+        "Clase",
+        fontWeight = FontWeight.Bold
+    )
+
+    ChoiceSelector(
+        options = classOptions,
+        selected = optionForCode(
+            classOptions,
+            state.classCode
+        ),
+        onSelected = {
+
+            onStateChange(
+                state.copy(
+                    classCode =
+                        codeFromOption(it),
+
+                    typeCode = "1"
+                )
+            )
+        }
+    )
+
+
+    Text(
+        "Tipo",
+        fontWeight = FontWeight.Bold
+    )
+
+    ChoiceSelector(
+        options = typeOptions,
+        selected = optionForCode(
+            typeOptions,
+            state.typeCode
+        ),
+        onSelected = {
+
+            onStateChange(
+                state.copy(
+                    typeCode =
+                        codeFromOption(it)
+                )
+            )
+        }
+    )
+
+
     OutlinedTextField(
-        value = bridgeCode,
+        value = state.bridgeCode,
         onValueChange = {
-            bridgeCode =
-                it.uppercase()
+
+            onStateChange(
+                state.copy(
+                    bridgeCode =
+                        it.uppercase()
+                )
+            )
         },
         label = {
             Text("Código del puente")
@@ -3349,42 +4070,42 @@ fun BridgeFields() {
             Modifier.fillMaxWidth()
     )
 
-    OutlinedTextField(
-        value = bridgeName,
-        onValueChange = {
-            bridgeName = it
-        },
-        label = {
-            Text("Nombre del puente")
-        },
-        modifier =
-            Modifier.fillMaxWidth()
-    )
 
     Text(
-        text = "Clase",
-        fontWeight =
-            FontWeight.Bold
+        "Inventariado",
+        fontWeight = FontWeight.Bold
     )
 
     ChoiceSelector(
-        options = listOf(
-            "01 - Puente Definitivo",
-            "02 - Puente Provisional",
-            "03 - Estructura Artesanal",
-            "04 - Puente Histórico"
+        options = inventoriedOptions,
+        selected = optionForCode(
+            inventoriedOptions,
+            state.inventoriedCode
         ),
-        selected =
-            bridgeClass,
         onSelected = {
-            bridgeClass = it
+
+            onStateChange(
+                state.copy(
+                    inventoriedCode =
+                        codeFromOption(it)
+                )
+            )
         }
     )
 
+
     OutlinedTextField(
-        value = spans,
-        onValueChange = {
-            spans = it
+        value = state.spans,
+        onValueChange = { value ->
+
+            onStateChange(
+                state.copy(
+                    spans =
+                        value.filter {
+                            it.isDigit()
+                        }
+                )
+            )
         },
         label = {
             Text("Número de vanos")
@@ -3393,79 +4114,191 @@ fun BridgeFields() {
             Modifier.fillMaxWidth()
     )
 
+
     OutlinedTextField(
-        value = length,
+        value =
+            state.dimension1LengthM,
         onValueChange = {
-            length = it
+
+            onStateChange(
+                state.copy(
+                    dimension1LengthM = it
+                )
+            )
         },
         label = {
             Text(
-                "Dimensión 1 · longitud (m)"
+                "Dimensión 1 · longitud total (m)"
             )
         },
         modifier =
             Modifier.fillMaxWidth()
     )
 
+
     OutlinedTextField(
-        value = lowerHeight,
+        value =
+            state.dimension2LowerHeightM,
         onValueChange = {
-            lowerHeight = it
+
+            onStateChange(
+                state.copy(
+                    dimension2LowerHeightM = it
+                )
+            )
         },
         label = {
             Text(
-                "Dimensión 2 · altura inferior (m)"
+                "Dimensión 2 · altura libre inferior (m)"
             )
         },
         modifier =
             Modifier.fillMaxWidth()
     )
 
+
     Text(
-        text =
-            "Condición estructural",
-        fontWeight =
-            FontWeight.Bold
+        "Condición estructural",
+        fontWeight = FontWeight.Bold
     )
 
     ChoiceSelector(
-        options = listOf(
-            "1 - Buena",
-            "2 - Regular",
-            "3 - Mala"
+        options = structuralOptions,
+        selected = optionForCode(
+            structuralOptions,
+            state.structuralConditionCode
         ),
-        selected =
-            structuralCondition,
         onSelected = {
-            structuralCondition = it
+
+            onStateChange(
+                state.copy(
+                    structuralConditionCode =
+                        codeFromOption(it)
+                )
+            )
         }
     )
 
+
     Text(
-        text =
-            "Condición funcional",
-        fontWeight =
-            FontWeight.Bold
+        "Condición funcional",
+        fontWeight = FontWeight.Bold
     )
 
     ChoiceSelector(
-        options = listOf(
-            "1 - Buena",
-            "2 - Regular",
-            "3 - Mala"
+        options = functionalOptions,
+        selected = optionForCode(
+            functionalOptions,
+            state.functionalConditionCode
         ),
-        selected =
-            functionalCondition,
         onSelected = {
-            functionalCondition = it
+
+            onStateChange(
+                state.copy(
+                    functionalConditionCode =
+                        codeFromOption(it)
+                )
+            )
         }
     )
 
+
     Text(
-        text =
-            "SIC-17 tiene formatos adicionales 17A y 17B. Los completaremos cuando el cliente confirme si también los requiere.",
-        style =
-            MaterialTheme.typography.bodySmall
+        "Tipo de servicio",
+        fontWeight = FontWeight.Bold
+    )
+
+    ChoiceSelector(
+        options = serviceOptions,
+        selected = optionForCode(
+            serviceOptions,
+            state.serviceTypeCode
+        ),
+        onSelected = {
+
+            onStateChange(
+                state.copy(
+                    serviceTypeCode =
+                        codeFromOption(it)
+                )
+            )
+        }
+    )
+
+
+    Text(
+        "Singularidad salvada",
+        fontWeight = FontWeight.Bold
+    )
+
+    ChoiceSelector(
+        options = singularityOptions,
+        selected = optionForCode(
+            singularityOptions,
+            state.singularityCode
+        ),
+        onSelected = {
+
+            onStateChange(
+                state.copy(
+                    singularityCode =
+                        codeFromOption(it)
+                )
+            )
+        }
+    )
+
+
+    OutlinedTextField(
+        value =
+            state.singularityName,
+        onValueChange = {
+
+            onStateChange(
+                state.copy(
+                    singularityName =
+                        it.uppercase()
+                )
+            )
+        },
+        label = {
+            Text(
+                "Nombre de la singularidad"
+            )
+        },
+        placeholder = {
+            Text(
+                "Ej. RÍO RÍMAC"
+            )
+        },
+        modifier =
+            Modifier.fillMaxWidth()
+    )
+
+
+    OutlinedTextField(
+        value =
+            state.dimension3UpperHeightM,
+        onValueChange = {
+
+            onStateChange(
+                state.copy(
+                    dimension3UpperHeightM = it
+                )
+            )
+        },
+        label = {
+            Text(
+                "Dimensión 3 · altura libre superior (m)"
+            )
+        },
+        supportingText = {
+            Text(
+                "Si no existe limitación de altura, el manual indica 00.00."
+            )
+        },
+        modifier =
+            Modifier.fillMaxWidth()
     )
 }
 
@@ -3473,7 +4306,25 @@ fun BridgeFields() {
 // =========================================================
 // COMPONENTES AUXILIARES
 // =========================================================
+private fun codeFromOption(
+    option: String
+): String {
 
+    return option
+        .substringBefore(" - ")
+        .trim()
+}
+
+
+private fun optionForCode(
+    options: List<String>,
+    code: String
+): String {
+
+    return options.firstOrNull {
+        codeFromOption(it) == code
+    } ?: options.first()
+}
 @Composable
 fun ChoiceSelector(
     options: List<String>,
@@ -3557,6 +4408,11 @@ fun ErrorText(
 fun PreviewInventarioVial() {
 
     InventarioVialTheme {
-        InventarioVialApp()
+
+        HomeScreen(
+            recordsToday = 0,
+            pendingSync = 0,
+            onAssetSelected = {}
+        )
     }
 }

@@ -25,8 +25,8 @@ enum class RoadAssetType(
     ),
 
     FORD(
-        "Badén",
-        "Badén / drenaje transversal",
+        "Badén, túnel o muro",
+        "Badenes, túneles y muros",
         "SIC-20"
     ),
 

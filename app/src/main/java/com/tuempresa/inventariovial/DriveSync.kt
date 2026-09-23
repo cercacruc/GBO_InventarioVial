@@ -12,7 +12,8 @@ import androidx.work.WorkManager
 
 fun scheduleDriveUpload(
     context: Context,
-    photoPath: String
+    photoPath: String,
+    driveFileName: String
 ) {
 
     val constraints =
@@ -28,6 +29,10 @@ fun scheduleDriveUpload(
             .putString(
                 "photoPath",
                 photoPath
+            )
+            .putString(
+                "driveFileName",
+                driveFileName
             )
             .build()
 
@@ -45,16 +50,10 @@ fun scheduleDriveUpload(
             .build()
 
 
-    val fileName =
-        java.io.File(
-            photoPath
-        ).name
-
-
     WorkManager
         .getInstance(context)
         .enqueueUniqueWork(
-            "drive-upload-$fileName",
+            "drive-upload-$driveFileName",
             ExistingWorkPolicy.KEEP,
             workRequest
         )
