@@ -80,5 +80,8 @@ data class InventoryRecordEntity(
 
     val createdAt: Long,
 
-    val updatedAt: Long
+    val updatedAt: Long,
+    val endLatitude: Double? = null,
+    val endLongitude: Double? = null,
+    val endGpsAccuracyM: Double? = null
 )

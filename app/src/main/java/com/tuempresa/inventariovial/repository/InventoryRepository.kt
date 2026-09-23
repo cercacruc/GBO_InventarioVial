@@ -41,7 +41,7 @@ class InventoryRepository(
     suspend fun saveSic17(
         record: InventoryRecordEntity,
         detail: Sic17Entity,
-        photo: PhotoEntity
+        photos: List<PhotoEntity>
     ) {
 
         database.withTransaction {
@@ -50,7 +50,7 @@ class InventoryRepository(
 
             dao.insertSic17(detail)
 
-            dao.insertPhoto(photo)
+            dao.insertPhotos(photos)
         }
     }
 
@@ -58,7 +58,7 @@ class InventoryRepository(
     suspend fun saveSic18(
         record: InventoryRecordEntity,
         detail: Sic18Entity,
-        photo: PhotoEntity
+        photos: List<PhotoEntity>
     ) {
 
         database.withTransaction {
@@ -67,7 +67,7 @@ class InventoryRepository(
 
             dao.insertSic18(detail)
 
-            dao.insertPhoto(photo)
+            dao.insertPhotos(photos)
         }
     }
 
@@ -75,7 +75,7 @@ class InventoryRepository(
     suspend fun saveSic19(
         record: InventoryRecordEntity,
         detail: Sic19Entity,
-        photo: PhotoEntity
+        photos: List<PhotoEntity>
     ) {
 
         database.withTransaction {
@@ -84,7 +84,7 @@ class InventoryRepository(
 
             dao.insertSic19(detail)
 
-            dao.insertPhoto(photo)
+            dao.insertPhotos(photos)
         }
     }
 
@@ -92,7 +92,7 @@ class InventoryRepository(
     suspend fun saveSic20(
         record: InventoryRecordEntity,
         detail: Sic20Entity,
-        photo: PhotoEntity
+        photos: List<PhotoEntity>
     ) {
 
         database.withTransaction {
@@ -101,7 +101,7 @@ class InventoryRepository(
 
             dao.insertSic20(detail)
 
-            dao.insertPhoto(photo)
+            dao.insertPhotos(photos)
         }
     }
 
@@ -109,7 +109,7 @@ class InventoryRepository(
     suspend fun saveSic21(
         record: InventoryRecordEntity,
         detail: Sic21Entity,
-        photo: PhotoEntity
+        photos: List<PhotoEntity>
     ) {
 
         database.withTransaction {
@@ -118,7 +118,7 @@ class InventoryRepository(
 
             dao.insertSic21(detail)
 
-            dao.insertPhoto(photo)
+            dao.insertPhotos(photos)
         }
     }
 
@@ -126,7 +126,7 @@ class InventoryRepository(
     suspend fun saveSic22(
         record: InventoryRecordEntity,
         detail: Sic22Entity,
-        photo: PhotoEntity
+        photos: List<PhotoEntity>
     ) {
 
         database.withTransaction {
@@ -135,7 +135,7 @@ class InventoryRepository(
 
             dao.insertSic22(detail)
 
-            dao.insertPhoto(photo)
+            dao.insertPhotos(photos)
         }
     }
 }

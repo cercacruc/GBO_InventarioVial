@@ -19,6 +19,40 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface InventoryDao {
+    @androidx.room.Transaction
+    @Query("SELECT * FROM inventory_records ORDER BY routeCode, roadbedCode, CAST(startPrCode AS REAL) * 1000 + startDistanceM, createdAt")
+    fun observeHistory(): Flow<List<com.tuempresa.inventariovial.data.entity.InventoryRecordWithPhotos>>
+
+    @Query("SELECT photos.* FROM photos INNER JOIN inventory_records ON photos.recordId = inventory_records.id WHERE photos.syncStatus != 'SYNCED' AND inventory_records.status = 'ACTIVE'")
+    suspend fun pendingPhotos(): List<PhotoEntity>
+
+    @Query("SELECT * FROM photos WHERE id = :id LIMIT 1")
+    fun photoById(id: String): PhotoEntity?
+
+    @Query("SELECT * FROM photos WHERE localPath = :path LIMIT 1")
+    fun photoByPath(path: String): PhotoEntity?
+
+    @androidx.room.Transaction
+    fun completePhotoUpload(photoPath: String, driveFileId: String?) {
+        markPhotoSynced(photoPath, driveFileId)
+        photoByPath(photoPath)?.let { refreshRecordPhotoStatus(it.recordId) }
+    }
+
+    @Query("SELECT status FROM inventory_records WHERE id = :recordId")
+    fun recordStatus(recordId: String): String?
+
+    @Query("UPDATE inventory_records SET status = :status, excelSyncStatus = 'PENDING', updatedAt = :now WHERE id = :id")
+    suspend fun setRecordStatus(id: String, status: String, now: Long)
+
+    @Query("UPDATE inventory_records SET routeCode = :route, roadbedCode = :roadbed, startPrCode = :startPr, startDistanceM = :startDistance, endPrCode = :endPr, endDistanceM = :endDistance, sideCode = :side, observations = :observations, excelSyncStatus = 'PENDING', updatedAt = :now WHERE id = :id")
+    suspend fun updateCoreFields(id: String, route: String, roadbed: String, startPr: String, startDistance: Double, endPr: String?, endDistance: Double?, side: String?, observations: String?, now: Long)
+
+    @Query("UPDATE inventory_records SET photoSyncStatus = CASE WHEN EXISTS (SELECT 1 FROM photos WHERE photos.recordId = inventory_records.id AND syncStatus != 'SYNCED') THEN 'PENDING' ELSE 'SYNCED' END WHERE id = :recordId")
+    fun refreshRecordPhotoStatus(recordId: String)
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertPhotos(photos: List<PhotoEntity>)
+
 
     // =====================================================
     // INSERTAR REGISTRO PRINCIPAL
@@ -127,8 +161,8 @@ interface InventoryDao {
     @Query(
         """
         SELECT COUNT(*)
-        FROM photos
-        WHERE syncStatus != 'SYNCED'
+        FROM photos INNER JOIN inventory_records ON photos.recordId = inventory_records.id
+        WHERE photos.syncStatus != 'SYNCED' AND inventory_records.status = 'ACTIVE'
         """
     )
     fun observePendingPhotoCount():

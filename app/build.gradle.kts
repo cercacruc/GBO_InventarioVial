@@ -1,8 +1,17 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
 }
+
+val driveProperties = Properties().apply {
+    val config = rootProject.file("drive.local.properties")
+    if (config.exists()) config.inputStream().use { load(it) }
+}
+val driveApiToken = driveProperties.getProperty("DRIVE_API_TOKEN", "")
+    .replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r")
 
 android {
     namespace = "com.tuempresa.inventariovial"
@@ -11,6 +20,7 @@ android {
     }
 
     defaultConfig {
+        buildConfigField("String", "DRIVE_API_TOKEN", "\"$driveApiToken\"")
         applicationId = "com.tuempresa.inventariovial"
         minSdk = 26
         targetSdk = 37
@@ -33,6 +43,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

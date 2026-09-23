@@ -110,6 +110,49 @@ class InventoryViewModel(
             )
 
 
+    val history = database.inventoryDao().observeHistory().stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+    private var saving = false
+
+    fun syncPending(onResult: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val photos = database.inventoryDao().pendingPhotos()
+                photos.forEach { enqueuePhoto(it) }
+                onResult("Fotografías programadas: ${photos.size}")
+            } catch (error: Exception) {
+                onResult(error.message ?: "No se pudo programar la sincronización.")
+            }
+        }
+    }
+
+    private fun enqueuePhoto(photo: PhotoEntity) {
+        scheduleDriveUpload(getApplication(), photo.localPath,
+            photo.generatedFileName ?: java.io.File(photo.localPath).name, photo.id, photo.recordId)
+    }
+
+    fun setRecordStatus(id: String, active: Boolean, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                database.inventoryDao().setRecordStatus(id, if (active) "ACTIVE" else "ANNULLED", System.currentTimeMillis())
+            } catch (error: Exception) { onError(error.message ?: "No se pudo cambiar el estado.") }
+        }
+    }
+
+    fun updateCoreFields(record: InventoryRecordEntity, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                require(record.routeCode.isNotBlank() && record.roadbedCode.isNotBlank()) { "Ruta y calzada son obligatorias." }
+                require(record.startDistanceM.isFinite() && record.startDistanceM >= 0) { "Distancia inicial inválida." }
+                require(record.endDistanceM == null || (record.endDistanceM.isFinite() && record.endDistanceM >= 0)) { "Distancia final inválida." }
+                database.inventoryDao().updateCoreFields(record.id, record.routeCode.trim().uppercase(),
+                    record.roadbedCode.trim().uppercase(), normalizeRequiredPr(record.startPrCode), record.startDistanceM,
+                    normalizeOptionalPr(record.endPrCode), record.endDistanceM, record.sideCode, record.observations, System.currentTimeMillis())
+                onSuccess()
+            } catch (error: Exception) { onError(error.message ?: "No se pudo editar el registro.") }
+        }
+    }
+
     // =========================================================
     // GUARDAR REGISTRO
     // =========================================================
@@ -120,9 +163,12 @@ class InventoryViewModel(
         onError: (String) -> Unit
     ) {
 
+        if (saving) return
+        saving = true
         viewModelScope.launch {
-
             try {
+                require(request.photoPaths.isNotEmpty()) { "Debes tomar una fotografía." }
+                require(request.photoPaths.all { java.io.File(it).isFile }) { "No se encontró una fotografía." }
 
                 // -------------------------------------------------
                 // IDENTIFICADORES ÚNICOS
@@ -279,6 +325,9 @@ class InventoryViewModel(
                             now,
 
 
+                        endLatitude = request.endLatitude,
+                        endLongitude = request.endLongitude,
+                        endGpsAccuracyM = request.endGpsAccuracyM?.toDouble(),
                         updatedAt =
                             now
                     )
@@ -340,6 +389,11 @@ class InventoryViewModel(
                 // SIC-17
                 // =================================================
 
+                val photos = request.photoPaths.distinct().mapIndexed { index, path ->
+                    photo.copy(id = UUID.randomUUID().toString(), localPath = path,
+                        photoIndex = index + 1, isPrimary = index == 0,
+                        generatedFileName = buildDriveFileName(request, index + 1))
+                }
                 when (
                     val detail =
                         request.detail
@@ -458,8 +512,7 @@ class InventoryViewModel(
                                 ),
 
 
-                            photo =
-                                photo
+                            photos = photos
                         )
                     }
 
@@ -541,8 +594,7 @@ class InventoryViewModel(
                                 ),
 
 
-                            photo =
-                                photo
+                            photos = photos
                         )
                     }
 
@@ -594,8 +646,7 @@ class InventoryViewModel(
                                 ),
 
 
-                            photo =
-                                photo
+                            photos = photos
                         )
                     }
 
@@ -681,8 +732,7 @@ class InventoryViewModel(
                                 ),
 
 
-                            photo =
-                                photo
+                            photos = photos
                         )
                     }
 
@@ -729,8 +779,7 @@ class InventoryViewModel(
                                 ),
 
 
-                            photo =
-                                photo
+                            photos = photos
                         )
                     }
 
@@ -826,8 +875,7 @@ class InventoryViewModel(
                                 ),
 
 
-                            photo =
-                                photo
+                            photos = photos
                         )
                     }
                 }
@@ -839,25 +887,8 @@ class InventoryViewModel(
                 // SOLO DESPUÉS PROGRAMAMOS LA SUBIDA A DRIVE.
                 // =================================================
 
-                scheduleDriveUpload(
-
-                    context =
-                        getApplication(),
-
-
-                    photoPath =
-                        request.photoPath,
-
-
-                    driveFileName =
-                        driveFileName
-                )
-
-
-                // -------------------------------------------------
-                // AVISAR A LA INTERFAZ
-                // -------------------------------------------------
-
+                // Local save has committed; scheduling can be retried from Home.
+                runCatching { photos.forEach { enqueuePhoto(it) } }
                 onSuccess()
 
 
@@ -869,6 +900,8 @@ class InventoryViewModel(
                     error.message
                         ?: "No se pudo guardar el registro."
                 )
+            } finally {
+                saving = false
             }
         }
     }

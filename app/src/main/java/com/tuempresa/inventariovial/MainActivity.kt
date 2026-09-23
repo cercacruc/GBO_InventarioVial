@@ -76,6 +76,19 @@ import com.tuempresa.inventariovial.model.form.SicFormDetail
 
 import com.tuempresa.inventariovial.viewmodel.InventoryViewModel
 
+
+// =========================================================
+// UBICACIÓN GPS AUXILIAR
+// Se usa para guardar la ubicación final de un elemento.
+// =========================================================
+
+data class GeoLocation(
+    val latitude: Double,
+    val longitude: Double,
+    val accuracyHorizontal: Float
+)
+
+
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(
@@ -124,6 +137,8 @@ fun InventarioVialApp(
     InventoryViewModel
 ) {
 
+    var showHistory by remember { mutableStateOf(false) }
+    var syncMessage by remember { mutableStateOf<String?>(null) }
     var selectedAsset by remember {
         mutableStateOf<RoadAssetType?>(null)
     }
@@ -154,10 +169,14 @@ fun InventarioVialApp(
         ) {
 
             when {
+                showHistory -> RecordHistoryScreen(inventoryViewModel) { showHistory = false }
 
                 selectedAsset == null -> {
 
                     HomeScreen(
+                        onHistory = { showHistory = true },
+                        onSync = { inventoryViewModel.syncPending { syncMessage = it } },
+                        syncMessage = syncMessage,
                         recordsToday = recordsToday,
                         pendingSync = pendingSync,
                         onAssetSelected = {
@@ -225,7 +244,10 @@ fun InventarioVialApp(
 fun HomeScreen(
     recordsToday: Int,
     pendingSync: Int,
-    onAssetSelected: (RoadAssetType) -> Unit
+    onAssetSelected: (RoadAssetType) -> Unit,
+    onHistory: () -> Unit = {},
+    onSync: () -> Unit = {},
+    syncMessage: String? = null
 ) {
 
     LazyColumn(
@@ -260,6 +282,13 @@ fun HomeScreen(
 
         item {
             ProjectCard()
+        }
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedButton(onClick = onHistory) { Text("Ver registros") }
+                OutlinedButton(onClick = onSync) { Text("Sincronizar") }
+            }
+            syncMessage?.let { Text(it) }
         }
 
         item {
@@ -601,6 +630,8 @@ fun SignalizationFormScreen(
     }
 
     // Foto
+    var capturedPhotos by remember { mutableStateOf<List<String>>(emptyList()) }
+    var endLocation by remember { mutableStateOf<GeoLocation?>(null) }
     var photoPath by remember {
         mutableStateOf<String?>(null)
     }
@@ -794,7 +825,9 @@ fun SignalizationFormScreen(
                     .TakePicture()
         ) { success ->
 
-            photoCaptured = success
+            if (success) photoPath?.let { capturedPhotos = capturedPhotos + it }
+            photoCaptured = capturedPhotos.isNotEmpty()
+            photoPath = capturedPhotos.lastOrNull()
 
             if (success) {
 
@@ -853,7 +886,6 @@ fun SignalizationFormScreen(
             photoPath =
                 photo.file.absolutePath
 
-            photoCaptured = false
             photoError = null
 
             takePictureLauncher.launch(
@@ -974,6 +1006,20 @@ fun SignalizationFormScreen(
             }
         }
 
+        item {
+            Text("Fotografías del elemento: ${capturedPhotos.size}")
+            capturedPhotos.forEachIndexed { index, path ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("Fotografía ${index + 1}")
+                    OutlinedButton(onClick = {
+                        capturedPhotos = capturedPhotos - path
+                        photoPath = capturedPhotos.lastOrNull()
+                        photoCaptured = capturedPhotos.isNotEmpty()
+                    }) { Text("Quitar") }
+                }
+            }
+            FinalLocationCapture(endLocation) { endLocation = it }
+        }
         if (
             photoCaptured &&
             photoPath != null
@@ -1513,7 +1559,11 @@ fun SignalizationFormScreen(
                                             observations =
                                                 observations,
 
-                                            photoPath = path,
+                                            photoPath = capturedPhotos.first(),
+                                            photoPaths = capturedPhotos,
+                                            endLatitude = endLocation?.latitude,
+                                            endLongitude = endLocation?.longitude,
+                                            endGpsAccuracyM = endLocation?.accuracyHorizontal,
 
                                             detail = detail
                                         ),
@@ -2100,6 +2150,8 @@ fun AssetFormScreen(
         ).format(Date())
     }
 
+    var capturedPhotos by remember { mutableStateOf<List<String>>(emptyList()) }
+    var endLocation by remember { mutableStateOf<GeoLocation?>(null) }
     var photoPath by remember {
         mutableStateOf<String?>(null)
     }
@@ -2274,7 +2326,9 @@ fun AssetFormScreen(
                     .TakePicture()
         ) { success ->
 
-            photoCaptured = success
+            if (success) photoPath?.let { capturedPhotos = capturedPhotos + it }
+            photoCaptured = capturedPhotos.isNotEmpty()
+            photoPath = capturedPhotos.lastOrNull()
 
             if (success) {
 
@@ -2336,7 +2390,6 @@ fun AssetFormScreen(
             photoPath =
                 photo.file.absolutePath
 
-            photoCaptured = false
             photoError = null
 
             takePictureLauncher.launch(
@@ -2488,6 +2541,20 @@ fun AssetFormScreen(
             }
         }
 
+        item {
+            Text("Fotografías del elemento: ${capturedPhotos.size}")
+            capturedPhotos.forEachIndexed { index, path ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("Fotografía ${index + 1}")
+                    OutlinedButton(onClick = {
+                        capturedPhotos = capturedPhotos - path
+                        photoPath = capturedPhotos.lastOrNull()
+                        photoCaptured = capturedPhotos.isNotEmpty()
+                    }) { Text("Quitar") }
+                }
+            }
+            FinalLocationCapture(endLocation) { endLocation = it }
+        }
         if (
             photoCaptured &&
             photoPath != null
@@ -3176,7 +3243,11 @@ fun AssetFormScreen(
                                             observations =
                                                 observations,
 
-                                            photoPath = path,
+                                            photoPath = capturedPhotos.first(),
+                                            photoPaths = capturedPhotos,
+                                            endLatitude = endLocation?.latitude,
+                                            endLongitude = endLocation?.longitude,
+                                            endGpsAccuracyM = endLocation?.accuracyHorizontal,
 
                                             detail = detail
                                         ),
@@ -4300,6 +4371,219 @@ fun Sic17Fields(
         modifier =
             Modifier.fillMaxWidth()
     )
+}
+
+
+
+// =========================================================
+// CAPTURA DE UBICACIÓN GPS FINAL
+// =========================================================
+
+@Composable
+fun FinalLocationCapture(
+    location: GeoLocation?,
+    onLocationCaptured: (GeoLocation) -> Unit
+) {
+
+    val context =
+        LocalContext.current
+
+    var locating by remember {
+        mutableStateOf(false)
+    }
+
+    var errorMessage by remember {
+        mutableStateOf<String?>(null)
+    }
+
+
+    fun hasLocationPermission(): Boolean {
+
+        val finePermission =
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+
+        val coarsePermission =
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+
+        return finePermission || coarsePermission
+    }
+
+
+    fun captureFinalLocation() {
+
+        if (!hasLocationPermission()) {
+
+            errorMessage =
+                "No hay permiso de ubicación. Regresa al formulario y autoriza el GPS."
+
+            return
+        }
+
+
+        locating = true
+        errorMessage = null
+
+
+        getCurrentGpsLocation(
+            context = context,
+
+            onSuccess = {
+                    latitude,
+                    longitude,
+                    accuracy ->
+
+                onLocationCaptured(
+                    GeoLocation(
+                        latitude = latitude,
+                        longitude = longitude,
+                        accuracyHorizontal = accuracy
+                    )
+                )
+
+                locating = false
+            },
+
+            onError = { error ->
+
+                locating = false
+                errorMessage = error
+            }
+        )
+    }
+
+
+    Spacer(
+        modifier =
+            Modifier.height(12.dp)
+    )
+
+
+    SectionTitle(
+        "Ubicación GPS final"
+    )
+
+
+    Text(
+        text =
+            "Captura la posición al finalizar el elemento o tramo. " +
+                    "Para elementos puntuales puede dejarse sin registrar.",
+        style =
+            MaterialTheme.typography.bodySmall
+    )
+
+
+    Spacer(
+        modifier =
+            Modifier.height(8.dp)
+    )
+
+
+    OutlinedButton(
+        onClick = {
+            captureFinalLocation()
+        },
+
+        enabled =
+            !locating,
+
+        modifier =
+            Modifier.fillMaxWidth()
+    ) {
+
+        Text(
+            if (locating) {
+                "Obteniendo ubicación final..."
+            } else if (location == null) {
+                "Capturar ubicación final"
+            } else {
+                "Actualizar ubicación final"
+            }
+        )
+    }
+
+
+    if (location != null) {
+
+        Spacer(
+            modifier =
+                Modifier.height(8.dp)
+        )
+
+
+        Card(
+            modifier =
+                Modifier.fillMaxWidth()
+        ) {
+
+            Column(
+                modifier =
+                    Modifier.padding(16.dp)
+            ) {
+
+                Text(
+                    text =
+                        "✓ Ubicación final obtenida",
+                    fontWeight =
+                        FontWeight.Bold
+                )
+
+
+                Text(
+                    text =
+                        "Latitud: ${
+                            String.format(
+                                Locale.US,
+                                "%.8f",
+                                location.latitude
+                            )
+                        }"
+                )
+
+
+                Text(
+                    text =
+                        "Longitud: ${
+                            String.format(
+                                Locale.US,
+                                "%.8f",
+                                location.longitude
+                            )
+                        }"
+                )
+
+
+                Text(
+                    text =
+                        "Precisión: ${
+                            String.format(
+                                Locale.US,
+                                "± %.1f m",
+                                location.accuracyHorizontal
+                            )
+                        }"
+                )
+            }
+        }
+    }
+
+
+    errorMessage?.let { error ->
+
+        Spacer(
+            modifier =
+                Modifier.height(8.dp)
+        )
+
+        ErrorText(
+            error
+        )
+    }
 }
 
 

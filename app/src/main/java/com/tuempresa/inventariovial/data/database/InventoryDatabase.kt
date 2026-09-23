@@ -2,6 +2,8 @@ package com.tuempresa.inventariovial.data.database
 
 import android.content.Context
 
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -29,7 +31,7 @@ import com.tuempresa.inventariovial.data.entity.Sic22Entity
         Sic22Entity::class
     ],
 
-    version = 1,
+    version = 2,
 
     exportSchema = false
 )
@@ -41,6 +43,14 @@ abstract class InventoryDatabase :
 
 
     companion object {
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE inventory_records ADD COLUMN endLatitude REAL")
+                db.execSQL("ALTER TABLE inventory_records ADD COLUMN endLongitude REAL")
+                db.execSQL("ALTER TABLE inventory_records ADD COLUMN endGpsAccuracyM REAL")
+            }
+        }
+
 
         @Volatile
         private var INSTANCE:
@@ -60,6 +70,7 @@ abstract class InventoryDatabase :
                             InventoryDatabase::class.java,
                             "inventario_vial.db"
                         )
+                            .addMigrations(MIGRATION_1_2)
                             .build()
 
                     INSTANCE = instance

@@ -66,5 +66,9 @@ data class InventorySaveRequest(
 
     val photoPath: String,
 
-    val detail: SicFormDetail
+    val detail: SicFormDetail,
+    val photoPaths: List<String> = listOf(photoPath),
+    val endLatitude: Double? = null,
+    val endLongitude: Double? = null,
+    val endGpsAccuracyM: Float? = null
 )

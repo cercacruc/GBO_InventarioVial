@@ -51,6 +51,14 @@ class DriveUploadWorker(
     // =========================================================
 
     override fun doWork(): Result {
+        val photoId = inputData.getString("photoId")
+        val photo = photoId?.let { inventoryDao.photoById(it) }
+            ?: inputData.getString("photoPath")?.let { inventoryDao.photoByPath(it) }
+        if (photoId != null && photo == null) return Result.failure()
+        if (photo?.syncStatus == "SYNCED") return Result.success()
+        if (photo != null && inventoryDao.recordStatus(photo.recordId) != "ACTIVE") return Result.success()
+        if (DriveConfig.API_TOKEN.isBlank()) return Result.failure()
+
 
         Log.d(
             TAG,
@@ -586,7 +594,7 @@ class DriveUploadWorker(
                     // -------------------------------------------------
 
                     inventoryDao
-                        .markPhotoSynced(
+                        .completePhotoUpload(
                             photoPath = photoPath,
                             driveFileId = driveFileId
                         )
