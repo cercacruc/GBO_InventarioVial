@@ -86,6 +86,17 @@ class DriveUploadWorker(
                 "driveFileName"
             )
 
+        val routeCode =
+            inputData.getString(
+                "routeCode"
+            )
+
+
+        val sibCode =
+            inputData.getString(
+                "sibCode"
+            )
+
 
         // -----------------------------------------------------
         // 2. VALIDAR RUTA LOCAL
@@ -129,6 +140,48 @@ class DriveUploadWorker(
         }
 
 
+        // -----------------------------------------------------
+        // 3B. VALIDAR RUTA Y CARPETA SIB
+        // -----------------------------------------------------
+
+        if (
+            routeCode.isNullOrBlank()
+        ) {
+
+            Log.e(
+                TAG,
+                "ERROR: WorkManager no recibió routeCode"
+            )
+
+            inventoryDao
+                .updatePhotoSyncStatusByPath(
+                    photoPath = photoPath,
+                    status = "ERROR"
+                )
+
+            return Result.failure()
+        }
+
+
+        if (
+            sibCode.isNullOrBlank()
+        ) {
+
+            Log.e(
+                TAG,
+                "ERROR: WorkManager no recibió sibCode"
+            )
+
+            inventoryDao
+                .updatePhotoSyncStatusByPath(
+                    photoPath = photoPath,
+                    status = "ERROR"
+                )
+
+            return Result.failure()
+        }
+
+
         Log.d(
             TAG,
             "Ruta local recibida: $photoPath"
@@ -138,6 +191,18 @@ class DriveUploadWorker(
         Log.d(
             TAG,
             "Nombre para Drive: $driveFileName"
+        )
+
+
+        Log.d(
+            TAG,
+            "Ruta Drive: $routeCode"
+        )
+
+
+        Log.d(
+            TAG,
+            "Carpeta SIB: $sibCode"
         )
 
 
@@ -210,7 +275,9 @@ class DriveUploadWorker(
             uploadFile(
                 file = file,
                 photoPath = photoPath,
-                driveFileName = driveFileName
+                driveFileName = driveFileName,
+                routeCode = routeCode,
+                sibCode = sibCode
             )
 
         } catch (
@@ -246,7 +313,9 @@ class DriveUploadWorker(
     private fun uploadFile(
         file: File,
         photoPath: String,
-        driveFileName: String
+        driveFileName: String,
+        routeCode: String,
+        sibCode: String
     ): Result {
 
         Log.d(
@@ -310,6 +379,18 @@ class DriveUploadWorker(
                 put(
                     "fileName",
                     driveFileName
+                )
+
+
+                put(
+                    "routeCode",
+                    routeCode
+                )
+
+
+                put(
+                    "sibCode",
+                    sibCode
                 )
 
 

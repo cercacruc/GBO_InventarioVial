@@ -32,6 +32,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.UUID
 
+import com.tuempresa.inventariovial.DriveFolderRouter
 
 class InventoryViewModel(
     application: Application
@@ -126,9 +127,69 @@ class InventoryViewModel(
         }
     }
 
-    private fun enqueuePhoto(photo: PhotoEntity) {
-        scheduleDriveUpload(getApplication(), photo.localPath,
-            photo.generatedFileName ?: java.io.File(photo.localPath).name, photo.id, photo.recordId)
+    private suspend fun enqueuePhoto(
+        photo: PhotoEntity
+    ) {
+
+        val record =
+            database
+                .inventoryDao()
+                .recordById(
+                    photo.recordId
+                )
+                ?: throw IllegalStateException(
+                    "No se encontró el registro asociado a la fotografía."
+                )
+
+
+        val routeCode =
+            record
+                .routeCode
+                .trim()
+                .uppercase()
+
+
+        val sibCode =
+            DriveFolderRouter
+                .resolveSib(
+                    sicCode =
+                        record.sicCode,
+
+                    assetType =
+                        record.assetType
+                )
+
+
+        val driveFileName =
+            photo
+                .generatedFileName
+                ?: java.io.File(
+                    photo.localPath
+                ).name
+
+
+        scheduleDriveUpload(
+            context =
+                getApplication(),
+
+            photoPath =
+                photo.localPath,
+
+            driveFileName =
+                driveFileName,
+
+            routeCode =
+                routeCode,
+
+            sibCode =
+                sibCode,
+
+            photoId =
+                photo.id,
+
+            recordId =
+                photo.recordId
+        )
     }
 
     fun setRecordStatus(id: String, active: Boolean, onError: (String) -> Unit) {

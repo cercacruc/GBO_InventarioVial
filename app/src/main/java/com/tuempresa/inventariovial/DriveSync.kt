@@ -14,6 +14,8 @@ fun scheduleDriveUpload(
     context: Context,
     photoPath: String,
     driveFileName: String,
+    routeCode: String,
+    sibCode: String,
     photoId: String? = null,
     recordId: String? = null
 ) {
@@ -28,8 +30,14 @@ fun scheduleDriveUpload(
 
     val inputData =
         Data.Builder()
-            .putString("photoId", photoId)
-            .putString("recordId", recordId)
+            .putString(
+                "photoId",
+                photoId
+            )
+            .putString(
+                "recordId",
+                recordId
+            )
             .putString(
                 "photoPath",
                 photoPath
@@ -38,13 +46,19 @@ fun scheduleDriveUpload(
                 "driveFileName",
                 driveFileName
             )
+            .putString(
+                "routeCode",
+                routeCode
+            )
+            .putString(
+                "sibCode",
+                sibCode
+            )
             .build()
 
 
     val workRequest =
-        OneTimeWorkRequestBuilder<
-                DriveUploadWorker
-                >()
+        OneTimeWorkRequestBuilder<DriveUploadWorker>()
             .setConstraints(
                 constraints
             )
@@ -58,7 +72,7 @@ fun scheduleDriveUpload(
         .getInstance(context)
         .enqueueUniqueWork(
             "drive-upload-${photoId ?: photoPath}",
-            ExistingWorkPolicy.KEEP,
+            ExistingWorkPolicy.REPLACE,
             workRequest
         )
 }

@@ -41,6 +41,19 @@ interface InventoryDao {
     @Query("SELECT status FROM inventory_records WHERE id = :recordId")
     fun recordStatus(recordId: String): String?
 
+    @Query(
+        """
+    SELECT *
+    FROM inventory_records
+    WHERE id = :recordId
+    LIMIT 1
+    """
+    )
+    suspend fun recordById(
+        recordId: String
+    ): InventoryRecordEntity?
+
+
     @Query("UPDATE inventory_records SET status = :status, excelSyncStatus = 'PENDING', updatedAt = :now WHERE id = :id")
     suspend fun setRecordStatus(id: String, status: String, now: Long)
 
