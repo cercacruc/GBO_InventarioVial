@@ -45,6 +45,9 @@ object DriveFolderRouter {
                 }
             }
 
+            // Convención de la aplicación: elementos de derecho de vía en SIB-02.
+            "SIC-23" -> "SIB-02"
+
             "SIC-22" ->
                 "SIB-07"
 

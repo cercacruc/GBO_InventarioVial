@@ -21,16 +21,21 @@ import java.util.concurrent.TimeUnit
 
 
 class DriveUploadWorker(
+
     context: Context,
+
     workerParams: WorkerParameters
+
 ) : Worker(
     context,
     workerParams
 ) {
 
+
     companion object {
 
-        const val TAG = "DriveSync"
+        const val TAG =
+            "DriveSync"
     }
 
 
@@ -51,13 +56,86 @@ class DriveUploadWorker(
     // =========================================================
 
     override fun doWork(): Result {
-        val photoId = inputData.getString("photoId")
-        val photo = photoId?.let { inventoryDao.photoById(it) }
-            ?: inputData.getString("photoPath")?.let { inventoryDao.photoByPath(it) }
-        if (photoId != null && photo == null) return Result.failure()
-        if (photo?.syncStatus == "SYNCED") return Result.success()
-        if (photo != null && inventoryDao.recordStatus(photo.recordId) != "ACTIVE") return Result.success()
-        if (DriveConfig.API_TOKEN.isBlank()) return Result.failure()
+
+
+        // =====================================================
+        // BUSCAR FOTO EN ROOM
+        // =====================================================
+
+        val photoId =
+            inputData.getString(
+                "photoId"
+            )
+
+
+        val photo =
+            photoId
+                ?.let {
+
+                    inventoryDao
+                        .photoById(
+                            it
+                        )
+                }
+
+                ?: inputData
+                    .getString(
+                        "photoPath"
+                    )
+                    ?.let {
+
+                        inventoryDao
+                            .photoByPath(
+                                it
+                            )
+                    }
+
+
+        // Si se indicó ID pero ya no existe.
+        if (
+            photoId != null &&
+            photo == null
+        ) {
+
+            return Result.failure()
+        }
+
+
+        // Ya sincronizada.
+        if (
+            photo?.syncStatus ==
+            "SYNCED"
+        ) {
+
+            return Result.success()
+        }
+
+
+        // Registro anulado.
+        if (
+            photo != null &&
+            inventoryDao.recordStatus(
+                photo.recordId
+            ) != "ACTIVE"
+        ) {
+
+            return Result.success()
+        }
+
+
+        // Token no configurado.
+        if (
+            DriveConfig.API_TOKEN
+                .isBlank()
+        ) {
+
+            Log.e(
+                TAG,
+                "API_TOKEN vacío"
+            )
+
+            return Result.failure()
+        }
 
 
         Log.d(
@@ -65,15 +143,16 @@ class DriveUploadWorker(
             "=============================="
         )
 
+
         Log.d(
             TAG,
             "DriveUploadWorker iniciado"
         )
 
 
-        // -----------------------------------------------------
-        // 1. OBTENER DATOS DESDE WORKMANAGER
-        // -----------------------------------------------------
+        // =====================================================
+        // 1. DATOS DE WORKMANAGER
+        // =====================================================
 
         val photoPath =
             inputData.getString(
@@ -85,6 +164,7 @@ class DriveUploadWorker(
             inputData.getString(
                 "driveFileName"
             )
+
 
         val routeCode =
             inputData.getString(
@@ -98,9 +178,15 @@ class DriveUploadWorker(
             )
 
 
-        // -----------------------------------------------------
-        // 2. VALIDAR RUTA LOCAL
-        // -----------------------------------------------------
+        val sicCode =
+            inputData.getString(
+                "sicCode"
+            )
+
+
+        // =====================================================
+        // 2. VALIDACIONES
+        // =====================================================
 
         if (
             photoPath.isNullOrBlank()
@@ -115,10 +201,6 @@ class DriveUploadWorker(
         }
 
 
-        // -----------------------------------------------------
-        // 3. VALIDAR NOMBRE DEFINITIVO DE DRIVE
-        // -----------------------------------------------------
-
         if (
             driveFileName.isNullOrBlank()
         ) {
@@ -131,18 +213,17 @@ class DriveUploadWorker(
 
             inventoryDao
                 .updatePhotoSyncStatusByPath(
-                    photoPath = photoPath,
-                    status = "ERROR"
+                    photoPath =
+                        photoPath,
+
+                    status =
+                        "ERROR"
                 )
 
 
             return Result.failure()
         }
 
-
-        // -----------------------------------------------------
-        // 3B. VALIDAR RUTA Y CARPETA SIB
-        // -----------------------------------------------------
 
         if (
             routeCode.isNullOrBlank()
@@ -153,11 +234,16 @@ class DriveUploadWorker(
                 "ERROR: WorkManager no recibió routeCode"
             )
 
+
             inventoryDao
                 .updatePhotoSyncStatusByPath(
-                    photoPath = photoPath,
-                    status = "ERROR"
+                    photoPath =
+                        photoPath,
+
+                    status =
+                        "ERROR"
                 )
+
 
             return Result.failure()
         }
@@ -172,15 +258,48 @@ class DriveUploadWorker(
                 "ERROR: WorkManager no recibió sibCode"
             )
 
+
             inventoryDao
                 .updatePhotoSyncStatusByPath(
-                    photoPath = photoPath,
-                    status = "ERROR"
+                    photoPath =
+                        photoPath,
+
+                    status =
+                        "ERROR"
                 )
+
 
             return Result.failure()
         }
 
+
+        if (
+            sicCode.isNullOrBlank()
+        ) {
+
+            Log.e(
+                TAG,
+                "ERROR: WorkManager no recibió sicCode"
+            )
+
+
+            inventoryDao
+                .updatePhotoSyncStatusByPath(
+                    photoPath =
+                        photoPath,
+
+                    status =
+                        "ERROR"
+                )
+
+
+            return Result.failure()
+        }
+
+
+        // =====================================================
+        // LOG DE DATOS
+        // =====================================================
 
         Log.d(
             TAG,
@@ -206,20 +325,30 @@ class DriveUploadWorker(
         )
 
 
-        // -----------------------------------------------------
-        // 4. MARCAR COMO UPLOADING
-        // -----------------------------------------------------
+        Log.d(
+            TAG,
+            "Formato SIC: $sicCode"
+        )
+
+
+        // =====================================================
+        // 3. MARCAR UPLOADING
+        // =====================================================
 
         inventoryDao
             .updatePhotoSyncStatusByPath(
-                photoPath = photoPath,
-                status = "UPLOADING"
+
+                photoPath =
+                    photoPath,
+
+                status =
+                    "UPLOADING"
             )
 
 
-        // -----------------------------------------------------
-        // 5. COMPROBAR ARCHIVO LOCAL
-        // -----------------------------------------------------
+        // =====================================================
+        // 4. COMPROBAR ARCHIVO LOCAL
+        // =====================================================
 
         val file =
             File(
@@ -239,8 +368,12 @@ class DriveUploadWorker(
 
             inventoryDao
                 .updatePhotoSyncStatusByPath(
-                    photoPath = photoPath,
-                    status = "ERROR"
+
+                    photoPath =
+                        photoPath,
+
+                    status =
+                        "ERROR"
                 )
 
 
@@ -266,19 +399,33 @@ class DriveUploadWorker(
         )
 
 
-        // -----------------------------------------------------
-        // 6. INTENTAR SUBIDA
-        // -----------------------------------------------------
+        // =====================================================
+        // 5. SUBIR
+        // =====================================================
 
         return try {
 
             uploadFile(
-                file = file,
-                photoPath = photoPath,
-                driveFileName = driveFileName,
-                routeCode = routeCode,
-                sibCode = sibCode
+
+                file =
+                    file,
+
+                photoPath =
+                    photoPath,
+
+                driveFileName =
+                    driveFileName,
+
+                routeCode =
+                    routeCode,
+
+                sibCode =
+                    sibCode,
+
+                sicCode =
+                    sicCode
             )
+
 
         } catch (
             error: Exception
@@ -291,13 +438,14 @@ class DriveUploadWorker(
             )
 
 
-            // Error posiblemente temporal.
-            // WorkManager podrá reintentar.
-
             inventoryDao
                 .updatePhotoSyncStatusByPath(
-                    photoPath = photoPath,
-                    status = "PENDING"
+
+                    photoPath =
+                        photoPath,
+
+                    status =
+                        "PENDING"
                 )
 
 
@@ -311,12 +459,21 @@ class DriveUploadWorker(
     // =========================================================
 
     private fun uploadFile(
+
         file: File,
+
         photoPath: String,
+
         driveFileName: String,
+
         routeCode: String,
-        sibCode: String
+
+        sibCode: String,
+
+        sicCode: String
+
     ): Result {
+
 
         Log.d(
             TAG,
@@ -324,9 +481,9 @@ class DriveUploadWorker(
         )
 
 
-        // -----------------------------------------------------
-        // LEER ARCHIVO
-        // -----------------------------------------------------
+        // =====================================================
+        // LEER FOTO
+        // =====================================================
 
         val bytes =
             file.readBytes()
@@ -338,13 +495,15 @@ class DriveUploadWorker(
         )
 
 
-        // -----------------------------------------------------
-        // CONVERTIR A BASE64
-        // -----------------------------------------------------
+        // =====================================================
+        // BASE64
+        // =====================================================
 
         val base64 =
             Base64.encodeToString(
+
                 bytes,
+
                 Base64.NO_WRAP
             )
 
@@ -355,26 +514,19 @@ class DriveUploadWorker(
         )
 
 
-        // -----------------------------------------------------
-        // CREAR JSON PARA APPS SCRIPT
-        // -----------------------------------------------------
+        // =====================================================
+        // JSON PARA APPS SCRIPT
+        // =====================================================
 
         val json =
             JSONObject().apply {
+
 
                 put(
                     "token",
                     DriveConfig.API_TOKEN
                 )
 
-
-                // IMPORTANTE:
-                // NO enviamos file.name.
-                //
-                // file.name es el nombre temporal local.
-                //
-                // driveFileName es el nombre oficial
-                // que queremos ver en Google Drive.
 
                 put(
                     "fileName",
@@ -391,6 +543,12 @@ class DriveUploadWorker(
                 put(
                     "sibCode",
                     sibCode
+                )
+
+
+                put(
+                    "sicCode",
+                    sicCode
                 )
 
 
@@ -419,9 +577,27 @@ class DriveUploadWorker(
         )
 
 
-        // -----------------------------------------------------
+        Log.d(
+            TAG,
+            "routeCode enviado: $routeCode"
+        )
+
+
+        Log.d(
+            TAG,
+            "sibCode enviado: $sibCode"
+        )
+
+
+        Log.d(
+            TAG,
+            "sicCode enviado: $sicCode"
+        )
+
+
+        // =====================================================
         // VALIDAR URL
-        // -----------------------------------------------------
+        // =====================================================
 
         Log.d(
             TAG,
@@ -430,11 +606,15 @@ class DriveUploadWorker(
 
 
         if (
-            DriveConfig.WEB_APP_URL.isBlank() ||
-            DriveConfig.WEB_APP_URL.contains(
-                "PEGA_AQUI",
-                ignoreCase = true
-            )
+            DriveConfig.WEB_APP_URL
+                .isBlank() ||
+
+            DriveConfig.WEB_APP_URL
+                .contains(
+                    "PEGA_AQUI",
+                    ignoreCase =
+                        true
+                )
         ) {
 
             Log.e(
@@ -445,8 +625,12 @@ class DriveUploadWorker(
 
             inventoryDao
                 .updatePhotoSyncStatusByPath(
-                    photoPath = photoPath,
-                    status = "ERROR"
+
+                    photoPath =
+                        photoPath,
+
+                    status =
+                        "ERROR"
                 )
 
 
@@ -454,58 +638,68 @@ class DriveUploadWorker(
         }
 
 
-        // -----------------------------------------------------
-        // CREAR BODY HTTP
-        // -----------------------------------------------------
+        // =====================================================
+        // BODY HTTP
+        // =====================================================
 
         val requestBody =
             json
                 .toString()
                 .toRequestBody(
+
                     "application/json; charset=utf-8"
                         .toMediaType()
                 )
 
 
-        // -----------------------------------------------------
-        // CREAR REQUEST
-        // -----------------------------------------------------
+        // =====================================================
+        // REQUEST
+        // =====================================================
 
         val request =
             Request.Builder()
+
                 .url(
                     DriveConfig.WEB_APP_URL
                 )
+
                 .post(
                     requestBody
                 )
+
                 .build()
 
 
-        // -----------------------------------------------------
+        // =====================================================
         // CLIENTE HTTP
-        // -----------------------------------------------------
+        // =====================================================
 
         val client =
             OkHttpClient.Builder()
+
                 .connectTimeout(
                     30,
                     TimeUnit.SECONDS
                 )
+
                 .readTimeout(
                     120,
                     TimeUnit.SECONDS
                 )
+
                 .writeTimeout(
                     120,
                     TimeUnit.SECONDS
                 )
+
                 .followRedirects(
                     true
                 )
+
                 .followSslRedirects(
                     true
                 )
+
                 .build()
 
 
@@ -515,9 +709,9 @@ class DriveUploadWorker(
         )
 
 
-        // -----------------------------------------------------
+        // =====================================================
         // EJECUTAR PETICIÓN
-        // -----------------------------------------------------
+        // =====================================================
 
         client
             .newCall(
@@ -546,9 +740,9 @@ class DriveUploadWorker(
                 )
 
 
-                // -------------------------------------------------
+                // =================================================
                 // ERROR HTTP
-                // -------------------------------------------------
+                // =================================================
 
                 if (
                     !response.isSuccessful
@@ -562,8 +756,12 @@ class DriveUploadWorker(
 
                     inventoryDao
                         .updatePhotoSyncStatusByPath(
-                            photoPath = photoPath,
-                            status = "PENDING"
+
+                            photoPath =
+                                photoPath,
+
+                            status =
+                                "PENDING"
                         )
 
 
@@ -571,9 +769,9 @@ class DriveUploadWorker(
                 }
 
 
-                // -------------------------------------------------
+                // =================================================
                 // RESPUESTA VACÍA
-                // -------------------------------------------------
+                // =================================================
 
                 if (
                     responseText.isBlank()
@@ -587,8 +785,12 @@ class DriveUploadWorker(
 
                     inventoryDao
                         .updatePhotoSyncStatusByPath(
-                            photoPath = photoPath,
-                            status = "PENDING"
+
+                            photoPath =
+                                photoPath,
+
+                            status =
+                                "PENDING"
                         )
 
 
@@ -596,9 +798,9 @@ class DriveUploadWorker(
                 }
 
 
-                // -------------------------------------------------
-                // INTERPRETAR JSON
-                // -------------------------------------------------
+                // =================================================
+                // JSON RESPUESTA
+                // =================================================
 
                 val jsonResponse =
                     try {
@@ -620,8 +822,12 @@ class DriveUploadWorker(
 
                         inventoryDao
                             .updatePhotoSyncStatusByPath(
-                                photoPath = photoPath,
-                                status = "PENDING"
+
+                                photoPath =
+                                    photoPath,
+
+                                status =
+                                    "PENDING"
                             )
 
 
@@ -637,9 +843,9 @@ class DriveUploadWorker(
                         )
 
 
-                // -------------------------------------------------
+                // =================================================
                 // SUBIDA EXITOSA
-                // -------------------------------------------------
+                // =================================================
 
                 if (
                     success
@@ -653,12 +859,6 @@ class DriveUploadWorker(
                             )
 
 
-                    // Apps Script puede devolver el ID
-                    // del archivo creado.
-                    //
-                    // Si actualmente no lo devuelve,
-                    // quedará null y no hay problema.
-
                     val driveFileId =
                         jsonResponse
                             .optString(
@@ -670,20 +870,24 @@ class DriveUploadWorker(
                             }
 
 
-                    // -------------------------------------------------
+                    // =============================================
                     // ACTUALIZAR ROOM
-                    // -------------------------------------------------
+                    // =============================================
 
                     inventoryDao
                         .completePhotoUpload(
-                            photoPath = photoPath,
-                            driveFileId = driveFileId
+
+                            photoPath =
+                                photoPath,
+
+                            driveFileId =
+                                driveFileId
                         )
 
 
-                    // -------------------------------------------------
+                    // =============================================
                     // LOG
-                    // -------------------------------------------------
+                    // =============================================
 
                     if (
                         alreadyExists
@@ -705,13 +909,19 @@ class DriveUploadWorker(
 
                     Log.d(
                         TAG,
-                        "Nombre local: ${file.name}"
+                        "Ruta: $routeCode"
                     )
 
 
                     Log.d(
                         TAG,
-                        "Nombre Drive: $driveFileName"
+                        "SIB: $sibCode"
+                    )
+
+
+                    Log.d(
+                        TAG,
+                        "SIC: $sicCode"
                     )
 
 
@@ -731,9 +941,9 @@ class DriveUploadWorker(
                 }
 
 
-                // -------------------------------------------------
+                // =================================================
                 // ERROR DEVUELTO POR APPS SCRIPT
-                // -------------------------------------------------
+                // =================================================
 
                 val serverError =
                     jsonResponse
@@ -749,14 +959,15 @@ class DriveUploadWorker(
                 )
 
 
-                // -------------------------------------------------
+                // =================================================
                 // TOKEN INCORRECTO
-                // -------------------------------------------------
+                // =================================================
 
                 if (
                     serverError.equals(
                         "No autorizado",
-                        ignoreCase = true
+                        ignoreCase =
+                            true
                     )
                 ) {
 
@@ -768,8 +979,12 @@ class DriveUploadWorker(
 
                     inventoryDao
                         .updatePhotoSyncStatusByPath(
-                            photoPath = photoPath,
-                            status = "ERROR"
+
+                            photoPath =
+                                photoPath,
+
+                            status =
+                                "ERROR"
                         )
 
 
@@ -777,14 +992,18 @@ class DriveUploadWorker(
                 }
 
 
-                // -------------------------------------------------
-                // OTRO ERROR DEL SERVIDOR
-                // -------------------------------------------------
+                // =================================================
+                // OTRO ERROR
+                // =================================================
 
                 inventoryDao
                     .updatePhotoSyncStatusByPath(
-                        photoPath = photoPath,
-                        status = "PENDING"
+
+                        photoPath =
+                            photoPath,
+
+                        status =
+                            "PENDING"
                     )
 
 

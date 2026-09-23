@@ -27,4 +27,4 @@ Se usa este archivo separado porque `local.properties` ya estaba versionado. Bui
 - Comprobación SQLite de conservación de datos, coincidencia con el esquema generado por Room, anulación/restauración y sincronización de varias fotos.
 - Prueba Android `InventoryMigrationTest`, con esquema de versión 1 y datos de ejemplo, para ejecutar en dispositivo o emulador.
 
-No se implementó conexión a un receptor GNSS Bluetooth, exportación Excel/GIS ni IA: el ZIP los describe como pendientes y no contiene esas implementaciones.
+La exportación Excel local SIC-17 a SIC-23 se añadió posteriormente; ver EXPORTACION_SIC.md. La conexión a un receptor GNSS Bluetooth, la exportación GIS y la IA siguen pendientes.

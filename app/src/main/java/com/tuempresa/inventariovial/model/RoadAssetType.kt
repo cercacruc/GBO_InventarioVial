@@ -30,6 +30,12 @@ enum class RoadAssetType(
         "SIC-20"
     ),
 
+    RIGHT_OF_WAY(
+        "Derecho de vía",
+        "Derecho de vía, zonas urbanas, puntos específicos y canteras",
+        "SIC-23"
+    ),
+
     BRIDGE(
         "Puente",
         "Inventario de puente",

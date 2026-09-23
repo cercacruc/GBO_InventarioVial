@@ -5,11 +5,13 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 
 import com.tuempresa.inventariovial.data.database.InventoryDatabase
 
 import com.tuempresa.inventariovial.data.entity.InventoryRecordEntity
+import com.tuempresa.inventariovial.data.entity.InventoryRecordWithPhotos
 import com.tuempresa.inventariovial.data.entity.PhotoEntity
 import com.tuempresa.inventariovial.data.entity.Sic17Entity
 import com.tuempresa.inventariovial.data.entity.Sic18Entity
@@ -17,9 +19,11 @@ import com.tuempresa.inventariovial.data.entity.Sic19Entity
 import com.tuempresa.inventariovial.data.entity.Sic20Entity
 import com.tuempresa.inventariovial.data.entity.Sic21Entity
 import com.tuempresa.inventariovial.data.entity.Sic22Entity
+import com.tuempresa.inventariovial.data.entity.Sic23Entity
 
 import com.tuempresa.inventariovial.model.form.InventorySaveRequest
 import com.tuempresa.inventariovial.model.form.SicFormDetail
+import com.tuempresa.inventariovial.model.form.Sic23FormState
 
 import com.tuempresa.inventariovial.repository.InventoryRepository
 
@@ -111,8 +115,23 @@ class InventoryViewModel(
             )
 
 
-    val history = database.inventoryDao().observeHistory().stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+    val history: StateFlow<List<InventoryRecordWithPhotos>> =
+        repository
+            .observeHistory()
+            .stateIn(
+                scope =
+                    viewModelScope,
+
+                started =
+                    SharingStarted
+                        .WhileSubscribed(
+                            5_000
+                        ),
+
+                initialValue =
+                    emptyList<InventoryRecordWithPhotos>()
+            )
+    val localExport = com.tuempresa.inventariovial.export.LocalSicExport(application, database, viewModelScope)
     private var saving = false
 
     fun syncPending(onResult: (String) -> Unit) {
@@ -149,11 +168,19 @@ class InventoryViewModel(
                 .uppercase()
 
 
+        val sicCode =
+            record
+                .sicCode
+                .trim()
+                .uppercase()
+
+
         val sibCode =
             DriveFolderRouter
                 .resolveSib(
+
                     sicCode =
-                        record.sicCode,
+                        sicCode,
 
                     assetType =
                         record.assetType
@@ -163,12 +190,14 @@ class InventoryViewModel(
         val driveFileName =
             photo
                 .generatedFileName
+
                 ?: java.io.File(
                     photo.localPath
                 ).name
 
 
         scheduleDriveUpload(
+
             context =
                 getApplication(),
 
@@ -183,6 +212,9 @@ class InventoryViewModel(
 
             sibCode =
                 sibCode,
+
+            sicCode =
+                sicCode,
 
             photoId =
                 photo.id,
@@ -206,6 +238,11 @@ class InventoryViewModel(
                 require(record.routeCode.isNotBlank() && record.roadbedCode.isNotBlank()) { "Ruta y calzada son obligatorias." }
                 require(record.startDistanceM.isFinite() && record.startDistanceM >= 0) { "Distancia inicial inválida." }
                 require(record.endDistanceM == null || (record.endDistanceM.isFinite() && record.endDistanceM >= 0)) { "Distancia final inválida." }
+                if (record.sicCode == "SIC-23") {
+                    Sic23FormState.locationError(record.routeCode, record.roadbedCode,
+                        record.startPrCode, record.startDistanceM.toString(), record.endPrCode,
+                        record.endDistanceM?.toString(), record.sideCode)?.let { throw IllegalArgumentException(it) }
+                }
                 database.inventoryDao().updateCoreFields(record.id, record.routeCode.trim().uppercase(),
                     record.roadbedCode.trim().uppercase(), normalizeRequiredPr(record.startPrCode), record.startDistanceM,
                     normalizeOptionalPr(record.endPrCode), record.endDistanceM, record.sideCode, record.observations, System.currentTimeMillis())
@@ -228,6 +265,13 @@ class InventoryViewModel(
         saving = true
         viewModelScope.launch {
             try {
+                if (request.detail is SicFormDetail.Sic23) {
+                    require(request.sicCode == "SIC-23") { "Formato SIC incompatible." }
+                    request.detail.state.validationError()?.let { throw IllegalArgumentException(it) }
+                    Sic23FormState.locationError(request.routeCode, request.roadbedCode,
+                        request.startPrCode, request.startDistanceM, request.endPrCode,
+                        request.endDistanceM, request.sideCode)?.let { throw IllegalArgumentException(it) }
+                }
                 require(request.photoPaths.isNotEmpty()) { "Debes tomar una fotografía." }
                 require(request.photoPaths.all { java.io.File(it).isFile }) { "No se encontró una fotografía." }
 
@@ -849,6 +893,16 @@ class InventoryViewModel(
                     // SIC-22
                     // =================================================
 
+                    is SicFormDetail.Sic23 -> {
+                        val state = detail.state
+                        repository.saveSic23(record, Sic23Entity(
+                            recordId = recordId, classCode = state.classCode,
+                            typeCode = state.typeCode.takeIf { state.typeOptions.isNotEmpty() },
+                            widthM = if (state.usesWidth) requiredDouble(state.widthM, "Ancho") else null,
+                            description = state.normalizedDescription()
+                        ), photos)
+                    }
+
                     is SicFormDetail.Sic22 -> {
 
                         val state =
@@ -1154,6 +1208,8 @@ class InventoryViewModel(
                 // -------------------------------------------------
                 // SIC-22
                 // -------------------------------------------------
+
+                is SicFormDetail.Sic23 -> detail.state.assetName
 
                 is SicFormDetail.Sic22 -> {
 

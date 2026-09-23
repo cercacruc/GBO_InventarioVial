@@ -2,6 +2,7 @@ package com.tuempresa.inventariovial.location
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.location.Location
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
@@ -16,7 +17,7 @@ class TabletLocationProvider(context: Context) : LocationProvider {
     ) {
         val cancellationToken = CancellationTokenSource()
         client.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, cancellationToken.token)
-            .addOnSuccessListener { location ->
+            .addOnSuccessListener { location: Location? ->
                 if (location == null) {
                     onError("No se pudo obtener la ubicación. Verifica que el GPS esté activado.")
                 } else {

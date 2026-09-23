@@ -2,6 +2,8 @@ package com.tuempresa.inventariovial.model.form
 
 
 sealed interface SicFormDetail {
+    data class Sic23(val state: Sic23FormState) : SicFormDetail
+
 
     data class Sic17(
         val state: Sic17FormState

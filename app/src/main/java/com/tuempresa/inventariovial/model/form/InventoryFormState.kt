@@ -34,5 +34,7 @@ data class InventoryFormState(
 
     // SIC-22
     val sic22: Sic22FormState =
-        Sic22FormState()
+        Sic22FormState(),
+
+    val sic23: Sic23FormState = Sic23FormState()
 )

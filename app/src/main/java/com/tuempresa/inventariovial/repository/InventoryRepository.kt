@@ -11,6 +11,7 @@ import com.tuempresa.inventariovial.data.entity.Sic19Entity
 import com.tuempresa.inventariovial.data.entity.Sic20Entity
 import com.tuempresa.inventariovial.data.entity.Sic21Entity
 import com.tuempresa.inventariovial.data.entity.Sic22Entity
+import com.tuempresa.inventariovial.data.entity.Sic23Entity
 
 
 class InventoryRepository(
@@ -32,6 +33,10 @@ class InventoryRepository(
 
     fun observePendingPhotoCount() =
         dao.observePendingPhotoCount()
+
+
+    fun observeHistory() =
+        dao.observeHistory()
 
 
     fun observeAllRecords() =
@@ -122,6 +127,14 @@ class InventoryRepository(
         }
     }
 
+
+    suspend fun saveSic23(record: InventoryRecordEntity, detail: Sic23Entity, photos: List<PhotoEntity>) {
+        database.withTransaction {
+            dao.insertRecord(record)
+            dao.insertSic23(detail)
+            dao.insertPhotos(photos)
+        }
+    }
 
     suspend fun saveSic22(
         record: InventoryRecordEntity,

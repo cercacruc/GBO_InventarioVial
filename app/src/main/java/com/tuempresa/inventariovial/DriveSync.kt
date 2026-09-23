@@ -11,14 +11,28 @@ import androidx.work.WorkManager
 
 
 fun scheduleDriveUpload(
+
     context: Context,
+
     photoPath: String,
+
     driveFileName: String,
+
     routeCode: String,
+
     sibCode: String,
+
+    sicCode: String,
+
     photoId: String? = null,
+
     recordId: String? = null
+
 ) {
+
+    // =========================================================
+    // REQUERIR INTERNET
+    // =========================================================
 
     val constraints =
         Constraints.Builder()
@@ -28,51 +42,85 @@ fun scheduleDriveUpload(
             .build()
 
 
+    // =========================================================
+    // DATOS QUE RECIBIRÁ DriveUploadWorker
+    // =========================================================
+
     val inputData =
         Data.Builder()
+
             .putString(
                 "photoId",
                 photoId
             )
+
             .putString(
                 "recordId",
                 recordId
             )
+
             .putString(
                 "photoPath",
                 photoPath
             )
+
             .putString(
                 "driveFileName",
                 driveFileName
             )
+
             .putString(
                 "routeCode",
                 routeCode
             )
+
             .putString(
                 "sibCode",
                 sibCode
             )
+
+            .putString(
+                "sicCode",
+                sicCode
+            )
+
             .build()
 
+
+    // =========================================================
+    // CREAR TRABAJO
+    // =========================================================
 
     val workRequest =
         OneTimeWorkRequestBuilder<DriveUploadWorker>()
+
             .setConstraints(
                 constraints
             )
+
             .setInputData(
                 inputData
             )
+
             .build()
 
 
+    // =========================================================
+    // PROGRAMAR SUBIDA
+    // =========================================================
+
     WorkManager
-        .getInstance(context)
+        .getInstance(
+            context
+        )
         .enqueueUniqueWork(
+
             "drive-upload-${photoId ?: photoPath}",
+
+            // REPLACE permite reemplazar trabajos antiguos
+            // que todavía no tenían routeCode / sibCode / sicCode.
             ExistingWorkPolicy.REPLACE,
+
             workRequest
         )
 }

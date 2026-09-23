@@ -17,6 +17,7 @@ import com.tuempresa.inventariovial.data.entity.Sic19Entity
 import com.tuempresa.inventariovial.data.entity.Sic20Entity
 import com.tuempresa.inventariovial.data.entity.Sic21Entity
 import com.tuempresa.inventariovial.data.entity.Sic22Entity
+import com.tuempresa.inventariovial.data.entity.Sic23Entity
 
 
 @Database(
@@ -28,10 +29,11 @@ import com.tuempresa.inventariovial.data.entity.Sic22Entity
         Sic19Entity::class,
         Sic20Entity::class,
         Sic21Entity::class,
-        Sic22Entity::class
+        Sic22Entity::class,
+        Sic23Entity::class
     ],
 
-    version = 2,
+    version = 3,
 
     exportSchema = false
 )
@@ -43,6 +45,16 @@ abstract class InventoryDatabase :
 
 
     companion object {
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""CREATE TABLE IF NOT EXISTS sic23_details (
+                    recordId TEXT NOT NULL, classCode TEXT NOT NULL, typeCode TEXT,
+                    widthM REAL, description TEXT NOT NULL, PRIMARY KEY(recordId),
+                    FOREIGN KEY(recordId) REFERENCES inventory_records(id) ON UPDATE NO ACTION ON DELETE CASCADE
+                )""".trimIndent())
+            }
+        }
+
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE inventory_records ADD COLUMN endLatitude REAL")
@@ -70,7 +82,7 @@ abstract class InventoryDatabase :
                             InventoryDatabase::class.java,
                             "inventario_vial.db"
                         )
-                            .addMigrations(MIGRATION_1_2)
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                             .build()
 
                     INSTANCE = instance

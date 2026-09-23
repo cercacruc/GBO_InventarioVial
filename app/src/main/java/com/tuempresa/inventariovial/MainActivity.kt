@@ -38,6 +38,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -67,6 +68,7 @@ import com.tuempresa.inventariovial.model.form.Sic19FormState
 import com.tuempresa.inventariovial.model.form.Sic20FormState
 import com.tuempresa.inventariovial.model.form.Sic21FormState
 import com.tuempresa.inventariovial.model.form.Sic22FormState
+import com.tuempresa.inventariovial.model.form.Sic23FormState
 
 import androidx.compose.runtime.collectAsState
 
@@ -138,6 +140,7 @@ fun InventarioVialApp(
     InventoryViewModel
 ) {
 
+    var showExport by rememberSaveable { mutableStateOf(false) }
     var showHistory by remember { mutableStateOf(false) }
     var syncMessage by remember { mutableStateOf<String?>(null) }
     var selectedAsset by remember {
@@ -170,11 +173,13 @@ fun InventarioVialApp(
         ) {
 
             when {
+                showExport -> SicExportScreen(inventoryViewModel) { showExport = false }
                 showHistory -> RecordHistoryScreen(inventoryViewModel) { showHistory = false }
 
                 selectedAsset == null -> {
 
                     HomeScreen(
+                        onExport = { showExport = true },
                         onHistory = { showHistory = true },
                         onSync = { inventoryViewModel.syncPending { syncMessage = it } },
                         syncMessage = syncMessage,
@@ -246,6 +251,7 @@ fun HomeScreen(
     recordsToday: Int,
     pendingSync: Int,
     onAssetSelected: (RoadAssetType) -> Unit,
+    onExport: () -> Unit = {},
     onHistory: () -> Unit = {},
     onSync: () -> Unit = {},
     syncMessage: String? = null
@@ -289,6 +295,7 @@ fun HomeScreen(
                 OutlinedButton(onClick = onHistory) { Text("Ver registros") }
                 OutlinedButton(onClick = onSync) { Text("Sincronizar") }
             }
+            OutlinedButton(onClick = onExport, modifier = Modifier.fillMaxWidth()) { Text("Exportar SIC a Excel") }
             syncMessage?.let { Text(it) }
         }
 
@@ -2218,6 +2225,8 @@ fun AssetFormScreen(
     }
 
 
+    var sic23State by remember(assetType) { mutableStateOf(Sic23FormState()) }
+
     fun hasLocationPermission(): Boolean {
 
         val fine =
@@ -2366,6 +2375,8 @@ fun AssetFormScreen(
 
             val prefix = when (assetType) {
 
+                RoadAssetType.RIGHT_OF_WAY -> "DERECHO_VIA"
+
                 RoadAssetType.CULVERT ->
                     "ALCANTARILLA"
 
@@ -2428,11 +2439,13 @@ fun AssetFormScreen(
     val needsEndLocation =
         assetType == RoadAssetType.DITCH ||
                 assetType == RoadAssetType.FORD ||
-                assetType == RoadAssetType.BRIDGE
+                assetType == RoadAssetType.BRIDGE ||
+                assetType == RoadAssetType.RIGHT_OF_WAY
 
     val needsSide =
         assetType == RoadAssetType.DITCH ||
-                assetType == RoadAssetType.FORD
+                assetType == RoadAssetType.FORD ||
+                assetType == RoadAssetType.RIGHT_OF_WAY
 
     val sideOptions =
         when (assetType) {
@@ -2443,7 +2456,7 @@ fun AssetFormScreen(
                     "I - Izquierdo"
                 )
 
-            RoadAssetType.FORD ->
+            RoadAssetType.FORD, RoadAssetType.RIGHT_OF_WAY ->
                 listOf(
                     "D - Derecho",
                     "I - Izquierdo",
@@ -2882,6 +2895,8 @@ fun AssetFormScreen(
 
             when (assetType) {
 
+                RoadAssetType.RIGHT_OF_WAY -> Sic23Fields(sic23State) { sic23State = it }
+
                 RoadAssetType.CULVERT -> {
 
                     Sic18Fields(
@@ -3135,6 +3150,8 @@ fun AssetFormScreen(
                                 val detail =
                                     when (assetType) {
 
+                                        RoadAssetType.RIGHT_OF_WAY -> SicFormDetail.Sic23(sic23State)
+
                                         RoadAssetType.BRIDGE ->
                                             SicFormDetail.Sic17(
                                                 sic17State
@@ -3164,6 +3181,8 @@ fun AssetFormScreen(
 
                                 val actualAssetType =
                                     when (assetType) {
+
+                                        RoadAssetType.RIGHT_OF_WAY -> sic23State.assetName
 
                                         RoadAssetType.BRIDGE ->
                                             "PUENTE"
@@ -4385,7 +4404,7 @@ fun Sic17Fields(
 // =========================================================
 // COMPONENTES AUXILIARES
 // =========================================================
-private fun codeFromOption(
+internal fun codeFromOption(
     option: String
 ): String {
 
@@ -4395,7 +4414,7 @@ private fun codeFromOption(
 }
 
 
-private fun optionForCode(
+internal fun optionForCode(
     options: List<String>,
     code: String
 ): String {

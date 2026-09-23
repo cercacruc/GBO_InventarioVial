@@ -67,7 +67,10 @@ fun RecordHistoryScreen(viewModel: InventoryViewModel, onBack: () -> Unit) {
             error?.let { ErrorText(it) }
         }
         if (records.isEmpty()) item { Text("Todavía no hay registros guardados.") }
-        items(records, key = { it.record.id }) { item ->
+        items(
+            items = records,
+            key = { item: InventoryRecordWithPhotos -> item.record.id }
+        ) { item ->
             HistoryRecordCard(item, viewModel) { error = it }
         }
     }
@@ -100,6 +103,12 @@ private fun HistoryRecordCard(
             Text(if (record.status == "ACTIVE") "Estado: activo" else "Estado: anulado")
             Text("GPS inicial: ${record.latitude}, ${record.longitude}")
             record.endLatitude?.let { Text("GPS final: $it, ${record.endLongitude}") }
+            item.sic23?.let { detail ->
+                Text("Clase: ${detail.classCode} · Tipo: ${detail.typeCode ?: "Sin objeto"}")
+                Text("Ancho: ${detail.widthM?.let { String.format(java.util.Locale.US, "%.2f m", it) } ?: "Sin objeto"}")
+                if (detail.description.isNotBlank()) Text("Descripción: ${detail.description}")
+                Text("Fin: PR ${record.endPrCode} + ${record.endDistanceM} · Lado: ${record.sideCode}")
+            }
             if (!editing) {
                 record.observations?.let { Text(it) }
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -109,14 +118,14 @@ private fun HistoryRecordCard(
                     }) { Text(if (record.status == "ACTIVE") "Anular" else "Restaurar") }
                 }
             } else {
-                OutlinedTextField(route, { route = it }, label = { Text("Ruta") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(roadbed, { roadbed = it }, label = { Text("Calzada") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(startPr, { startPr = it }, label = { Text("PR inicio") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(startDistance, { startDistance = it }, label = { Text("Distancia inicio (m)") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(endPr, { endPr = it }, label = { Text("PR fin") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(endDistance, { endDistance = it }, label = { Text("Distancia fin (m)") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(side, { side = it }, label = { Text("Lado") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(observations, { observations = it }, label = { Text("Observaciones") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = route, onValueChange = { route = it }, label = { Text("Ruta") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = roadbed, onValueChange = { roadbed = it }, label = { Text("Calzada") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = startPr, onValueChange = { startPr = it }, label = { Text("PR inicio") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = startDistance, onValueChange = { startDistance = it }, label = { Text("Distancia inicio (m)") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = endPr, onValueChange = { endPr = it }, label = { Text("PR fin") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = endDistance, onValueChange = { endDistance = it }, label = { Text("Distancia fin (m)") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = side, onValueChange = { side = it }, label = { Text("Lado") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = observations, onValueChange = { observations = it }, label = { Text("Observaciones") }, modifier = Modifier.fillMaxWidth())
                 editError?.let { ErrorText(it) }
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Button(enabled = !saving, onClick = {
