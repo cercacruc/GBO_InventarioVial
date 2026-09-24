@@ -77,9 +77,11 @@ fun loadCorrectlyOrientedBitmap(
     path: String
 ): Bitmap? {
 
-    val bitmap =
-        BitmapFactory.decodeFile(path)
-            ?: return null
+    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    BitmapFactory.decodeFile(path, bounds)
+    var sample = 1
+    while (maxOf(bounds.outWidth, bounds.outHeight) / sample > 1600) sample *= 2
+    val bitmap = BitmapFactory.decodeFile(path, BitmapFactory.Options().apply { inSampleSize = sample }) ?: return null
 
     return try {
 

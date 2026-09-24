@@ -13,6 +13,16 @@ val driveProperties = Properties().apply {
 val driveApiToken = driveProperties.getProperty("DRIVE_API_TOKEN", "")
     .replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r")
 
+val serverProperties = Properties().apply {
+    val config = rootProject.file("server.local.properties")
+    if (config.exists()) config.inputStream().use { load(it) }
+}
+fun localString(name: String) = serverProperties.getProperty(name, "")
+    .replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r")
+fun localFlag(name: String) = serverProperties.getProperty(name, "false").toBoolean().toString()
+
+ksp { arg("room.schemaLocation", "$projectDir/schemas") }
+
 android {
     namespace = "com.tuempresa.inventariovial"
     compileSdk {
@@ -21,6 +31,10 @@ android {
 
     defaultConfig {
         buildConfigField("String", "DRIVE_API_TOKEN", "\"$driveApiToken\"")
+        buildConfigField("String", "SERVER_BASE_URL", "\"${localString("SERVER_BASE_URL")}\"")
+        for (flag in listOf("ACCESS_CONTROL_ENABLED", "AI_ENABLED", "SIC17A_ENABLED", "SIC17B_ENABLED", "SIC18A_ENABLED")) {
+            buildConfigField("boolean", flag, localFlag(flag))
+        }
         applicationId = "com.tuempresa.inventariovial"
         minSdk = 26
         targetSdk = 37
@@ -45,6 +59,8 @@ android {
         compose = true
         buildConfig = true
     }
+    testOptions { unitTests.isIncludeAndroidResources = true }
+    sourceSets.getByName("androidTest").assets.srcDir("$projectDir/schemas")
 }
 
 dependencies {
@@ -57,6 +73,9 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     testImplementation(libs.junit)
+    testImplementation("org.robolectric:robolectric:4.16.1")
+    testImplementation("androidx.test:core:1.7.0")
+    testImplementation("org.json:json:20250517")
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)

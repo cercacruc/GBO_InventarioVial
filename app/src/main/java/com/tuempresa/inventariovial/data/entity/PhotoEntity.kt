@@ -51,5 +51,7 @@ data class PhotoEntity(
 
     val syncStatus: String,
 
-    val createdAt: Long
+    val createdAt: Long,
+    @androidx.room.ColumnInfo(defaultValue = "''") val originalPath: String = localPath,
+    val stampedPath: String? = null
 )

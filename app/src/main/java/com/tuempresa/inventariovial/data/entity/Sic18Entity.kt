@@ -38,5 +38,8 @@ data class Sic18Entity(
 
     val structuralConditionCode: String,
 
-    val functionalConditionCode: String
+    val functionalConditionCode: String,
+    val sectionShape: String? = null,
+    val structuralDamagePercent: Double? = null,
+    val functionalObstructionPercent: Double? = null
 )

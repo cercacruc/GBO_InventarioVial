@@ -18,6 +18,7 @@ import com.tuempresa.inventariovial.data.entity.Sic20Entity
 import com.tuempresa.inventariovial.data.entity.Sic21Entity
 import com.tuempresa.inventariovial.data.entity.Sic22Entity
 import com.tuempresa.inventariovial.data.entity.Sic23Entity
+import com.tuempresa.inventariovial.data.entity.*
 
 
 @Database(
@@ -30,12 +31,14 @@ import com.tuempresa.inventariovial.data.entity.Sic23Entity
         Sic20Entity::class,
         Sic21Entity::class,
         Sic22Entity::class,
-        Sic23Entity::class
+        Sic23Entity::class,
+        Sic17AEntity::class, Sic17BEntity::class, Sic18AEntity::class,
+        TrackPointEntity::class, FieldSession::class
     ],
 
-    version = 3,
+    version = 5,
 
-    exportSchema = false
+    exportSchema = true
 )
 abstract class InventoryDatabase :
     RoomDatabase() {
@@ -45,6 +48,8 @@ abstract class InventoryDatabase :
 
 
     companion object {
+        val MIGRATION_4_5 = InventoryMigrations.MIGRATION_4_5
+        val MIGRATION_3_4 = InventoryMigrations.MIGRATION_3_4
         val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("""CREATE TABLE IF NOT EXISTS sic23_details (
@@ -82,7 +87,7 @@ abstract class InventoryDatabase :
                             InventoryDatabase::class.java,
                             "inventario_vial.db"
                         )
-                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                             .build()
 
                     INSTANCE = instance

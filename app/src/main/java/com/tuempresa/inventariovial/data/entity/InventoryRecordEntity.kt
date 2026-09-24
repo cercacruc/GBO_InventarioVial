@@ -83,5 +83,21 @@ data class InventoryRecordEntity(
     val updatedAt: Long,
     val endLatitude: Double? = null,
     val endLongitude: Double? = null,
-    val endGpsAccuracyM: Double? = null
+    val endGpsAccuracyM: Double? = null,
+    @androidx.room.ColumnInfo(defaultValue = "'MANUAL'") val locationSource: String = "MANUAL",
+    @androidx.room.ColumnInfo(defaultValue = "'MANUAL'") val sideSource: String = "MANUAL",
+    val sessionId: String? = null,
+    val gpsTimestamp: Long? = null,
+    val endGpsTimestamp: Long? = null,
+    @androidx.room.ColumnInfo(defaultValue = "'TABLET'") val gnssProvider: String = "TABLET",
+    val gnssFixType: String? = null,
+    val verticalAccuracyM: Double? = null,
+    val satellites: Int? = null,
+    val hdop: Double? = null,
+    val correctionAge: Double? = null,
+    @androidx.room.ColumnInfo(defaultValue = "0") val isRtkFixed: Boolean = false,
+    @androidx.room.ColumnInfo(defaultValue = "'PENDING'") val serverSyncStatus: String = "PENDING",
+    val serverSyncError: String? = null,
+    val segment: String? = null,
+    val surveyDirection: String? = null
 )

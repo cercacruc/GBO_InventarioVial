@@ -26,7 +26,10 @@ class TabletLocationProvider(context: Context) : LocationProvider {
                             latitude = location.latitude,
                             longitude = location.longitude,
                             accuracyHorizontal = location.accuracy,
-                            altitude = if (location.hasAltitude()) location.altitude else null
+                            altitude = if (location.hasAltitude()) location.altitude else null,
+                            timestamp = location.time,
+                            verticalAccuracy = if (location.hasVerticalAccuracy()) location.verticalAccuracyMeters else null,
+                            fixType = "FUSED"
                         )
                     )
                 }

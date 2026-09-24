@@ -45,5 +45,10 @@ data class Sic18FormState(
     // 1 - Buena / limpia
     // 2 - Regular / parcialmente obstruida
     // 3 - Mala / totalmente obstruida
-    val functionalConditionCode: String = "1"
-)
+    val functionalConditionCode: String = "1",
+    val sectionShape: String = "CIRCULAR",
+    val structuralDamagePercent: String = "",
+    val functionalObstructionPercent: String = ""
+) {
+    val usesDimension2: Boolean get() = crossSectionCode != "2" || sectionShape != "CIRCULAR"
+}

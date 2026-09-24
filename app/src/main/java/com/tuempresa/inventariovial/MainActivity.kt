@@ -1,6 +1,15 @@
 package com.tuempresa.inventariovial
 
+import androidx.compose.material3.*
+import androidx.compose.foundation.layout.Box
+import com.tuempresa.inventariovial.field.*
 import android.Manifest
+import com.tuempresa.inventariovial.catalog.SicCatalogRepository
+import com.tuempresa.inventariovial.field.*
+import com.tuempresa.inventariovial.camera.PhotoStampData
+import com.tuempresa.inventariovial.data.entity.InventoryRecordEntity
+import com.tuempresa.inventariovial.location.TabletLocationProvider
+
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -33,6 +42,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.produceState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -140,6 +152,9 @@ fun InventarioVialApp(
     InventoryViewModel
 ) {
 
+    if (!DeviceAccessGate(inventoryViewModel)) return
+    SaveWarningsDialog(inventoryViewModel)
+    var selectedDraft by remember { mutableStateOf<InventoryRecordEntity?>(null) }
     var showExport by rememberSaveable { mutableStateOf(false) }
     var showHistory by remember { mutableStateOf(false) }
     var syncMessage by remember { mutableStateOf<String?>(null) }
@@ -179,6 +194,17 @@ fun InventarioVialApp(
                 selectedAsset == null -> {
 
                     HomeScreen(
+                        inventoryViewModel = inventoryViewModel,
+                        onResumeDraft = { draft ->
+                            selectedDraft = draft
+                            selectedAsset = when(draft.sicCode) {
+                                "SIC-19" -> RoadAssetType.DITCH
+                                "SIC-23" -> RoadAssetType.RIGHT_OF_WAY
+                                "SIC-21" -> RoadAssetType.SIGNALIZATION
+                                else -> when(draft.assetType) { "WALL", "MURO" -> RoadAssetType.WALL; "TUNNEL", "TUNEL" -> RoadAssetType.TUNNEL; else -> RoadAssetType.FORD }
+                            }
+                            if(draft.sicCode=="SIC-21") selectedSignalization = runCatching { SignalizationType.valueOf(draft.assetType) }.getOrDefault(SignalizationType.HORIZONTAL_MARKS)
+                        },
                         onExport = { showExport = true },
                         onHistory = { showHistory = true },
                         onSync = { inventoryViewModel.syncPending { syncMessage = it } },
@@ -186,6 +212,7 @@ fun InventarioVialApp(
                         recordsToday = recordsToday,
                         pendingSync = pendingSync,
                         onAssetSelected = {
+                            selectedDraft = null
                             selectedAsset = it
                         }
                     )
@@ -210,6 +237,7 @@ fun InventarioVialApp(
                         selectedSignalization != null -> {
 
                     SignalizationFormScreen(
+                        draftRecord = selectedDraft,
                         signalizationType = selectedSignalization!!,
                         inventoryViewModel = inventoryViewModel,
                         onBack = {
@@ -226,6 +254,7 @@ fun InventarioVialApp(
                 else -> {
 
                     AssetFormScreen(
+                        draftRecord = selectedDraft,
                         assetType = selectedAsset!!,
                         inventoryViewModel = inventoryViewModel,
                         onBack = {
@@ -254,7 +283,9 @@ fun HomeScreen(
     onExport: () -> Unit = {},
     onHistory: () -> Unit = {},
     onSync: () -> Unit = {},
-    syncMessage: String? = null
+    syncMessage: String? = null,
+    inventoryViewModel: InventoryViewModel? = null,
+    onResumeDraft: (InventoryRecordEntity) -> Unit = {}
 ) {
 
     LazyColumn(
@@ -288,7 +319,7 @@ fun HomeScreen(
         }
 
         item {
-            ProjectCard()
+            if(inventoryViewModel!=null) FieldHomePanel(inventoryViewModel,onResumeDraft) else ProjectCard()
         }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -592,26 +623,46 @@ fun SignalizationFormScreen(
     signalizationType: SignalizationType,
     inventoryViewModel: InventoryViewModel,
     onBack: () -> Unit,
-    onSave: () -> Unit
+    onSave: () -> Unit,
+    draftRecord: InventoryRecordEntity? = null
 ) {
 
     val context = LocalContext.current
+    val fieldSession by inventoryViewModel.field.session.collectAsState()
+    val survey = remember { SurveyPreferences(context) }
+    val prior = remember { survey.last()?.takeIf { it.sessionId == fieldSession?.sessionId } }
+    var segment by rememberSaveable { mutableStateOf(draftRecord?.segment ?: prior?.segment ?: fieldSession?.segment.orEmpty()) }
+    var direction by rememberSaveable { mutableStateOf(draftRecord?.surveyDirection ?: prior?.direction ?: fieldSession?.direction ?: "INCREASING") }
+
+    var draftId by rememberSaveable { mutableStateOf(draftRecord?.id) }
+    var location by remember { mutableStateOf(draftRecord?.let {
+        GeoLocation(it.latitude,it.longitude,it.gpsAccuracyM?.toFloat() ?: Float.POSITIVE_INFINITY,it.altitudeM,timestamp=it.gpsTimestamp ?: 0)
+    }) }
+    var locationSource by rememberSaveable { mutableStateOf("MANUAL") }
+    var sideSource by rememberSaveable { mutableStateOf("MANUAL") }
+    var stampedPaths by remember { mutableStateOf<Map<String,String>>(emptyMap()) }
+
 
     // Comunes SIC-21 / SIC-22
-    var route by remember {
-        mutableStateOf("")
+    var route by rememberSaveable {
+        mutableStateOf(draftRecord?.routeCode ?: prior?.route ?: fieldSession?.road.orEmpty())
     }
 
-    var roadbed by remember {
-        mutableStateOf("")
+    var roadbed by rememberSaveable {
+        mutableStateOf(draftRecord?.roadbedCode ?: prior?.roadbed ?: fieldSession?.roadbed.orEmpty())
     }
 
-    var startPr by remember {
-        mutableStateOf("")
+    var startPr by rememberSaveable {
+        mutableStateOf(draftRecord?.startPrCode ?: prior?.pr.orEmpty())
     }
 
-    var startDistance by remember {
-        mutableStateOf("")
+    var startDistance by rememberSaveable {
+        mutableStateOf(draftRecord?.startDistanceM?.toString().orEmpty())
+    }
+
+    LaunchedEffect(route, roadbed, startPr, startDistance, location, fieldSession?.operator) {
+        // A confirmed stamp must reflect the current form's location and operator.
+        stampedPaths = emptyMap()
     }
 
     var endPr by remember {
@@ -654,15 +705,15 @@ fun SignalizationFormScreen(
 
     // GPS
     var latitude by remember {
-        mutableStateOf<Double?>(null)
+        mutableStateOf<Double?>(location?.latitude)
     }
 
     var longitude by remember {
-        mutableStateOf<Double?>(null)
+        mutableStateOf<Double?>(location?.longitude)
     }
 
     var gpsAccuracy by remember {
-        mutableStateOf<Float?>(null)
+        mutableStateOf<Float?>(location?.horizontalAccuracy)
     }
 
     var locating by remember {
@@ -691,7 +742,7 @@ fun SignalizationFormScreen(
                     Sic21FormState(
                         classCode = "18",
                         typeCode = "1",
-                        materialCode = "5",
+                        materialCode = "",
                         conditionCode = "1"
                     )
 
@@ -707,7 +758,7 @@ fun SignalizationFormScreen(
                     Sic21FormState(
                         classCode = "20",
                         typeCode = "1",
-                        materialCode = "4",
+                        materialCode = "",
                         conditionCode = "1"
                     )
 
@@ -753,17 +804,12 @@ fun SignalizationFormScreen(
         locating = true
         locationError = null
 
-        getCurrentGpsLocation(
-            context = context,
-
-            onSuccess = {
-                    lat,
-                    lon,
-                    accuracy ->
-
-                latitude = lat
-                longitude = lon
-                gpsAccuracy = accuracy
+        TabletLocationProvider(context).getCurrentLocation(
+            onSuccess = { fix ->
+                latitude = fix.latitude
+                longitude = fix.longitude
+                gpsAccuracy = fix.horizontalAccuracy
+                location = fix
                 locating = false
             },
 
@@ -810,7 +856,7 @@ fun SignalizationFormScreen(
         }
 
     LaunchedEffect(signalizationType) {
-
+        if(draftRecord != null) return@LaunchedEffect
         if (hasLocationPermission()) {
 
             captureLocation()
@@ -841,11 +887,11 @@ fun SignalizationFormScreen(
 
                 photoError = null
 
-                if (hasLocationPermission()) {
+                if (location == null && hasLocationPermission()) {
 
                     captureLocation()
 
-                } else {
+                } else if (location == null) {
 
                     locationPermissionLauncher.launch(
                         arrayOf(
@@ -969,129 +1015,28 @@ fun SignalizationFormScreen(
             )
         }
 
-        // FOTO
         item {
-
-            SectionTitle("Fotografía")
-
-            Button(
-                onClick = {
-
-                    val permission =
-                        ContextCompat.checkSelfPermission(
-                            context,
-                            Manifest.permission.CAMERA
-                        )
-
-                    if (
-                        permission ==
-                        PackageManager.PERMISSION_GRANTED
-                    ) {
-
-                        openCamera()
-
-                    } else {
-
-                        cameraPermissionLauncher.launch(
-                            Manifest.permission.CAMERA
-                        )
-                    }
-                },
-
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(70.dp)
-            ) {
-
-                Text(
-                    text =
-                        if (photoCaptured)
-                            "Tomar otra fotografía"
-                        else
-                            "Tomar fotografía",
-                    fontSize = 18.sp
-                )
-            }
+            SurveyHeader(survey, segment, route, roadbed, direction,
+                onSegment={ segment=it; route=""; startPr=""; startDistance=""; locationSource="MANUAL" },
+                onRoute={ route=it; startPr=""; startDistance=""; locationSource="MANUAL" },
+                onRoadbed={ roadbed=it; locationSource="MANUAL" }, onDirection={ direction=it })
         }
-
         item {
-            Text("Fotografías del elemento: ${capturedPhotos.size}")
-            capturedPhotos.forEachIndexed { index, path ->
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Fotografía ${index + 1}")
-                    OutlinedButton(onClick = {
-                        capturedPhotos = capturedPhotos - path
-                        photoPath = capturedPhotos.lastOrNull()
-                        photoCaptured = capturedPhotos.isNotEmpty()
-                    }) { Text("Quitar") }
-                }
-            }
-            FinalLocationCapture(endLocation) { endLocation = it }
-        }
-        if (
-            photoCaptured &&
-            photoPath != null
-        ) {
-
-            item {
-
-                val path = photoPath!!
-
-                val bitmap =
-                    remember(
-                        path,
-                        photoCaptured
-                    ) {
-                        loadCorrectlyOrientedBitmap(
-                            path
-                        )
-                    }
-
-                if (bitmap != null) {
-
-                    Image(
-                        bitmap =
-                            bitmap.asImageBitmap(),
-
-                        contentDescription =
-                            "Fotografía capturada",
-
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(280.dp),
-
-                        contentScale =
-                            ContentScale.Fit
-                    )
-                }
-
-                Spacer(
-                    modifier =
-                        Modifier.height(8.dp)
-                )
-
-                Text(
-                    text =
-                        "✓ Fotografía guardada",
-                    fontWeight =
-                        FontWeight.Bold
-                )
-
-                Text(
-                    text =
-                        File(path).name,
-                    style =
-                        MaterialTheme
-                            .typography
-                            .bodySmall
-                )
-            }
+            RoadSuggestionPanel(inventoryViewModel,location,
+                onAccept = { match ->
+                    route = match.routeCode; roadbed = match.roadbedCode
+                    val station = SurveyOrder.kilometreAndOffset(match.chainageM); startPr = station.first
+                    startDistance = station.second
+                    locationSource = "GNSS_MAP_MATCH"
+                }, onManual = { locationSource = "MANUAL" },
+                onSide = { code, source -> side = when(code) { "D" -> "D - Derecho"; "I" -> "I - Izquierdo"; else -> "S - Sin objeto" }; sideSource = source })
+            OutlinedButton(enabled = !locating, onClick = { if(hasLocationPermission()) captureLocation() else locationPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION)) }) { Text("Actualizar GPS inicial") }
         }
 
-        photoError?.let { error ->
-
+        if (signalizationType != SignalizationType.VERTICAL) {
             item {
-                ErrorText(error)
+                TrackCapturePanel(inventoryViewModel,draftId,"SIC-21",signalizationType.name,route,roadbed,startPr,startDistance,codeFromOption(side),location,
+                    onRecordId = { draftId=it }, onEndLocation = { endLocation=it }, segment=segment, direction=direction)
             }
         }
 
@@ -1193,59 +1138,16 @@ fun SignalizationFormScreen(
         // UBICACIÓN VIAL COMÚN
         item {
 
-            SectionTitle(
-                "Datos generales del formato"
-            )
-
-            OutlinedTextField(
-                value = route,
-                onValueChange = {
-                    route =
-                        it.uppercase()
-                },
-                label = {
-                    Text("Ruta")
-                },
-                placeholder = {
-                    Text("Ej. PE-1N, PE-3S")
-                },
-                modifier =
-                    Modifier.fillMaxWidth()
-            )
-
-            Spacer(
-                modifier =
-                    Modifier.height(10.dp)
-            )
-
-            OutlinedTextField(
-                value = roadbed,
-                onValueChange = {
-                    roadbed =
-                        it.uppercase()
-                },
-                label = {
-                    Text("Calzada")
-                },
-                placeholder = {
-                    Text("Ej. UC, UD, CD, A1")
-                },
-                modifier =
-                    Modifier.fillMaxWidth()
-            )
-        }
-
-        item {
-
             SectionTitle("Ubicación inicio")
 
             OutlinedTextField(
                 value = startPr,
                 onValueChange = {
+                    locationSource = "MANUAL"
                     startPr = it
                 },
                 label = {
-                    Text("Código PR inicio")
+                    Text("Kilómetro de progresiva inicial (PR)")
                 },
                 placeholder = {
                     Text("4 dígitos, ej. 0010")
@@ -1262,10 +1164,11 @@ fun SignalizationFormScreen(
             OutlinedTextField(
                 value = startDistance,
                 onValueChange = {
+                    locationSource = "MANUAL"
                     startDistance = it
                 },
                 label = {
-                    Text("Distancia desde PR inicio (m)")
+                    Text("Metros desde el kilómetro inicial")
                 },
                 placeholder = {
                     Text("Ej. 125.50")
@@ -1282,10 +1185,11 @@ fun SignalizationFormScreen(
             OutlinedTextField(
                 value = endPr,
                 onValueChange = {
+                    locationSource = "MANUAL"
                     endPr = it
                 },
                 label = {
-                    Text("Código PR fin")
+                    Text("Kilómetro de progresiva final (PR)")
                 },
                 placeholder = {
                     Text("4 dígitos, ej. 0010")
@@ -1302,10 +1206,11 @@ fun SignalizationFormScreen(
             OutlinedTextField(
                 value = endDistance,
                 onValueChange = {
+                    locationSource = "MANUAL"
                     endDistance = it
                 },
                 label = {
-                    Text("Distancia desde PR fin (m)")
+                    Text("Metros desde el kilómetro final")
                 },
                 placeholder = {
                     Text("Ej. 180.25")
@@ -1331,6 +1236,7 @@ fun SignalizationFormScreen(
                 ),
                 selected = side,
                 onSelected = {
+                    sideSource = "MANUAL"
                     side = it
                 }
             )
@@ -1403,6 +1309,131 @@ fun SignalizationFormScreen(
             )
         }
 
+        // FOTO
+        item {
+
+            SectionTitle("Fotografía")
+
+            Button(
+                onClick = {
+
+                    val permission =
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.CAMERA
+                        )
+
+                    if (
+                        permission ==
+                        PackageManager.PERMISSION_GRANTED
+                    ) {
+
+                        openCamera()
+
+                    } else {
+
+                        cameraPermissionLauncher.launch(
+                            Manifest.permission.CAMERA
+                        )
+                    }
+                },
+
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(70.dp)
+            ) {
+
+                Text(
+                    text =
+                        if (photoCaptured)
+                            "Tomar otra fotografía"
+                        else
+                            "Tomar fotografía",
+                    fontSize = 18.sp
+                )
+            }
+        }
+
+        item {
+            Text("Fotografías del elemento: ${capturedPhotos.size}")
+            capturedPhotos.forEachIndexed { index, path ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("Fotografía ${index + 1}")
+                    OutlinedButton(onClick = {
+                        capturedPhotos = capturedPhotos - path
+                        photoPath = capturedPhotos.lastOrNull()
+                        photoCaptured = capturedPhotos.isNotEmpty()
+                    }) { Text("Quitar") }
+                }
+            }
+            FinalLocationCapture(endLocation) { endLocation = it }
+        }
+        if (
+            photoCaptured &&
+            photoPath != null
+        ) {
+
+            item {
+
+                val path = photoPath!!
+
+                val bitmap by produceState<android.graphics.Bitmap?>(null, path) {
+                    value = withContext(Dispatchers.IO) { loadCorrectlyOrientedBitmap(path) }
+                }
+
+                if (bitmap != null) {
+
+                    Image(
+                        bitmap =
+                            bitmap!!.asImageBitmap(),
+
+                        contentDescription =
+                            "Fotografía capturada",
+
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(280.dp),
+
+                        contentScale =
+                            ContentScale.Fit
+                    )
+                }
+
+                Spacer(
+                    modifier =
+                        Modifier.height(8.dp)
+                )
+
+                Text(
+                    text =
+                        "✓ Fotografía guardada",
+                    fontWeight =
+                        FontWeight.Bold
+                )
+
+                Text(
+                    text =
+                        File(path).name,
+                    style =
+                        MaterialTheme
+                            .typography
+                            .bodySmall
+                )
+            }
+        }
+
+        photoError?.let { error ->
+
+            item {
+                ErrorText(error)
+            }
+        }
+
+
+        item {
+            PhotoStampPanel(capturedPhotos,PhotoStampData(route,roadbed,"$startPr + $startDistance m",location,
+                location?.timestamp ?: System.currentTimeMillis(),fieldSession?.operator.orEmpty(),signalizationType.title),stampedPaths) { stampedPaths=it }
+        }
         formError?.let { error ->
 
             item {
@@ -1416,11 +1447,6 @@ fun SignalizationFormScreen(
                 onClick = {
 
                     when {
-
-                        !photoCaptured -> {
-                            formError =
-                                "Debes tomar una fotografía."
-                        }
 
                         latitude == null ||
                                 longitude == null -> {
@@ -1492,14 +1518,7 @@ fun SignalizationFormScreen(
                         else -> {
                             formError = null
 
-                            val path = photoPath
-
-                            if (path == null) {
-
-                                formError =
-                                    "No se encontró la fotografía."
-
-                            } else {
+                            run {
 
                                 val detail =
                                     when (signalizationType) {
@@ -1567,8 +1586,16 @@ fun SignalizationFormScreen(
                                             observations =
                                                 observations,
 
-                                            photoPath = capturedPhotos.first(),
+                                            photoPath = capturedPhotos.firstOrNull().orEmpty(),
                                             photoPaths = capturedPhotos,
+                                            recordId = draftId,
+                                            location = location,
+                                            endLocation = endLocation,
+                                            locationSource = locationSource,
+                                            sideSource = sideSource,
+                                            sessionId = draftRecord?.sessionId ?: fieldSession?.sessionId,
+                                            segment = segment, direction = direction,
+                                            stampedPaths = stampedPaths.filterKeys { it in capturedPhotos },
                                             endLatitude = endLocation?.latitude,
                                             endLongitude = endLocation?.longitude,
                                             endGpsAccuracyM = endLocation?.accuracyHorizontal,
@@ -1596,7 +1623,7 @@ fun SignalizationFormScreen(
 
                 Text(
                     text =
-                        "Guardar registro",
+                        "Revisar y guardar",
                     fontSize = 20.sp,
                     fontWeight =
                         FontWeight.Bold
@@ -1618,28 +1645,11 @@ fun Sic22Fields(
     onStateChange: (Sic22FormState) -> Unit
 ) {
 
-    val typeOptions = listOf(
-        "1 - Reglamento",
-        "2 - Preventivo",
-        "3 - Informativo",
-        "4 - Poste Kilométrico",
-        "5 - Semáforos",
-        "6 - Postes SOS"
-    )
+    val typeOptions = SicCatalogRepository.options("sic22.type.0")
 
-    val materialOptions = listOf(
-        "1 - Fibra de vidrio",
-        "2 - Acero",
-        "3 - Concreto",
-        "4 - Madera",
-        "5 - Otro"
-    )
+    val materialOptions = SicCatalogRepository.options("sic22.material.0")
 
-    val conditionOptions = listOf(
-        "1 - Buena · no tiene problema",
-        "2 - Regular · dañado pero se puede leer",
-        "3 - Mala · no se puede leer o ausente"
-    )
+    val conditionOptions = SicCatalogRepository.options("sic22.condition.0")
 
 
     SectionTitle(
@@ -1811,117 +1821,7 @@ fun Sic22Fields(
     )
 
 
-    Spacer(
-        modifier =
-            Modifier.height(18.dp)
-    )
-
-
-    SectionTitle(
-        "Mediciones adicionales del cliente"
-    )
-
-    Text(
-        text =
-            "Estos tres campos complementan al SIC-22; no forman parte de las columnas oficiales del formato.",
-        style =
-            MaterialTheme.typography.bodySmall
-    )
-
-
-    OutlinedTextField(
-        value =
-            state.signWidthM,
-
-        onValueChange = {
-
-            onStateChange(
-                state.copy(
-                    signWidthM = it
-                )
-            )
-        },
-
-        label = {
-            Text(
-                "Ancho de señal (m)"
-            )
-        },
-
-        modifier =
-            Modifier.fillMaxWidth()
-    )
-
-
-    OutlinedTextField(
-        value =
-            state.signHeightM,
-
-        onValueChange = {
-
-            onStateChange(
-                state.copy(
-                    signHeightM = it
-                )
-            )
-        },
-
-        label = {
-            Text(
-                "Alto de señal (m)"
-            )
-        },
-
-        modifier =
-            Modifier.fillMaxWidth()
-    )
-
-
-    OutlinedTextField(
-        value =
-            state.lowerEdgeHeightM,
-
-        onValueChange = {
-
-            onStateChange(
-                state.copy(
-                    lowerEdgeHeightM = it
-                )
-            )
-        },
-
-        label = {
-            Text(
-                "Altura suelo → borde inferior (m)"
-            )
-        },
-
-        modifier =
-            Modifier.fillMaxWidth()
-    )
-
-
-    OutlinedButton(
-        onClick = {
-            // Futura integración ARCore.
-        },
-
-        modifier =
-            Modifier.fillMaxWidth()
-    ) {
-
-        Text(
-            "Medir con cámara · próximamente"
-        )
-    }
 }
-
-
-// =========================================================
-// SIC-21
-// SEGURIDAD Y SEÑALIZACIÓN HORIZONTAL
-// INVENTARIO VIAL CALIFICADO
-// =========================================================
 
 @Composable
 fun Sic21Fields(
@@ -1932,68 +1832,31 @@ fun Sic21Fields(
     val typeOptions =
         when (state.classCode) {
 
-            "18" -> listOf(
-                "1 - Central",
-                "2 - Lateral",
-                "3 - Central y Lateral"
-            )
+            "18" -> SicCatalogRepository.options("sic21.type.0")
 
-            "19" -> listOf(
-                "1 - Guardavías",
-                "2 - Postes Delineadores",
-                "3 - Barreras de Contención",
-                "4 - Resaltos"
-            )
+            "19" -> SicCatalogRepository.options("sic21.type.1")
 
-            "20" -> listOf(
-                "1 - Central",
-                "2 - Lateral",
-                "3 - Central y Lateral"
-            )
+            "20" -> SicCatalogRepository.options("sic21.type.2")
 
             else ->
-                listOf(
-                    "1 - Otro"
-                )
+                SicCatalogRepository.options("sic21.type.3")
         }
 
 
-    val materialOptions = listOf(
-        "1 - Acero",
-        "2 - Concreto",
-        "3 - Mampostería",
-        "4 - Plástico",
-        "5 - Otro"
-    )
+    val materialOptions = SicCatalogRepository.options("sic21.material.0")
 
 
     val conditionOptions =
         when (state.classCode) {
 
-            "18" -> listOf(
-                "1 - Buena · no tiene problema",
-                "2 - Regular · todavía visible",
-                "3 - Mala · apenas visible"
-            )
+            "18" -> SicCatalogRepository.options("sic21.condition.0")
 
-            "20" -> listOf(
-                "1 - Buena · no tiene problema",
-                "2 - Regular · dañada o ausente en menos del 30%",
-                "3 - Mala · dañada o ausente en más del 30%"
-            )
+            "20" -> SicCatalogRepository.options("sic21.condition.1")
 
-            "19" -> listOf(
-                "1 - Buena · no tiene problema",
-                "2 - Regular · dañada o ausente en menos del 30%",
-                "3 - Mala · dañada o ausente en más del 30%"
-            )
+            "19" -> SicCatalogRepository.options("sic21.condition.2")
 
             else ->
-                listOf(
-                    "1 - Buena",
-                    "2 - Regular",
-                    "3 - Mala"
-                )
+                SicCatalogRepository.options("sic21.condition.3")
         }
 
 
@@ -2057,6 +1920,7 @@ fun Sic21Fields(
     )
 
 
+    if (state.classCode == "19") {
     Text(
         "Material",
         fontWeight = FontWeight.Bold
@@ -2080,6 +1944,7 @@ fun Sic21Fields(
     )
 
 
+    }
     Text(
         "Condición",
         fontWeight = FontWeight.Bold
@@ -2113,26 +1978,46 @@ fun AssetFormScreen(
     assetType: RoadAssetType,
     inventoryViewModel: InventoryViewModel,
     onBack: () -> Unit,
-    onSave: () -> Unit
+    onSave: () -> Unit,
+    draftRecord: InventoryRecordEntity? = null
 ) {
 
     val context =
         LocalContext.current
+    val fieldSession by inventoryViewModel.field.session.collectAsState()
+    val survey = remember { SurveyPreferences(context) }
+    val prior = remember { survey.last()?.takeIf { it.sessionId == fieldSession?.sessionId } }
+    var segment by rememberSaveable { mutableStateOf(draftRecord?.segment ?: prior?.segment ?: fieldSession?.segment.orEmpty()) }
+    var direction by rememberSaveable { mutableStateOf(draftRecord?.surveyDirection ?: prior?.direction ?: fieldSession?.direction ?: "INCREASING") }
 
-    var route by remember {
-        mutableStateOf("")
+    var draftId by rememberSaveable { mutableStateOf(draftRecord?.id) }
+    var location by remember { mutableStateOf(draftRecord?.let {
+        GeoLocation(it.latitude,it.longitude,it.gpsAccuracyM?.toFloat() ?: Float.POSITIVE_INFINITY,it.altitudeM,timestamp=it.gpsTimestamp ?: 0)
+    }) }
+    var locationSource by rememberSaveable { mutableStateOf("MANUAL") }
+    var sideSource by rememberSaveable { mutableStateOf("MANUAL") }
+    var stampedPaths by remember { mutableStateOf<Map<String,String>>(emptyMap()) }
+
+
+    var route by rememberSaveable {
+        mutableStateOf(draftRecord?.routeCode ?: prior?.route ?: fieldSession?.road.orEmpty())
     }
 
-    var roadbed by remember {
-        mutableStateOf("")
+    var roadbed by rememberSaveable {
+        mutableStateOf(draftRecord?.roadbedCode ?: prior?.roadbed ?: fieldSession?.roadbed.orEmpty())
     }
 
-    var startPr by remember {
-        mutableStateOf("")
+    var startPr by rememberSaveable {
+        mutableStateOf(draftRecord?.startPrCode ?: prior?.pr.orEmpty())
     }
 
-    var startDistance by remember {
-        mutableStateOf("")
+    var startDistance by rememberSaveable {
+        mutableStateOf(draftRecord?.startDistanceM?.toString().orEmpty())
+    }
+
+    LaunchedEffect(route, roadbed, startPr, startDistance, location, fieldSession?.operator) {
+        // A confirmed stamp must reflect the current form's location and operator.
+        stampedPaths = emptyMap()
     }
 
     var endPr by remember {
@@ -2173,15 +2058,15 @@ fun AssetFormScreen(
     }
 
     var latitude by remember {
-        mutableStateOf<Double?>(null)
+        mutableStateOf<Double?>(location?.latitude)
     }
 
     var longitude by remember {
-        mutableStateOf<Double?>(null)
+        mutableStateOf<Double?>(location?.longitude)
     }
 
     var gpsAccuracy by remember {
-        mutableStateOf<Float?>(null)
+        mutableStateOf<Float?>(location?.horizontalAccuracy)
     }
 
     var locating by remember {
@@ -2220,7 +2105,7 @@ fun AssetFormScreen(
 
     var sic20State by remember(assetType) {
         mutableStateOf(
-            Sic20FormState()
+            Sic20FormState(classCode = when(assetType) { RoadAssetType.TUNNEL -> "13"; RoadAssetType.WALL -> "14"; else -> "12" })
         )
     }
 
@@ -2254,17 +2139,12 @@ fun AssetFormScreen(
         locating = true
         locationError = null
 
-        getCurrentGpsLocation(
-            context = context,
-
-            onSuccess = {
-                    lat,
-                    lon,
-                    accuracy ->
-
-                latitude = lat
-                longitude = lon
-                gpsAccuracy = accuracy
+        TabletLocationProvider(context).getCurrentLocation(
+            onSuccess = { fix ->
+                latitude = fix.latitude
+                longitude = fix.longitude
+                gpsAccuracy = fix.horizontalAccuracy
+                location = fix
                 locating = false
             },
 
@@ -2312,7 +2192,7 @@ fun AssetFormScreen(
 
 
     LaunchedEffect(assetType) {
-
+        if(draftRecord != null) return@LaunchedEffect
         if (hasLocationPermission()) {
 
             captureLocation()
@@ -2344,11 +2224,11 @@ fun AssetFormScreen(
 
                 photoError = null
 
-                if (hasLocationPermission()) {
+                if (location == null && hasLocationPermission()) {
 
                     captureLocation()
 
-                } else {
+                } else if (location == null) {
 
                     locationPermissionLauncher.launch(
                         arrayOf(
@@ -2383,7 +2263,7 @@ fun AssetFormScreen(
                 RoadAssetType.DITCH ->
                     "CUNETA"
 
-                RoadAssetType.FORD ->
+                RoadAssetType.FORD, RoadAssetType.TUNNEL, RoadAssetType.WALL ->
                     "SIC20"
 
                 RoadAssetType.BRIDGE ->
@@ -2438,13 +2318,13 @@ fun AssetFormScreen(
 
     val needsEndLocation =
         assetType == RoadAssetType.DITCH ||
-                assetType == RoadAssetType.FORD ||
+                assetType in setOf(RoadAssetType.FORD, RoadAssetType.TUNNEL, RoadAssetType.WALL) ||
                 assetType == RoadAssetType.BRIDGE ||
                 assetType == RoadAssetType.RIGHT_OF_WAY
 
     val needsSide =
         assetType == RoadAssetType.DITCH ||
-                assetType == RoadAssetType.FORD ||
+                assetType in setOf(RoadAssetType.FORD, RoadAssetType.TUNNEL, RoadAssetType.WALL) ||
                 assetType == RoadAssetType.RIGHT_OF_WAY
 
     val sideOptions =
@@ -2456,7 +2336,7 @@ fun AssetFormScreen(
                     "I - Izquierdo"
                 )
 
-            RoadAssetType.FORD, RoadAssetType.RIGHT_OF_WAY ->
+            RoadAssetType.FORD, RoadAssetType.TUNNEL, RoadAssetType.WALL, RoadAssetType.RIGHT_OF_WAY ->
                 listOf(
                     "D - Derecho",
                     "I - Izquierdo",
@@ -2512,129 +2392,27 @@ fun AssetFormScreen(
 
         // FOTO
         item {
-
-            SectionTitle("Fotografía")
-
-            Button(
-                onClick = {
-
-                    val permission =
-                        ContextCompat.checkSelfPermission(
-                            context,
-                            Manifest.permission.CAMERA
-                        )
-
-                    if (
-                        permission ==
-                        PackageManager.PERMISSION_GRANTED
-                    ) {
-
-                        openCamera()
-
-                    } else {
-
-                        cameraPermissionLauncher.launch(
-                            Manifest.permission.CAMERA
-                        )
-                    }
-                },
-
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(70.dp)
-            ) {
-
-                Text(
-                    text =
-                        if (photoCaptured)
-                            "Tomar otra fotografía"
-                        else
-                            "Tomar fotografía",
-                    fontSize = 18.sp
-                )
-            }
+            SurveyHeader(survey, segment, route, roadbed, direction,
+                onSegment={ segment=it; route=""; startPr=""; startDistance=""; locationSource="MANUAL" },
+                onRoute={ route=it; startPr=""; startDistance=""; locationSource="MANUAL" },
+                onRoadbed={ roadbed=it; locationSource="MANUAL" }, onDirection={ direction=it })
         }
-
         item {
-            Text("Fotografías del elemento: ${capturedPhotos.size}")
-            capturedPhotos.forEachIndexed { index, path ->
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Fotografía ${index + 1}")
-                    OutlinedButton(onClick = {
-                        capturedPhotos = capturedPhotos - path
-                        photoPath = capturedPhotos.lastOrNull()
-                        photoCaptured = capturedPhotos.isNotEmpty()
-                    }) { Text("Quitar") }
-                }
-            }
-            FinalLocationCapture(endLocation) { endLocation = it }
-        }
-        if (
-            photoCaptured &&
-            photoPath != null
-        ) {
-
-            item {
-
-                val path =
-                    photoPath!!
-
-                val bitmap =
-                    remember(
-                        path,
-                        photoCaptured
-                    ) {
-
-                        loadCorrectlyOrientedBitmap(
-                            path
-                        )
-                    }
-
-                if (bitmap != null) {
-
-                    Image(
-                        bitmap =
-                            bitmap.asImageBitmap(),
-
-                        contentDescription =
-                            "Fotografía capturada",
-
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(280.dp),
-
-                        contentScale =
-                            ContentScale.Fit
-                    )
-                }
-
-                Spacer(
-                    modifier =
-                        Modifier.height(8.dp)
-                )
-
-                Text(
-                    text =
-                        "✓ Fotografía guardada",
-                    fontWeight =
-                        FontWeight.Bold
-                )
-
-                Text(
-                    text =
-                        File(path).name,
-                    style =
-                        MaterialTheme
-                            .typography
-                            .bodySmall
-                )
-            }
+            RoadSuggestionPanel(inventoryViewModel,location,
+                onAccept = { match ->
+                    route = match.routeCode; roadbed = match.roadbedCode
+                    val station = SurveyOrder.kilometreAndOffset(match.chainageM); startPr = station.first
+                    startDistance = station.second
+                    locationSource = "GNSS_MAP_MATCH"
+                }, onManual = { locationSource = "MANUAL" },
+                onSide = { code, source -> side = when(code) { "D" -> "D - Derecho"; "I" -> "I - Izquierdo"; else -> "S - Sin objeto" }; sideSource = source })
+            OutlinedButton(enabled = !locating, onClick = { if(hasLocationPermission()) captureLocation() else locationPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION)) }) { Text("Actualizar GPS inicial") }
         }
 
-        photoError?.let { error ->
-
+        if (assetType == RoadAssetType.DITCH || (assetType == RoadAssetType.RIGHT_OF_WAY && sic23State.classCode !in listOf("23","24")) || (assetType in setOf(RoadAssetType.FORD, RoadAssetType.TUNNEL, RoadAssetType.WALL) && sic20State.classCode in listOf("13","14"))) {
             item {
-                ErrorText(error)
+                TrackCapturePanel(inventoryViewModel,draftId,assetType.sicCode,assetType.name,route,roadbed,startPr,startDistance,codeFromOption(side),location,
+                    onRecordId = { draftId=it }, onEndLocation = { endLocation=it }, segment=segment, direction=direction)
             }
         }
 
@@ -2736,59 +2514,16 @@ fun AssetFormScreen(
         // DATOS COMUNES
         item {
 
-            SectionTitle(
-                "Datos generales del formato"
-            )
-
-            OutlinedTextField(
-                value = route,
-                onValueChange = {
-                    route =
-                        it.uppercase()
-                },
-                label = {
-                    Text("Ruta")
-                },
-                placeholder = {
-                    Text("Ej. PE-1N, PE-3S")
-                },
-                modifier =
-                    Modifier.fillMaxWidth()
-            )
-
-            Spacer(
-                modifier =
-                    Modifier.height(10.dp)
-            )
-
-            OutlinedTextField(
-                value = roadbed,
-                onValueChange = {
-                    roadbed =
-                        it.uppercase()
-                },
-                label = {
-                    Text("Calzada")
-                },
-                placeholder = {
-                    Text("Ej. UC, UD, CD, A1")
-                },
-                modifier =
-                    Modifier.fillMaxWidth()
-            )
-        }
-
-        item {
-
             SectionTitle("Ubicación inicio")
 
             OutlinedTextField(
                 value = startPr,
                 onValueChange = {
+                    locationSource = "MANUAL"
                     startPr = it
                 },
                 label = {
-                    Text("Código PR inicio")
+                    Text("Kilómetro de progresiva inicial (PR)")
                 },
                 placeholder = {
                     Text("4 dígitos, ej. 0010")
@@ -2805,11 +2540,12 @@ fun AssetFormScreen(
             OutlinedTextField(
                 value = startDistance,
                 onValueChange = {
+                    locationSource = "MANUAL"
                     startDistance = it
                 },
                 label = {
                     Text(
-                        "Distancia desde PR inicio (m)"
+                        "Metros desde el kilómetro inicial"
                     )
                 },
                 placeholder = {
@@ -2829,10 +2565,11 @@ fun AssetFormScreen(
                 OutlinedTextField(
                     value = endPr,
                     onValueChange = {
+                        locationSource = "MANUAL"
                         endPr = it
                     },
                     label = {
-                        Text("Código PR fin")
+                        Text("Kilómetro de progresiva final (PR)")
                     },
                     placeholder = {
                         Text(
@@ -2851,11 +2588,12 @@ fun AssetFormScreen(
                 OutlinedTextField(
                     value = endDistance,
                     onValueChange = {
+                        locationSource = "MANUAL"
                         endDistance = it
                     },
                     label = {
                         Text(
-                            "Distancia desde PR fin (m)"
+                            "Metros desde el kilómetro final"
                         )
                     },
                     placeholder = {
@@ -2881,6 +2619,7 @@ fun AssetFormScreen(
                     options = sideOptions,
                     selected = side,
                     onSelected = {
+                        sideSource = "MANUAL"
                         side = it
                     }
                 )
@@ -2917,7 +2656,7 @@ fun AssetFormScreen(
                     )
                 }
 
-                RoadAssetType.FORD -> {
+                RoadAssetType.FORD, RoadAssetType.TUNNEL, RoadAssetType.WALL -> {
 
                     Sic20Fields(
                         state = sic20State,
@@ -2980,6 +2719,131 @@ fun AssetFormScreen(
             )
         }
 
+        item {
+
+            SectionTitle("Fotografía")
+
+            Button(
+                onClick = {
+
+                    val permission =
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.CAMERA
+                        )
+
+                    if (
+                        permission ==
+                        PackageManager.PERMISSION_GRANTED
+                    ) {
+
+                        openCamera()
+
+                    } else {
+
+                        cameraPermissionLauncher.launch(
+                            Manifest.permission.CAMERA
+                        )
+                    }
+                },
+
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(70.dp)
+            ) {
+
+                Text(
+                    text =
+                        if (photoCaptured)
+                            "Tomar otra fotografía"
+                        else
+                            "Tomar fotografía",
+                    fontSize = 18.sp
+                )
+            }
+        }
+
+        item {
+            Text("Fotografías del elemento: ${capturedPhotos.size}")
+            capturedPhotos.forEachIndexed { index, path ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("Fotografía ${index + 1}")
+                    OutlinedButton(onClick = {
+                        capturedPhotos = capturedPhotos - path
+                        photoPath = capturedPhotos.lastOrNull()
+                        photoCaptured = capturedPhotos.isNotEmpty()
+                    }) { Text("Quitar") }
+                }
+            }
+            FinalLocationCapture(endLocation) { endLocation = it }
+        }
+        if (
+            photoCaptured &&
+            photoPath != null
+        ) {
+
+            item {
+
+                val path =
+                    photoPath!!
+
+                val bitmap by produceState<android.graphics.Bitmap?>(null, path) {
+                    value = withContext(Dispatchers.IO) { loadCorrectlyOrientedBitmap(path) }
+                }
+
+                if (bitmap != null) {
+
+                    Image(
+                        bitmap =
+                            bitmap!!.asImageBitmap(),
+
+                        contentDescription =
+                            "Fotografía capturada",
+
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(280.dp),
+
+                        contentScale =
+                            ContentScale.Fit
+                    )
+                }
+
+                Spacer(
+                    modifier =
+                        Modifier.height(8.dp)
+                )
+
+                Text(
+                    text =
+                        "✓ Fotografía guardada",
+                    fontWeight =
+                        FontWeight.Bold
+                )
+
+                Text(
+                    text =
+                        File(path).name,
+                    style =
+                        MaterialTheme
+                            .typography
+                            .bodySmall
+                )
+            }
+        }
+
+        photoError?.let { error ->
+
+            item {
+                ErrorText(error)
+            }
+        }
+
+
+        item {
+            PhotoStampPanel(capturedPhotos,PhotoStampData(route,roadbed,"$startPr + $startDistance m",location,
+                location?.timestamp ?: System.currentTimeMillis(),fieldSession?.operator.orEmpty(),assetType.title),stampedPaths) { stampedPaths=it }
+        }
         formError?.let { error ->
 
             item {
@@ -2993,11 +2857,6 @@ fun AssetFormScreen(
                 onClick = {
 
                     when {
-
-                        !photoCaptured -> {
-                            formError =
-                                "Debes tomar una fotografía."
-                        }
 
                         latitude == null ||
                                 longitude == null -> {
@@ -3101,7 +2960,7 @@ fun AssetFormScreen(
                         }
 
 
-                        assetType == RoadAssetType.CULVERT &&
+                        assetType == RoadAssetType.CULVERT && sic18State.usesDimension2 &&
                                 sic18State.dimension2M
                                     .trim()
                                     .isEmpty() -> {
@@ -3115,7 +2974,7 @@ fun AssetFormScreen(
                         // VALIDACIÓN SIC-20
                         // =========================================================
 
-                        assetType == RoadAssetType.FORD &&
+                        assetType in setOf(RoadAssetType.FORD, RoadAssetType.TUNNEL, RoadAssetType.WALL) &&
                                 sic20State.dimension1M
                                     .trim()
                                     .isEmpty() -> {
@@ -3125,7 +2984,7 @@ fun AssetFormScreen(
                         }
 
 
-                        assetType == RoadAssetType.FORD &&
+                        assetType in setOf(RoadAssetType.FORD, RoadAssetType.TUNNEL, RoadAssetType.WALL) &&
                                 sic20State.usesDimension2 &&
                                 sic20State.dimension2M
                                     .trim()
@@ -3138,14 +2997,7 @@ fun AssetFormScreen(
                         else -> {
                             formError = null
 
-                            val path = photoPath
-
-                            if (path == null) {
-
-                                formError =
-                                    "No se encontró la fotografía."
-
-                            } else {
+                            run {
 
                                 val detail =
                                     when (assetType) {
@@ -3167,7 +3019,7 @@ fun AssetFormScreen(
                                                 sic19State
                                             )
 
-                                        RoadAssetType.FORD ->
+                                        RoadAssetType.FORD, RoadAssetType.TUNNEL, RoadAssetType.WALL ->
                                             SicFormDetail.Sic20(
                                                 sic20State
                                             )
@@ -3193,7 +3045,7 @@ fun AssetFormScreen(
                                         RoadAssetType.DITCH ->
                                             "DRENAJE"
 
-                                        RoadAssetType.FORD ->
+                                        RoadAssetType.FORD, RoadAssetType.TUNNEL, RoadAssetType.WALL ->
                                             when (
                                                 sic20State.classCode
                                             ) {
@@ -3263,8 +3115,16 @@ fun AssetFormScreen(
                                             observations =
                                                 observations,
 
-                                            photoPath = capturedPhotos.first(),
+                                            photoPath = capturedPhotos.firstOrNull().orEmpty(),
                                             photoPaths = capturedPhotos,
+                                            recordId = draftId,
+                                            location = location,
+                                            endLocation = endLocation,
+                                            locationSource = locationSource,
+                                            sideSource = sideSource,
+                                            sessionId = draftRecord?.sessionId ?: fieldSession?.sessionId,
+                                            segment = segment, direction = direction,
+                                            stampedPaths = stampedPaths.filterKeys { it in capturedPhotos },
                                             endLatitude = endLocation?.latitude,
                                             endLongitude = endLocation?.longitude,
                                             endGpsAccuracyM = endLocation?.accuracyHorizontal,
@@ -3292,7 +3152,7 @@ fun AssetFormScreen(
 
                 Text(
                     text =
-                        "Guardar registro",
+                        "Revisar y guardar",
                     fontSize = 20.sp,
                     fontWeight =
                         FontWeight.Bold
@@ -3314,51 +3174,23 @@ fun Sic18Fields(
     onStateChange: (Sic18FormState) -> Unit
 ) {
 
-    val classOptions = listOf(
-        "06 - Alcantarilla Definitiva",
-        "07 - Alcantarilla Estructura Artesanal"
-    )
+    val classOptions = SicCatalogRepository.options("sic18.class.0")
 
     val typeOptions =
         if (state.classCode == "06") {
 
-            listOf(
-                "1 - Concreto",
-                "2 - Mampostería",
-                "3 - Acero",
-                "4 - Polietileno HDPE",
-                "5 - Otro"
-            )
+            SicCatalogRepository.options("sic18.type.0")
 
         } else {
 
-            listOf(
-                "1 - Concreto",
-                "2 - Mampostería",
-                "3 - Piedra",
-                "4 - Otro"
-            )
+            SicCatalogRepository.options("sic18.type.1")
         }
 
-    val sectionOptions = listOf(
-        "1 - Marco",
-        "2 - Circular / Ovalada",
-        "3 - Arco",
-        "4 - Pórtico",
-        "5 - Otro"
-    )
+    val sectionOptions = SicCatalogRepository.options("sic18.section.0")
 
-    val structuralOptions = listOf(
-        "1 - Buena",
-        "2 - Regular",
-        "3 - Mala"
-    )
+    val structuralOptions = SicCatalogRepository.options("sic18.structural.0")
 
-    val functionalOptions = listOf(
-        "1 - Buena · limpia",
-        "2 - Regular · parcialmente obstruida",
-        "3 - Mala · totalmente obstruida"
-    )
+    val functionalOptions = SicCatalogRepository.options("sic18.functional.0")
 
 
     SectionTitle(
@@ -3466,6 +3298,13 @@ fun Sic18Fields(
     )
 
 
+    if (state.crossSectionCode == "2") {
+        Text("Forma de la sección")
+        ChoiceSelector(listOf("Circular", "Ovalada"), if(state.sectionShape == "CIRCULAR") "Circular" else "Ovalada") {
+            onStateChange(state.copy(sectionShape = if(it == "Circular") "CIRCULAR" else "OVAL",
+                dimension2M = if(it == "Circular") "" else state.dimension2M))
+        }
+    }
     OutlinedTextField(
         value = state.dimension1M,
         onValueChange = {
@@ -3478,7 +3317,7 @@ fun Sic18Fields(
         },
         label = {
             Text(
-                "Dimensión 1 · ancho o diámetro (m)"
+                if(!state.usesDimension2) "Diámetro interior (m)" else "Dimensión 1 · ancho interior (m)"
             )
         },
         modifier =
@@ -3486,6 +3325,7 @@ fun Sic18Fields(
     )
 
 
+    if (state.usesDimension2) {
     OutlinedTextField(
         value = state.dimension2M,
         onValueChange = {
@@ -3504,6 +3344,8 @@ fun Sic18Fields(
         modifier =
             Modifier.fillMaxWidth()
     )
+
+    } else Text("Dimensión 2: no aplica a sección circular")
 
 
     Text(
@@ -3550,6 +3392,12 @@ fun Sic18Fields(
             )
         }
     )
+    OutlinedTextField(state.structuralDamagePercent, { onStateChange(state.copy(structuralDamagePercent=it)) },
+        label={Text("Longitud con daño estructural (%)")}, modifier=Modifier.fillMaxWidth())
+    OutlinedTextField(state.functionalObstructionPercent, { onStateChange(state.copy(functionalObstructionPercent=it)) },
+        label={Text("Obstrucción de la sección (%)")}, modifier=Modifier.fillMaxWidth())
+    Text("Porcentajes observados: 0 a 100. La calificación la confirma el ingeniero. Referencia: MTC SIC-18, p. 216; confirmar el límite exacto de 30% y el criterio contractual.")
+
 }
 
 
@@ -3564,40 +3412,15 @@ fun Sic19Fields(
     onStateChange: (Sic19FormState) -> Unit
 ) {
 
-    val classOptions = listOf(
-        "08 - Cuneta",
-        "09 - Canal",
-        "10 - Bajada de Agua",
-        "11 - Zanja de Drenaje",
-        "12 - Zanja de Coronación",
-        "13 - Cuneta de Banqueta"
-    )
+    val classOptions = SicCatalogRepository.options("sic19.class.0")
 
-    val typeOptions = listOf(
-        "1 - Tierra",
-        "2 - Concreto",
-        "3 - Mampostería",
-        "4 - Otro"
-    )
+    val typeOptions = SicCatalogRepository.options("sic19.type.0")
 
-    val sectionOptions = listOf(
-        "1 - Triangular",
-        "2 - Trapezoidal",
-        "3 - Rectangular",
-        "4 - Otro"
-    )
+    val sectionOptions = SicCatalogRepository.options("sic19.section.0")
 
-    val structuralOptions = listOf(
-        "1 - Buena",
-        "2 - Regular",
-        "3 - Mala"
-    )
+    val structuralOptions = SicCatalogRepository.options("sic19.structural.0")
 
-    val functionalOptions = listOf(
-        "1 - Buena · limpia",
-        "2 - Regular · parcialmente obstruida",
-        "3 - Mala · totalmente obstruida"
-    )
+    val functionalOptions = SicCatalogRepository.options("sic19.functional.0")
 
 
     SectionTitle(
@@ -3729,7 +3552,7 @@ fun Sic19Fields(
 
     Text(
         text =
-            "La ubicación inicio y fin identifican el tramo. La longitud curva se calculará posteriormente a partir de la geometría/trayectoria.",
+            "La ubicación inicio y fin identifica el tramo. Usa el recorrido para estimar la longitud de elementos curvos.",
         style =
             MaterialTheme.typography.bodySmall
     )
@@ -3747,59 +3570,25 @@ fun Sic20Fields(
     onStateChange: (Sic20FormState) -> Unit
 ) {
 
-    val classOptions = listOf(
-        "12 - Badén",
-        "13 - Túnel",
-        "14 - Muro"
-    )
+    val classOptions = SicCatalogRepository.options("sic20.class.0")
 
     val typeOptions =
         when (state.classCode) {
 
-            "12" -> listOf(
-                "1 - Gavión",
-                "2 - Concreto",
-                "3 - Mampostería",
-                "4 - Concreto ciclópeo",
-                "5 - Piedra",
-                "6 - Otro"
-            )
+            "12" -> SicCatalogRepository.options("sic20.type.0")
 
-            "13" -> listOf(
-                "1 - Concreto",
-                "2 - Mampostería",
-                "3 - Concreto ciclópeo",
-                "4 - Roca",
-                "5 - Otro"
-            )
+            "13" -> SicCatalogRepository.options("sic20.type.1")
 
-            "14" -> listOf(
-                "1 - Gavión",
-                "2 - Concreto",
-                "3 - Mampostería",
-                "4 - Concreto ciclópeo",
-                "5 - Piedra",
-                "6 - Otro"
-            )
+            "14" -> SicCatalogRepository.options("sic20.type.2")
 
             else ->
-                listOf(
-                    "1 - Otro"
-                )
+                SicCatalogRepository.options("sic20.type.3")
         }
 
 
-    val structuralOptions = listOf(
-        "1 - Buena · no tiene problema",
-        "2 - Regular · puede tener problemas",
-        "3 - Mala · necesita repararse"
-    )
+    val structuralOptions = SicCatalogRepository.options("sic20.structural.0")
 
-    val functionalOptions = listOf(
-        "1 - Buena · limpia",
-        "2 - Regular · parcialmente obstruida",
-        "3 - Mala · totalmente obstruida"
-    )
+    val functionalOptions = SicCatalogRepository.options("sic20.functional.0")
 
 
     SectionTitle(
@@ -3814,38 +3603,7 @@ fun Sic20Fields(
     )
 
 
-    Text(
-        "Clase",
-        fontWeight = FontWeight.Bold
-    )
-
-    ChoiceSelector(
-        options = classOptions,
-        selected = optionForCode(
-            classOptions,
-            state.classCode
-        ),
-        onSelected = {
-
-            onStateChange(
-                state.copy(
-                    classCode =
-                        codeFromOption(it),
-
-                    typeCode =
-                        if (
-                            codeFromOption(it) ==
-                            "12"
-                        )
-                            "2"
-                        else
-                            "1",
-
-                    dimension2M = ""
-                )
-            )
-        }
-    )
+    Text(optionForCode(classOptions, state.classCode), fontWeight = FontWeight.Bold)
 
 
     Text(
@@ -4005,83 +3763,31 @@ fun Sic17Fields(
     onStateChange: (Sic17FormState) -> Unit
 ) {
 
-    val classOptions = listOf(
-        "01 - Puente Definitivo",
-        "02 - Puente Provisional",
-        "03 - Estructura Artesanal",
-        "04 - Puente Histórico"
-    )
+    val classOptions = SicCatalogRepository.options("sic17.class.0")
 
     val typeOptions =
         when (state.classCode) {
 
-            "01" -> listOf(
-                "1 - Losa",
-                "2 - Losa con Vigas",
-                "3 - Celular estilo Alcantarilla",
-                "4 - Pórtico",
-                "5 - Reticulado",
-                "6 - Arco",
-                "7 - Atirantado",
-                "8 - Colgante",
-                "9 - Otro"
-            )
+            "01" -> SicCatalogRepository.options("sic17.type.0")
 
-            "02" -> listOf(
-                "1 - Modular",
-                "2 - Yawata",
-                "3 - Otro"
-            )
+            "02" -> SicCatalogRepository.options("sic17.type.1")
 
-            "03" -> listOf(
-                "1 - Vigas de Troncos de Madera",
-                "2 - Vigas de Rieles de Ferrocarril",
-                "3 - Otro"
-            )
+            "03" -> SicCatalogRepository.options("sic17.type.2")
 
-            "04" -> listOf(
-                "1 - Mampostería de Piedra",
-                "2 - Otro"
-            )
+            "04" -> SicCatalogRepository.options("sic17.type.3")
 
-            else -> listOf(
-                "1 - Otro"
-            )
+            else -> SicCatalogRepository.options("sic17.type.4")
         }
 
-    val inventoriedOptions = listOf(
-        "S - Sí",
-        "N - No"
-    )
+    val inventoriedOptions = SicCatalogRepository.options("sic17.inventoried.0")
 
-    val structuralOptions = listOf(
-        "1 - Buena",
-        "2 - Regular",
-        "3 - Mala"
-    )
+    val structuralOptions = SicCatalogRepository.options("sic17.structural.0")
 
-    val functionalOptions = listOf(
-        "1 - Buena · limpia",
-        "2 - Regular · parcialmente obstruida",
-        "3 - Mala · totalmente obstruida"
-    )
+    val functionalOptions = SicCatalogRepository.options("sic17.functional.0")
 
-    val serviceOptions = listOf(
-        "0 - Fuera de servicio",
-        "1 - Vehicular",
-        "2 - Ferroviario",
-        "3 - Peatonal",
-        "4 - Otro"
-    )
+    val serviceOptions = SicCatalogRepository.options("sic17.service.0")
 
-    val singularityOptions = listOf(
-        "1 - Río",
-        "2 - Quebrada",
-        "3 - Canal",
-        "4 - Camino",
-        "5 - Vía Férrea",
-        "6 - Otro"
-    )
+    val singularityOptions = SicCatalogRepository.options("sic17.singularity.0")
 
 
     SectionTitle(
@@ -4430,37 +4136,19 @@ fun ChoiceSelector(
     onSelected: (String) -> Unit
 ) {
 
-    LazyRow(
-        horizontalArrangement =
-            Arrangement.spacedBy(8.dp),
-
-        contentPadding =
-            PaddingValues(
-                vertical = 8.dp
-            )
-    ) {
-
-        items(options) { option ->
-
-            AssistChip(
-                onClick = {
-                    onSelected(option)
-                },
-                label = {
-
-                    Text(
-                        text =
-                            if (
-                                selected == option
-                            )
-                                "✓ $option"
-                            else
-                                option
-                    )
-                }
-            )
+    var expanded by remember { mutableStateOf(false) }
+    if(options.size > 3 || options.any { it.length > 40 }) {
+        Box(Modifier.fillMaxWidth()) {
+            OutlinedButton(onClick={expanded=true}, modifier=Modifier.fillMaxWidth()) { Text(selected.ifBlank { "Seleccionar" }) }
+            DropdownMenu(expanded=expanded,onDismissRequest={expanded=false}) {
+                options.forEach { option -> DropdownMenuItem(text={Text(if(option==selected) "✓ $option" else option)},
+                    onClick={onSelected(option);expanded=false}) }
+            }
         }
+    } else LazyRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+        items(options) { option -> FilterChip(selected=selected==option,onClick={onSelected(option)},label={Text(option)}) }
     }
+
 }
 
 

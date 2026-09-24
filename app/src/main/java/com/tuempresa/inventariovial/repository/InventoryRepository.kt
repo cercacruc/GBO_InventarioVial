@@ -1,6 +1,8 @@
 package com.tuempresa.inventariovial.repository
 
 import androidx.room.withTransaction
+import com.tuempresa.inventariovial.data.entity.*
+import com.tuempresa.inventariovial.supplementary.*
 
 import com.tuempresa.inventariovial.data.database.InventoryDatabase
 import com.tuempresa.inventariovial.data.entity.InventoryRecordEntity
@@ -11,7 +13,6 @@ import com.tuempresa.inventariovial.data.entity.Sic19Entity
 import com.tuempresa.inventariovial.data.entity.Sic20Entity
 import com.tuempresa.inventariovial.data.entity.Sic21Entity
 import com.tuempresa.inventariovial.data.entity.Sic22Entity
-import com.tuempresa.inventariovial.data.entity.Sic23Entity
 
 
 class InventoryRepository(
@@ -35,9 +36,7 @@ class InventoryRepository(
         dao.observePendingPhotoCount()
 
 
-    fun observeHistory() =
-        dao.observeHistory()
-
+    fun observeHistory() = dao.observeHistory()
 
     fun observeAllRecords() =
         dao.observeAllRecords()
@@ -51,7 +50,7 @@ class InventoryRepository(
 
         database.withTransaction {
 
-            dao.insertRecord(record)
+            dao.insertOrCompleteDraft(record)
 
             dao.insertSic17(detail)
 
@@ -68,7 +67,7 @@ class InventoryRepository(
 
         database.withTransaction {
 
-            dao.insertRecord(record)
+            dao.insertOrCompleteDraft(record)
 
             dao.insertSic18(detail)
 
@@ -85,7 +84,7 @@ class InventoryRepository(
 
         database.withTransaction {
 
-            dao.insertRecord(record)
+            dao.insertOrCompleteDraft(record)
 
             dao.insertSic19(detail)
 
@@ -102,7 +101,7 @@ class InventoryRepository(
 
         database.withTransaction {
 
-            dao.insertRecord(record)
+            dao.insertOrCompleteDraft(record)
 
             dao.insertSic20(detail)
 
@@ -119,7 +118,7 @@ class InventoryRepository(
 
         database.withTransaction {
 
-            dao.insertRecord(record)
+            dao.insertOrCompleteDraft(record)
 
             dao.insertSic21(detail)
 
@@ -127,14 +126,6 @@ class InventoryRepository(
         }
     }
 
-
-    suspend fun saveSic23(record: InventoryRecordEntity, detail: Sic23Entity, photos: List<PhotoEntity>) {
-        database.withTransaction {
-            dao.insertRecord(record)
-            dao.insertSic23(detail)
-            dao.insertPhotos(photos)
-        }
-    }
 
     suspend fun saveSic22(
         record: InventoryRecordEntity,
@@ -144,11 +135,38 @@ class InventoryRepository(
 
         database.withTransaction {
 
-            dao.insertRecord(record)
+            dao.insertOrCompleteDraft(record)
 
             dao.insertSic22(detail)
 
             dao.insertPhotos(photos)
+        }
+    }
+    suspend fun saveSic23(record: InventoryRecordEntity, detail: Sic23Entity, photos: List<PhotoEntity>) {
+        database.withTransaction {
+            dao.insertOrCompleteDraft(record)
+            dao.insertSic23(detail)
+            dao.insertPhotos(photos)
+        }
+    }
+
+    suspend fun saveSupplementary(recordId: String, state: SupplementaryFormState) {
+        check(state.format.enabled) { "Formato deshabilitado." }
+        require(state.validate().isEmpty()) { state.validate().joinToString("\n") }
+        database.withTransaction {
+            val snapshot=dao.snapshot(recordId) ?: error("Registro inexistente.")
+            require(snapshot.record.status=="ACTIVE") { "Solo se pueden editar registros activos." }
+            if(state.format!=SupplementaryFormat.SIC18A) {
+                require(snapshot.record.sicCode=="SIC-17") { "El formato requiere un puente." }
+                val bridge=snapshot.sic17?.bridgeCode.orEmpty()
+                require(state.values["bridgeCode"].orEmpty()==bridge) { "El código de puente debe coincidir con SIC-17." }
+            } else require(snapshot.record.sicCode=="SIC-18") { "El formato requiere una alcantarilla." }
+            when(state.format) {
+                SupplementaryFormat.SIC17A -> dao.saveSic17A(Sic17AEntity.from(recordId,state.values))
+                SupplementaryFormat.SIC17B -> dao.saveSic17B(Sic17BEntity.from(recordId,state.values))
+                SupplementaryFormat.SIC18A -> dao.saveSic18A(Sic18AEntity.from(recordId,state.values))
+            }
+            dao.markServerPending(recordId,maxOf(System.currentTimeMillis(),snapshot.record.updatedAt+1))
         }
     }
 }

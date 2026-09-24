@@ -1,0 +1,7 @@
+# Copiar a server.local.properties (ignorado por Git). No almacenar secretos en BuildConfig.
+SERVER_BASE_URL=
+ACCESS_CONTROL_ENABLED=false
+AI_ENABLED=false
+SIC17A_ENABLED=false
+SIC17B_ENABLED=false
+SIC18A_ENABLED=false

@@ -18,6 +18,10 @@ import com.tuempresa.inventariovial.data.entity.InventoryRecordWithPhotos
 import com.tuempresa.inventariovial.location.GeoLocation
 import com.tuempresa.inventariovial.location.TabletLocationProvider
 import com.tuempresa.inventariovial.viewmodel.InventoryViewModel
+import com.tuempresa.inventariovial.road.SequencedRecord
+import com.tuempresa.inventariovial.supplementary.SupplementaryFormat
+import com.tuempresa.inventariovial.field.SupplementaryScreen
+import com.tuempresa.inventariovial.data.entity.InventoryRecordEntity
 
 @Composable
 fun FinalLocationCapture(location: GeoLocation?, onLocation: (GeoLocation) -> Unit) {
@@ -52,7 +56,14 @@ fun FinalLocationCapture(location: GeoLocation?, onLocation: (GeoLocation) -> Un
 
 @Composable
 fun RecordHistoryScreen(viewModel: InventoryViewModel, onBack: () -> Unit) {
-    val records by viewModel.history.collectAsState()
+    val ordered by viewModel.sequencedHistory.collectAsState()
+    var showAnnulled by remember { mutableStateOf(false) }
+    val records = ordered.filter { showAnnulled || it.item.record.status == "ACTIVE" }
+    var complementary by remember { mutableStateOf<Pair<InventoryRecordEntity, SupplementaryFormat>?>(null) }
+    complementary?.let { (record,format) ->
+        SupplementaryScreen(viewModel,record,format) { complementary=null }
+        return
+    }
     var error by remember { mutableStateOf<String?>(null) }
     BackHandler(onBack = onBack)
     LazyColumn(
@@ -64,24 +75,27 @@ fun RecordHistoryScreen(viewModel: InventoryViewModel, onBack: () -> Unit) {
             OutlinedButton(onClick = onBack) { Text("Volver") }
             Text("Registros locales", style = MaterialTheme.typography.headlineMedium)
             Text("Ordenados por ruta, calzada y progresiva")
+            Row { Checkbox(showAnnulled,{showAnnulled=it});Text("Mostrar también anulados") }
             error?.let { ErrorText(it) }
         }
         if (records.isEmpty()) item { Text("Todavía no hay registros guardados.") }
         items(
             items = records,
-            key = { item: InventoryRecordWithPhotos -> item.record.id }
-        ) { item ->
-            HistoryRecordCard(item, viewModel) { error = it }
+            key = { item: SequencedRecord -> item.item.record.id }
+        ) { row ->
+            HistoryRecordCard(row, viewModel, { complementary=row.item.record to it }) { error = it }
         }
     }
 }
 
 @Composable
 private fun HistoryRecordCard(
-    item: InventoryRecordWithPhotos,
+    row: SequencedRecord,
     viewModel: InventoryViewModel,
+    onSupplementary: (SupplementaryFormat)->Unit,
     onError: (String) -> Unit
 ) {
+    val item = row.item
     val record = item.record
     var editing by remember { mutableStateOf(false) }
     var saving by remember { mutableStateOf(false) }
@@ -98,9 +112,27 @@ private fun HistoryRecordCard(
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("${record.sicCode} · ${record.assetType}", style = MaterialTheme.typography.titleMedium)
+            Text("${row.computedSequence?.toString()?.padStart(3,'0') ?: "Sin número operativo"} · ${row.position.chainageM?.let { String.format(java.util.Locale.US,"%.2f m",it) } ?: "Progresiva no determinada"}")
+            Text(when(row.position.source) {
+                com.tuempresa.inventariovial.road.PositionSource.OFFICIAL_PR -> "Progresiva: catálogo oficial de PR"
+                com.tuempresa.inventariovial.road.PositionSource.ESTIMATED_FROM_PR_CODE -> "Progresiva ESTIMADA desde código PR"
+                com.tuempresa.inventariovial.road.PositionSource.KILOMETRIC -> "Progresiva kilométrica registrada"
+                else -> "Revisar PR en catálogo"
+            })
             Text("${record.routeCode} / ${record.roadbedCode} · PR ${record.startPrCode} + ${record.startDistanceM}")
+            record.segment?.let { Text("$it · Sentido: ${if(record.surveyDirection=="DECREASING") "Decreciente" else "Creciente"}") }
+            item.sic18?.let { detail ->
+                if(detail.crossSectionCode=="2") Text("Forma: ${when(detail.sectionShape) { "CIRCULAR" -> "Circular"; "OVAL" -> "Ovalada"; else -> "Circular / ovalada (registro anterior)" }}")
+                Text("Dimensión 1: ${detail.dimension1M ?: "Sin dato"} m · Dimensión 2: ${detail.dimension2M?.let { "$it m" } ?: "No aplica / sin dato"}")
+                Text("Daño estructural: ${detail.structuralDamagePercent?.let { "$it %" } ?: "Sin dato"}")
+                Text("Obstrucción: ${detail.functionalObstructionPercent?.let { "$it %" } ?: "Sin dato"}")
+            }
             Text("Fotos: ${item.photos.size} · Pendientes: ${item.photos.count { it.syncStatus != "SYNCED" }}")
             Text(if (record.status == "ACTIVE") "Estado: activo" else "Estado: anulado")
+            if(com.tuempresa.inventariovial.server.ServerConfiguration.enabled) {
+                Text(if(com.tuempresa.inventariovial.server.ServerConfiguration.enabled) "Servidor: ${record.serverSyncStatus}" else "Servidor: sin configurar · datos guardados localmente")
+                record.serverSyncError?.let { ErrorText(it) }
+            }
             Text("GPS inicial: ${record.latitude}, ${record.longitude}")
             record.endLatitude?.let { Text("GPS final: $it, ${record.endLongitude}") }
             item.sic23?.let { detail ->
@@ -110,6 +142,9 @@ private fun HistoryRecordCard(
                 Text("Fin: PR ${record.endPrCode} + ${record.endDistanceM} · Lado: ${record.sideCode}")
             }
             if (!editing) {
+                if(record.status=="ACTIVE") SupplementaryFormat.entries.filter { it.enabled &&
+                    if(record.sicCode=="SIC-17") it!=SupplementaryFormat.SIC18A else record.sicCode=="SIC-18" && it==SupplementaryFormat.SIC18A
+                }.forEach { format -> OutlinedButton(onClick={onSupplementary(format)}) {Text("Completar ${format.title}")} }
                 record.observations?.let { Text(it) }
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     OutlinedButton(onClick = { editing = true; editError = null }) { Text("Editar") }
@@ -156,4 +191,3 @@ private fun HistoryRecordCard(
         }
     }
 }
-

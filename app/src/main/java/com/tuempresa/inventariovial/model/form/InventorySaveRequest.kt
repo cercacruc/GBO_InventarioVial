@@ -2,8 +2,8 @@ package com.tuempresa.inventariovial.model.form
 
 
 sealed interface SicFormDetail {
-    data class Sic23(val state: Sic23FormState) : SicFormDetail
 
+    data class Sic23(val state: Sic23FormState) : SicFormDetail
 
     data class Sic17(
         val state: Sic17FormState
@@ -72,5 +72,14 @@ data class InventorySaveRequest(
     val photoPaths: List<String> = listOf(photoPath),
     val endLatitude: Double? = null,
     val endLongitude: Double? = null,
-    val endGpsAccuracyM: Float? = null
+    val endGpsAccuracyM: Float? = null,
+    val recordId: String? = null,
+    val location: com.tuempresa.inventariovial.location.GeoLocation? = null,
+    val endLocation: com.tuempresa.inventariovial.location.GeoLocation? = null,
+    val locationSource: String = "MANUAL",
+    val sideSource: String = "MANUAL",
+    val sessionId: String? = null,
+    val stampedPaths: Map<String, String> = emptyMap(),
+    val segment: String = "",
+    val direction: String = "INCREASING"
 )

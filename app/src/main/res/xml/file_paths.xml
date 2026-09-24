@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <cache-path name="kml_exports" path="kml/" />
+    <files-path name="stamped_images" path="stamped/" />
 
     <files-path
         name="inspection_images"

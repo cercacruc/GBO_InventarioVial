@@ -66,7 +66,7 @@ data class Sic23FormState(
             "23 - Punto específico", "24 - Cantera")
 
         fun locationError(route: String, roadbed: String, startPr: String, startDistance: String,
-                          endPr: String?, endDistance: String?, side: String?): String? {
+                          endPr: String?, endDistance: String?, side: String?, checkEstimatedOrder: Boolean = true): String? {
             if (route.isBlank() || roadbed.isBlank()) return "Ruta y calzada son obligatorias."
             if (!roadbed.trim().matches(Regex("[A-Za-z0-9]+"))) return "La calzada debe ser alfanumérica."
             if (!startPr.trim().matches(Regex("[0-9]{1,4}")) ||
@@ -75,7 +75,7 @@ data class Sic23FormState(
             val end = endDistance?.trim()?.replace(',', '.')?.toDoubleOrNull()
             if (start == null || !start.isFinite() || start < 0 ||
                 end == null || !end.isFinite() || end < 0) return "Las distancias de inicio y fin deben ser números positivos o cero."
-            if (endPr!!.trim().toInt() * 1000.0 + end < startPr.trim().toInt() * 1000.0 + start)
+            if (checkEstimatedOrder && endPr!!.trim().toInt() * 1000.0 + end < startPr.trim().toInt() * 1000.0 + start)
                 return "La ubicación final no puede ser anterior a la inicial."
             if (side?.trim()?.uppercase(Locale.ROOT) !in listOf("D", "I", "S")) return "Selecciona el lado D, I o S."
             return null

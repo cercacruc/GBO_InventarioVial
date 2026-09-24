@@ -1,0 +1,60 @@
+[
+  {
+    "file": "app/src/main/java/com/tuempresa/inventariovial/DriveConfig.kt",
+    "unchanged": true,
+    "sha256": "965a87dd53863e5d57a09fb652e9105405eeebdd78ec827b05f32fc49a448aa0"
+  },
+  {
+    "file": "app/src/main/java/com/tuempresa/inventariovial/DriveFolderRouter.kt",
+    "unchanged": true,
+    "sha256": "16c584b044a2f914030d8525faf8aaafeecfd2834007ff7d71d8d460ef2f9d73"
+  },
+  {
+    "file": "app/src/main/java/com/tuempresa/inventariovial/DriveSync.kt",
+    "unchanged": true,
+    "sha256": "151c24c8ab193d5760ed5a8c463ea68f89c3aca0c89eae9bad5ad344546490d1"
+  },
+  {
+    "file": "app/src/main/java/com/tuempresa/inventariovial/DriveUploadWorker.kt",
+    "unchanged": true,
+    "sha256": "ec64454031d370a46be80493ca661a5c5d5f2f07e60bf8fd6b702b5a31c52079"
+  },
+  {
+    "file": "app/src/main/java/com/tuempresa/inventariovial/SicExportScreen.kt",
+    "unchanged": true,
+    "sha256": "56bb8e46d0233de860da777fe09ddde2158ea64362a38c072c7ebb4886272f39"
+  },
+  {
+    "file": "app/src/main/java/com/tuempresa/inventariovial/data/entity/InventoryRecordForExport.kt",
+    "unchanged": true,
+    "sha256": "e8078a17cdc16e770197aef88078be713b3f0c9b5541a4d3af86d15dbabf83ed"
+  },
+  {
+    "file": "app/src/main/java/com/tuempresa/inventariovial/camera/PhotoUtils.kt",
+    "unchanged": true,
+    "sha256": "6694799311837eb35367518573231b2d02084b3957b34d28a286317c74a7574e"
+  },
+  {
+    "file": "app/src/main/java/com/tuempresa/inventariovial/export/LocalSicExport.kt",
+    "unchanged": true,
+    "sha256": "01cae4e88832b91996929cc819279e80baff8c176e6670ae5ad0db013e153baa"
+  },
+  {
+    "file": "app/src/main/java/com/tuempresa/inventariovial/export/SicExcelWriter.kt",
+    "unchanged": true,
+    "sha256": "6316f79f7fd9b942cdb33af2b0ca5ceb508c068856cedf52c419daca4b16248d"
+  },
+  {
+    "file": "app/src/main/java/com/tuempresa/inventariovial/export/SicExportFormat.kt",
+    "unchanged": true,
+    "sha256": "aff4fbc803d409a4a61e2268f6c2f85a02d0720cc0d3f3515ae79e34f3847313"
+  },
+  {
+    "file": "app/src/main/java/com/tuempresa/inventariovial/viewmodel/InventoryViewModel.kt [naming functions]",
+    "unchanged": true
+  },
+  {
+    "file": "app/src/main/java/com/tuempresa/inventariovial/data/dao/InventoryDao.kt [recordsForExport query]",
+    "unchanged": true
+  }
+]

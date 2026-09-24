@@ -1,6 +1,20 @@
 package com.tuempresa.inventariovial.viewmodel
 
 import android.app.Application
+import android.graphics.BitmapFactory
+import com.tuempresa.inventariovial.field.FieldController
+import com.tuempresa.inventariovial.road.*
+import com.tuempresa.inventariovial.validation.*
+import com.tuempresa.inventariovial.server.scheduleServerSync
+import com.tuempresa.inventariovial.tracking.TrackCaptureService
+import com.tuempresa.inventariovial.supplementary.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+
 
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -115,22 +129,39 @@ class InventoryViewModel(
             )
 
 
-    val history: StateFlow<List<InventoryRecordWithPhotos>> =
-        repository
-            .observeHistory()
-            .stateIn(
-                scope =
-                    viewModelScope,
+    val field = FieldController(application, database, viewModelScope)
+    val sequencedHistory = combine(repository.observeHistory(),field.reference) { records, reference ->
+        RoadOrdering.order(records,ChainageCalculator(reference.prs))
+    }.stateIn(viewModelScope,SharingStarted.WhileSubscribed(5_000),emptyList())
+    val history: StateFlow<List<InventoryRecordWithPhotos>> = sequencedHistory.map { rows -> rows.map { it.item } }
+        .stateIn(viewModelScope,SharingStarted.WhileSubscribed(5_000),emptyList())
 
-                started =
-                    SharingStarted
-                        .WhileSubscribed(
-                            5_000
-                        ),
-
-                initialValue =
-                    emptyList<InventoryRecordWithPhotos>()
-            )
+    data class PendingSave(val request: InventorySaveRequest, val warnings: List<ValidationWarning>,
+        val onSuccess: ()->Unit, val onError: (String)->Unit)
+    private val _pendingSave=MutableStateFlow<PendingSave?>(null)
+    val pendingSave=_pendingSave.asStateFlow()
+    fun dismissSaveWarnings() { _pendingSave.value=null }
+    fun confirmSaveWarnings() {
+        val pending=_pendingSave.value ?: return
+        _pendingSave.value=null
+        saveRecord(pending.request,pending.onSuccess,pending.onError,true)
+    }
+    suspend fun supplementaryState(recordId: String, format: SupplementaryFormat): SupplementaryFormState {
+        val snapshot=field.dao.snapshot(recordId) ?: error("Registro inexistente.")
+        val values=when(format) {
+            SupplementaryFormat.SIC17A -> snapshot.sic17a?.values() ?: mapOf("bridgeCode" to snapshot.sic17?.bridgeCode.orEmpty())
+            SupplementaryFormat.SIC17B -> snapshot.sic17b?.values() ?: mapOf("bridgeCode" to snapshot.sic17?.bridgeCode.orEmpty())
+            SupplementaryFormat.SIC18A -> snapshot.sic18a?.values() ?: mapOf("classCode" to snapshot.sic18?.classCode.orEmpty(),
+                "typeCode" to snapshot.sic18?.typeCode.orEmpty(),"spans" to snapshot.sic18?.spans?.toString().orEmpty())
+        }
+        return SupplementaryFormState(format,values)
+    }
+    fun saveSupplementary(recordId: String,state: SupplementaryFormState,onSuccess: ()->Unit,onError: (String)->Unit) {
+        viewModelScope.launch {
+            try { repository.saveSupplementary(recordId,state);scheduleServerSync(getApplication());onSuccess() }
+            catch(error:Exception) { onError(error.message ?: "No se pudo guardar el formato.") }
+        }
+    }
     val localExport = com.tuempresa.inventariovial.export.LocalSicExport(application, database, viewModelScope)
     private var saving = false
 
@@ -139,6 +170,7 @@ class InventoryViewModel(
             try {
                 val photos = database.inventoryDao().pendingPhotos()
                 photos.forEach { enqueuePhoto(it) }
+                scheduleServerSync(getApplication())
                 onResult("Fotografías programadas: ${photos.size}")
             } catch (error: Exception) {
                 onResult(error.message ?: "No se pudo programar la sincronización.")
@@ -227,7 +259,9 @@ class InventoryViewModel(
     fun setRecordStatus(id: String, active: Boolean, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
-                database.inventoryDao().setRecordStatus(id, if (active) "ACTIVE" else "ANNULLED", System.currentTimeMillis())
+                val previous=database.inventoryDao().recordById(id) ?: error("Registro inexistente.")
+                database.inventoryDao().setRecordStatus(id, if (active) "ACTIVE" else "ANNULLED", maxOf(System.currentTimeMillis(),previous.updatedAt+1))
+                scheduleServerSync(getApplication())
             } catch (error: Exception) { onError(error.message ?: "No se pudo cambiar el estado.") }
         }
     }
@@ -241,11 +275,12 @@ class InventoryViewModel(
                 if (record.sicCode == "SIC-23") {
                     Sic23FormState.locationError(record.routeCode, record.roadbedCode,
                         record.startPrCode, record.startDistanceM.toString(), record.endPrCode,
-                        record.endDistanceM?.toString(), record.sideCode)?.let { throw IllegalArgumentException(it) }
+                        record.endDistanceM?.toString(), record.sideCode, checkEstimatedOrder = false)?.let { throw IllegalArgumentException(it) }
                 }
                 database.inventoryDao().updateCoreFields(record.id, record.routeCode.trim().uppercase(),
                     record.roadbedCode.trim().uppercase(), normalizeRequiredPr(record.startPrCode), record.startDistanceM,
-                    normalizeOptionalPr(record.endPrCode), record.endDistanceM, record.sideCode, record.observations, System.currentTimeMillis())
+                    normalizeOptionalPr(record.endPrCode), record.endDistanceM, record.sideCode, record.observations, maxOf(System.currentTimeMillis(),record.updatedAt+1))
+                scheduleServerSync(getApplication())
                 onSuccess()
             } catch (error: Exception) { onError(error.message ?: "No se pudo editar el registro.") }
         }
@@ -258,7 +293,8 @@ class InventoryViewModel(
     fun saveRecord(
         request: InventorySaveRequest,
         onSuccess: () -> Unit,
-        onError: (String) -> Unit
+        onError: (String) -> Unit,
+        warningsAccepted: Boolean = false
     ) {
 
         if (saving) return
@@ -270,19 +306,29 @@ class InventoryViewModel(
                     request.detail.state.validationError()?.let { throw IllegalArgumentException(it) }
                     Sic23FormState.locationError(request.routeCode, request.roadbedCode,
                         request.startPrCode, request.startDistanceM, request.endPrCode,
-                        request.endDistanceM, request.sideCode)?.let { throw IllegalArgumentException(it) }
+                        request.endDistanceM, request.sideCode, checkEstimatedOrder = false)?.let { throw IllegalArgumentException(it) }
                 }
-                require(request.photoPaths.isNotEmpty()) { "Debes tomar una fotografía." }
+                com.tuempresa.inventariovial.field.SurveyPreferences(getApplication()).validate(request)?.let { error(it) }
+                val errors=CaptureValidation.errors(request)
+                require(errors.isEmpty()) { errors.joinToString("\n") { it.message } }
+                require(TrackCaptureService.activeRecordId.value==null || TrackCaptureService.activeRecordId.value!=request.recordId) { "Finaliza el recorrido antes de guardar." }
                 require(request.photoPaths.all { java.io.File(it).isFile }) { "No se encontró una fotografía." }
+                if(!warningsAccepted) {
+                    val dimensions=withContext(Dispatchers.IO) { request.photoPaths.map { path ->
+                        val bounds=BitmapFactory.Options().apply { inJustDecodeBounds=true }
+                        BitmapFactory.decodeFile(path,bounds)
+                        PhotoDimensions(bounds.outWidth,bounds.outHeight)
+                    } }
+                    val warnings=CaptureValidation.warnings(request,field.reference.value,System.currentTimeMillis(),dimensions,
+                        field.settings.value.qualityConfig(),field.settings.value.matchConfig())
+                    _pendingSave.value=PendingSave(request,warnings,onSuccess,onError); return@launch
+                }
 
                 // -------------------------------------------------
                 // IDENTIFICADORES ÚNICOS
                 // -------------------------------------------------
 
-                val recordId =
-                    UUID
-                        .randomUUID()
-                        .toString()
+                val recordId = request.recordId ?: UUID.randomUUID().toString()
 
 
                 val photoId =
@@ -318,6 +364,7 @@ class InventoryViewModel(
 
                         id =
                             recordId,
+                        segment = request.segment, surveyDirection = request.direction,
 
 
                         sicCode =
@@ -389,20 +436,16 @@ class InventoryViewModel(
                             request.longitude,
 
 
-                        // Todavía no estamos recibiendo
-                        // altitud desde el formulario.
-                        altitudeM =
-                            null,
+                        altitudeM = request.location?.altitude?.takeIf { it.isFinite() },
 
 
                         gpsAccuracyM =
                             request
                                 .gpsAccuracyM
-                                ?.toDouble(),
+                                ?.toDouble()?.takeIf { it.isFinite() && it>=0 },
 
 
-                        surveyDate =
-                            request.surveyDate,
+                        surveyDate = SimpleDateFormat("dd/MM/yyyy", Locale.US).format(Date(now)),
 
 
                         observations =
@@ -418,8 +461,7 @@ class InventoryViewModel(
                             "ACTIVE",
 
 
-                        photoSyncStatus =
-                            "PENDING",
+                        photoSyncStatus = if(request.photoPaths.isEmpty()) "SYNCED" else "PENDING",
 
 
                         excelSyncStatus =
@@ -432,7 +474,19 @@ class InventoryViewModel(
 
                         endLatitude = request.endLatitude,
                         endLongitude = request.endLongitude,
-                        endGpsAccuracyM = request.endGpsAccuracyM?.toDouble(),
+                        endGpsAccuracyM = request.endGpsAccuracyM?.toDouble()?.takeIf { it.isFinite() && it>=0 },
+                        gpsTimestamp = request.location?.timestamp,
+                        endGpsTimestamp = request.endLocation?.timestamp,
+                        gnssProvider = request.location?.provider?.name ?: "TABLET",
+                        gnssFixType = request.location?.fixType,
+                        verticalAccuracyM = request.location?.verticalAccuracy?.toDouble(),
+                        satellites = request.location?.satellites,
+                        hdop = request.location?.hdop,
+                        correctionAge = request.location?.correctionAge,
+                        isRtkFixed = request.location?.isRtkFixed ?: false,
+                        locationSource = request.locationSource,
+                        sideSource = request.sideSource,
+                        sessionId = request.sessionId,
                         updatedAt =
                             now
                     )
@@ -496,6 +550,7 @@ class InventoryViewModel(
 
                 val photos = request.photoPaths.distinct().mapIndexed { index, path ->
                     photo.copy(id = UUID.randomUUID().toString(), localPath = path,
+                        originalPath = path, stampedPath = request.stampedPaths[path],
                         photoIndex = index + 1, isPrimary = index == 0,
                         generatedFileName = buildDriveFileName(request, index + 1))
                 }
@@ -643,6 +698,9 @@ class InventoryViewModel(
 
                                     recordId =
                                         recordId,
+                                    sectionShape = if(state.crossSectionCode == "2") state.sectionShape else null,
+                                    structuralDamagePercent = state.structuralDamagePercent.replace(',','.').toDoubleOrNull(),
+                                    functionalObstructionPercent = state.functionalObstructionPercent.replace(',','.').toDoubleOrNull(),
 
 
                                     classCode =
@@ -681,7 +739,7 @@ class InventoryViewModel(
                                     dimension2M =
                                         optionalDouble(
                                             value =
-                                                state.dimension2M,
+                                                if(state.usesDimension2) state.dimension2M else "",
 
                                             fieldName =
                                                 "Dimensión 2"
@@ -1003,7 +1061,9 @@ class InventoryViewModel(
                 // =================================================
 
                 // Local save has committed; scheduling can be retried from Home.
+                com.tuempresa.inventariovial.field.SurveyPreferences(getApplication()).remember(request)
                 runCatching { photos.forEach { enqueuePhoto(it) } }
+                runCatching { scheduleServerSync(getApplication()) }
                 onSuccess()
 
 
@@ -1583,6 +1643,7 @@ class InventoryViewModel(
                 "."
             )
             .toDoubleOrNull()
+            ?.takeIf { it.isFinite() }
             ?: throw IllegalArgumentException(
                 "$fieldName debe ser un número válido."
             )

@@ -1,0 +1,1398 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 5,
+    "identityHash": "44076404820e264854a48ae5ec9d9d6c",
+    "entities": [
+      {
+        "tableName": "inventory_records",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `sicCode` TEXT NOT NULL, `assetType` TEXT NOT NULL, `routeCode` TEXT NOT NULL, `roadbedCode` TEXT NOT NULL, `startPrCode` TEXT NOT NULL, `startDistanceM` REAL NOT NULL, `endPrCode` TEXT, `endDistanceM` REAL, `sideCode` TEXT, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `altitudeM` REAL, `gpsAccuracyM` REAL, `surveyDate` TEXT NOT NULL, `observations` TEXT, `status` TEXT NOT NULL, `photoSyncStatus` TEXT NOT NULL, `excelSyncStatus` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, `endLatitude` REAL, `endLongitude` REAL, `endGpsAccuracyM` REAL, `locationSource` TEXT NOT NULL DEFAULT 'MANUAL', `sideSource` TEXT NOT NULL DEFAULT 'MANUAL', `sessionId` TEXT, `gpsTimestamp` INTEGER, `endGpsTimestamp` INTEGER, `gnssProvider` TEXT NOT NULL DEFAULT 'TABLET', `gnssFixType` TEXT, `verticalAccuracyM` REAL, `satellites` INTEGER, `hdop` REAL, `correctionAge` REAL, `isRtkFixed` INTEGER NOT NULL DEFAULT 0, `serverSyncStatus` TEXT NOT NULL DEFAULT 'PENDING', `serverSyncError` TEXT, `segment` TEXT, `surveyDirection` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sicCode",
+            "columnName": "sicCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "assetType",
+            "columnName": "assetType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "routeCode",
+            "columnName": "routeCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "roadbedCode",
+            "columnName": "roadbedCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startPrCode",
+            "columnName": "startPrCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startDistanceM",
+            "columnName": "startDistanceM",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endPrCode",
+            "columnName": "endPrCode",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "endDistanceM",
+            "columnName": "endDistanceM",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "sideCode",
+            "columnName": "sideCode",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "latitude",
+            "columnName": "latitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "longitude",
+            "columnName": "longitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "altitudeM",
+            "columnName": "altitudeM",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "gpsAccuracyM",
+            "columnName": "gpsAccuracyM",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "surveyDate",
+            "columnName": "surveyDate",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "observations",
+            "columnName": "observations",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "photoSyncStatus",
+            "columnName": "photoSyncStatus",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "excelSyncStatus",
+            "columnName": "excelSyncStatus",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endLatitude",
+            "columnName": "endLatitude",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "endLongitude",
+            "columnName": "endLongitude",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "endGpsAccuracyM",
+            "columnName": "endGpsAccuracyM",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "locationSource",
+            "columnName": "locationSource",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'MANUAL'"
+          },
+          {
+            "fieldPath": "sideSource",
+            "columnName": "sideSource",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'MANUAL'"
+          },
+          {
+            "fieldPath": "sessionId",
+            "columnName": "sessionId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "gpsTimestamp",
+            "columnName": "gpsTimestamp",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "endGpsTimestamp",
+            "columnName": "endGpsTimestamp",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "gnssProvider",
+            "columnName": "gnssProvider",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'TABLET'"
+          },
+          {
+            "fieldPath": "gnssFixType",
+            "columnName": "gnssFixType",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "verticalAccuracyM",
+            "columnName": "verticalAccuracyM",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "satellites",
+            "columnName": "satellites",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "hdop",
+            "columnName": "hdop",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "correctionAge",
+            "columnName": "correctionAge",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "isRtkFixed",
+            "columnName": "isRtkFixed",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "serverSyncStatus",
+            "columnName": "serverSyncStatus",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'PENDING'"
+          },
+          {
+            "fieldPath": "serverSyncError",
+            "columnName": "serverSyncError",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "segment",
+            "columnName": "segment",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "surveyDirection",
+            "columnName": "surveyDirection",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_inventory_records_routeCode",
+            "unique": false,
+            "columnNames": [
+              "routeCode"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_inventory_records_routeCode` ON `${TABLE_NAME}` (`routeCode`)"
+          },
+          {
+            "name": "index_inventory_records_sicCode",
+            "unique": false,
+            "columnNames": [
+              "sicCode"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_inventory_records_sicCode` ON `${TABLE_NAME}` (`sicCode`)"
+          },
+          {
+            "name": "index_inventory_records_surveyDate",
+            "unique": false,
+            "columnNames": [
+              "surveyDate"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_inventory_records_surveyDate` ON `${TABLE_NAME}` (`surveyDate`)"
+          }
+        ]
+      },
+      {
+        "tableName": "photos",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `recordId` TEXT NOT NULL, `photoIndex` INTEGER NOT NULL, `localPath` TEXT NOT NULL, `isPrimary` INTEGER NOT NULL, `generatedFileName` TEXT, `driveFolderId` TEXT, `driveFileId` TEXT, `syncStatus` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `originalPath` TEXT NOT NULL DEFAULT '', `stampedPath` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`recordId`) REFERENCES `inventory_records`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recordId",
+            "columnName": "recordId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "photoIndex",
+            "columnName": "photoIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "localPath",
+            "columnName": "localPath",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isPrimary",
+            "columnName": "isPrimary",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "generatedFileName",
+            "columnName": "generatedFileName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "driveFolderId",
+            "columnName": "driveFolderId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "driveFileId",
+            "columnName": "driveFileId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "syncStatus",
+            "columnName": "syncStatus",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "originalPath",
+            "columnName": "originalPath",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "stampedPath",
+            "columnName": "stampedPath",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_photos_recordId",
+            "unique": false,
+            "columnNames": [
+              "recordId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_photos_recordId` ON `${TABLE_NAME}` (`recordId`)"
+          },
+          {
+            "name": "index_photos_recordId_photoIndex",
+            "unique": true,
+            "columnNames": [
+              "recordId",
+              "photoIndex"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_photos_recordId_photoIndex` ON `${TABLE_NAME}` (`recordId`, `photoIndex`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "inventory_records",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "recordId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "sic17_details",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`recordId` TEXT NOT NULL, `classCode` TEXT NOT NULL, `typeCode` TEXT NOT NULL, `bridgeCode` TEXT, `inventoriedCode` TEXT NOT NULL, `spans` INTEGER, `dimension1LengthM` REAL, `dimension2LowerHeightM` REAL, `structuralConditionCode` TEXT NOT NULL, `functionalConditionCode` TEXT NOT NULL, `serviceTypeCode` TEXT NOT NULL, `singularityCode` TEXT NOT NULL, `singularityName` TEXT, `dimension3UpperHeightM` REAL, PRIMARY KEY(`recordId`), FOREIGN KEY(`recordId`) REFERENCES `inventory_records`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "recordId",
+            "columnName": "recordId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "classCode",
+            "columnName": "classCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "typeCode",
+            "columnName": "typeCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bridgeCode",
+            "columnName": "bridgeCode",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "inventoriedCode",
+            "columnName": "inventoriedCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "spans",
+            "columnName": "spans",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "dimension1LengthM",
+            "columnName": "dimension1LengthM",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "dimension2LowerHeightM",
+            "columnName": "dimension2LowerHeightM",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "structuralConditionCode",
+            "columnName": "structuralConditionCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "functionalConditionCode",
+            "columnName": "functionalConditionCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serviceTypeCode",
+            "columnName": "serviceTypeCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "singularityCode",
+            "columnName": "singularityCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "singularityName",
+            "columnName": "singularityName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "dimension3UpperHeightM",
+            "columnName": "dimension3UpperHeightM",
+            "affinity": "REAL"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "recordId"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "inventory_records",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "recordId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "sic18_details",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`recordId` TEXT NOT NULL, `classCode` TEXT NOT NULL, `typeCode` TEXT NOT NULL, `spans` INTEGER, `crossSectionCode` TEXT NOT NULL, `dimension1M` REAL, `dimension2M` REAL, `structuralConditionCode` TEXT NOT NULL, `functionalConditionCode` TEXT NOT NULL, `sectionShape` TEXT, `structuralDamagePercent` REAL, `functionalObstructionPercent` REAL, PRIMARY KEY(`recordId`), FOREIGN KEY(`recordId`) REFERENCES `inventory_records`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "recordId",
+            "columnName": "recordId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "classCode",
+            "columnName": "classCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "typeCode",
+            "columnName": "typeCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "spans",
+            "columnName": "spans",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "crossSectionCode",
+            "columnName": "crossSectionCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dimension1M",
+            "columnName": "dimension1M",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "dimension2M",
+            "columnName": "dimension2M",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "structuralConditionCode",
+            "columnName": "structuralConditionCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "functionalConditionCode",
+            "columnName": "functionalConditionCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sectionShape",
+            "columnName": "sectionShape",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "structuralDamagePercent",
+            "columnName": "structuralDamagePercent",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "functionalObstructionPercent",
+            "columnName": "functionalObstructionPercent",
+            "affinity": "REAL"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "recordId"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "inventory_records",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "recordId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "sic19_details",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`recordId` TEXT NOT NULL, `classCode` TEXT NOT NULL, `typeCode` TEXT NOT NULL, `crossSectionCode` TEXT NOT NULL, `structuralConditionCode` TEXT NOT NULL, `functionalConditionCode` TEXT NOT NULL, PRIMARY KEY(`recordId`), FOREIGN KEY(`recordId`) REFERENCES `inventory_records`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "recordId",
+            "columnName": "recordId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "classCode",
+            "columnName": "classCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "typeCode",
+            "columnName": "typeCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "crossSectionCode",
+            "columnName": "crossSectionCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "structuralConditionCode",
+            "columnName": "structuralConditionCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "functionalConditionCode",
+            "columnName": "functionalConditionCode",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "recordId"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "inventory_records",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "recordId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "sic20_details",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`recordId` TEXT NOT NULL, `classCode` TEXT NOT NULL, `typeCode` TEXT NOT NULL, `dimension1M` REAL, `dimension2M` REAL, `structuralConditionCode` TEXT NOT NULL, `functionalConditionCode` TEXT, PRIMARY KEY(`recordId`), FOREIGN KEY(`recordId`) REFERENCES `inventory_records`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "recordId",
+            "columnName": "recordId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "classCode",
+            "columnName": "classCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "typeCode",
+            "columnName": "typeCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dimension1M",
+            "columnName": "dimension1M",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "dimension2M",
+            "columnName": "dimension2M",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "structuralConditionCode",
+            "columnName": "structuralConditionCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "functionalConditionCode",
+            "columnName": "functionalConditionCode",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "recordId"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "inventory_records",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "recordId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "sic21_details",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`recordId` TEXT NOT NULL, `classCode` TEXT NOT NULL, `typeCode` TEXT NOT NULL, `materialCode` TEXT NOT NULL, `conditionCode` TEXT NOT NULL, PRIMARY KEY(`recordId`), FOREIGN KEY(`recordId`) REFERENCES `inventory_records`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "recordId",
+            "columnName": "recordId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "classCode",
+            "columnName": "classCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "typeCode",
+            "columnName": "typeCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "materialCode",
+            "columnName": "materialCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "conditionCode",
+            "columnName": "conditionCode",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "recordId"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "inventory_records",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "recordId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "sic22_details",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`recordId` TEXT NOT NULL, `classCode` TEXT NOT NULL, `typeCode` TEXT NOT NULL, `materialCode` TEXT NOT NULL, `signalCode` TEXT, `kilometerPostNumber` TEXT, `conditionCode` TEXT NOT NULL, `signWidthM` REAL, `signHeightM` REAL, `lowerEdgeHeightM` REAL, PRIMARY KEY(`recordId`), FOREIGN KEY(`recordId`) REFERENCES `inventory_records`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "recordId",
+            "columnName": "recordId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "classCode",
+            "columnName": "classCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "typeCode",
+            "columnName": "typeCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "materialCode",
+            "columnName": "materialCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "signalCode",
+            "columnName": "signalCode",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "kilometerPostNumber",
+            "columnName": "kilometerPostNumber",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "conditionCode",
+            "columnName": "conditionCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "signWidthM",
+            "columnName": "signWidthM",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "signHeightM",
+            "columnName": "signHeightM",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "lowerEdgeHeightM",
+            "columnName": "lowerEdgeHeightM",
+            "affinity": "REAL"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "recordId"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "inventory_records",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "recordId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "sic23_details",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`recordId` TEXT NOT NULL, `classCode` TEXT NOT NULL, `typeCode` TEXT, `widthM` REAL, `description` TEXT NOT NULL, PRIMARY KEY(`recordId`), FOREIGN KEY(`recordId`) REFERENCES `inventory_records`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "recordId",
+            "columnName": "recordId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "classCode",
+            "columnName": "classCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "typeCode",
+            "columnName": "typeCode",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "widthM",
+            "columnName": "widthM",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "recordId"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "inventory_records",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "recordId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "sic17a_details",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`recordId` TEXT NOT NULL, `bridgeName` TEXT NOT NULL, `bridgeCode` TEXT NOT NULL, `constructionYear` TEXT NOT NULL, `department` TEXT NOT NULL, `province` TEXT NOT NULL, `district` TEXT NOT NULL, `nearbyTown` TEXT NOT NULL, `latitude` TEXT NOT NULL, `longitude` TEXT NOT NULL, `altitude` TEXT NOT NULL, `lanes` TEXT NOT NULL, `roadwayWidthM` TEXT NOT NULL, `sidewalkWidthM` TEXT NOT NULL, `deckWidthM` TEXT NOT NULL, `superstructureWidthM` TEXT NOT NULL, `alignmentCode` TEXT NOT NULL, PRIMARY KEY(`recordId`), FOREIGN KEY(`recordId`) REFERENCES `inventory_records`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "recordId",
+            "columnName": "recordId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bridgeName",
+            "columnName": "bridgeName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bridgeCode",
+            "columnName": "bridgeCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "constructionYear",
+            "columnName": "constructionYear",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "department",
+            "columnName": "department",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "province",
+            "columnName": "province",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "district",
+            "columnName": "district",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nearbyTown",
+            "columnName": "nearbyTown",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "latitude",
+            "columnName": "latitude",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "longitude",
+            "columnName": "longitude",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "altitude",
+            "columnName": "altitude",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lanes",
+            "columnName": "lanes",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "roadwayWidthM",
+            "columnName": "roadwayWidthM",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sidewalkWidthM",
+            "columnName": "sidewalkWidthM",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deckWidthM",
+            "columnName": "deckWidthM",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "superstructureWidthM",
+            "columnName": "superstructureWidthM",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "alignmentCode",
+            "columnName": "alignmentCode",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "recordId"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "inventory_records",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "recordId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "sic17b_details",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`recordId` TEXT NOT NULL, `bridgeCode` TEXT NOT NULL, `designLoad` TEXT NOT NULL, `maximumCapacity` TEXT NOT NULL, `wearingSurface` TEXT NOT NULL, `vehicleRestraintCode` TEXT NOT NULL, `mainSpanM` TEXT NOT NULL, `boundaryCode` TEXT NOT NULL, `crossSectionCode` TEXT NOT NULL, `beams` TEXT NOT NULL, `slabMaterialCode` TEXT NOT NULL, `beamMaterialCode` TEXT NOT NULL, `abutmentElevationCode` TEXT NOT NULL, `abutmentMaterialCode` TEXT NOT NULL, `abutmentFoundationCode` TEXT NOT NULL, `pierElevationCode` TEXT NOT NULL, `pierMaterialCode` TEXT NOT NULL, `pierFoundationCode` TEXT NOT NULL, `comments` TEXT NOT NULL, PRIMARY KEY(`recordId`), FOREIGN KEY(`recordId`) REFERENCES `inventory_records`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "recordId",
+            "columnName": "recordId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bridgeCode",
+            "columnName": "bridgeCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "designLoad",
+            "columnName": "designLoad",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "maximumCapacity",
+            "columnName": "maximumCapacity",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "wearingSurface",
+            "columnName": "wearingSurface",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "vehicleRestraintCode",
+            "columnName": "vehicleRestraintCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mainSpanM",
+            "columnName": "mainSpanM",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "boundaryCode",
+            "columnName": "boundaryCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "crossSectionCode",
+            "columnName": "crossSectionCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "beams",
+            "columnName": "beams",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "slabMaterialCode",
+            "columnName": "slabMaterialCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "beamMaterialCode",
+            "columnName": "beamMaterialCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "abutmentElevationCode",
+            "columnName": "abutmentElevationCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "abutmentMaterialCode",
+            "columnName": "abutmentMaterialCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "abutmentFoundationCode",
+            "columnName": "abutmentFoundationCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pierElevationCode",
+            "columnName": "pierElevationCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pierMaterialCode",
+            "columnName": "pierMaterialCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pierFoundationCode",
+            "columnName": "pierFoundationCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "comments",
+            "columnName": "comments",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "recordId"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "inventory_records",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "recordId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "sic18a_details",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`recordId` TEXT NOT NULL, `classCode` TEXT NOT NULL, `typeCode` TEXT NOT NULL, `spans` TEXT NOT NULL, `functionCode` TEXT NOT NULL, `failureLocationCode` TEXT NOT NULL, `failureTypeCode` TEXT NOT NULL, `functionalStateCode` TEXT NOT NULL, `probableCauseCode` TEXT NOT NULL, PRIMARY KEY(`recordId`), FOREIGN KEY(`recordId`) REFERENCES `inventory_records`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "recordId",
+            "columnName": "recordId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "classCode",
+            "columnName": "classCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "typeCode",
+            "columnName": "typeCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "spans",
+            "columnName": "spans",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "functionCode",
+            "columnName": "functionCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "failureLocationCode",
+            "columnName": "failureLocationCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "failureTypeCode",
+            "columnName": "failureTypeCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "functionalStateCode",
+            "columnName": "functionalStateCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "probableCauseCode",
+            "columnName": "probableCauseCode",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "recordId"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "inventory_records",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "recordId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "track_points",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `recordId` TEXT NOT NULL, `sequence` INTEGER NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `altitude` REAL, `accuracy` REAL NOT NULL, `timestamp` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`recordId`) REFERENCES `inventory_records`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recordId",
+            "columnName": "recordId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sequence",
+            "columnName": "sequence",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "latitude",
+            "columnName": "latitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "longitude",
+            "columnName": "longitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "altitude",
+            "columnName": "altitude",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "accuracy",
+            "columnName": "accuracy",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_track_points_recordId_sequence",
+            "unique": true,
+            "columnNames": [
+              "recordId",
+              "sequence"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_track_points_recordId_sequence` ON `${TABLE_NAME}` (`recordId`, `sequence`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "inventory_records",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "recordId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "field_sessions",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`sessionId` TEXT NOT NULL, `project` TEXT NOT NULL, `operator` TEXT NOT NULL, `device` TEXT NOT NULL, `road` TEXT, `segment` TEXT, `roadbed` TEXT, `direction` TEXT NOT NULL, `startTime` INTEGER NOT NULL, `endTime` INTEGER, PRIMARY KEY(`sessionId`))",
+        "fields": [
+          {
+            "fieldPath": "sessionId",
+            "columnName": "sessionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "project",
+            "columnName": "project",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "operator",
+            "columnName": "operator",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "device",
+            "columnName": "device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "road",
+            "columnName": "road",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "segment",
+            "columnName": "segment",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "roadbed",
+            "columnName": "roadbed",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "direction",
+            "columnName": "direction",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startTime",
+            "columnName": "startTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endTime",
+            "columnName": "endTime",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "sessionId"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '44076404820e264854a48ae5ec9d9d6c')"
+    ]
+  }
+}

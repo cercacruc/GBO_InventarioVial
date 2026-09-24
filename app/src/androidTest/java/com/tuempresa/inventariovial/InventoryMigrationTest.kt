@@ -39,12 +39,15 @@ class InventoryMigrationTest {
             old.version = 1
         }
         val db = Room.databaseBuilder(context, InventoryDatabase::class.java, name)
-            .addMigrations(InventoryDatabase.MIGRATION_1_2, InventoryDatabase.MIGRATION_2_3).build()
+            .addMigrations(InventoryDatabase.MIGRATION_1_2, InventoryDatabase.MIGRATION_2_3, InventoryDatabase.MIGRATION_3_4,InventoryDatabase.MIGRATION_4_5).build()
         try {
             val dao = db.inventoryDao()
             val item = dao.observeHistory().first().single()
             assertEquals("record-1", item.record.id)
             assertEquals(2, item.photos.size)
+            assertEquals("/photo1.jpg", item.photos.first { it.id == "photo-1" }.originalPath)
+            assertNull(item.photos.first().stampedPath)
+            assertEquals("PENDING", item.record.serverSyncStatus)
             assertNull(item.record.endLatitude)
             assertNull(item.record.endLongitude)
             assertEquals(1, dao.pendingPhotos().size)

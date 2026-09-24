@@ -4,3 +4,10 @@
 **/build/
 /local.properties
 /drive.local.properties
+
+/server.local.properties
+/tmp/zip-integration-source/
+/tmp/integrate_forms.py
+/tmp/*integration*.log
+/tmp/gradle-failure.log
+/tmp/refine_integration.py

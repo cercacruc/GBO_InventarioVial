@@ -13,9 +13,19 @@ data class GeoLocation(
 
     val source: String = "TABLET_GNSS",
 
-    val timestamp: Long =
-        System.currentTimeMillis()
-)
+    val timestamp: Long = System.currentTimeMillis(),
+    val verticalAccuracy: Float? = null,
+    val provider: GnssProvider = GnssProvider.TABLET,
+    val fixType: String? = null,
+    val satellites: Int? = null,
+    val hdop: Double? = null,
+    val correctionAge: Double? = null,
+    val isRtkFixed: Boolean = false
+) {
+    val horizontalAccuracy: Float get() = accuracyHorizontal
+}
+
+enum class GnssProvider { TABLET, EXTERNAL_GNSS, RTK_FIXED, RTK_FLOAT }
 
 
 interface LocationProvider {

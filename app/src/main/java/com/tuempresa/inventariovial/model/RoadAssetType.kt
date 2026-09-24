@@ -25,10 +25,13 @@ enum class RoadAssetType(
     ),
 
     FORD(
-        "Badén, túnel o muro",
-        "Badenes, túneles y muros",
+        "Badén",
+        "Inventario de badenes",
         "SIC-20"
     ),
+
+    TUNNEL("Túnel", "Inventario de túneles", "SIC-20"),
+    WALL("Muro", "Inventario de muros", "SIC-20"),
 
     RIGHT_OF_WAY(
         "Derecho de vía",
