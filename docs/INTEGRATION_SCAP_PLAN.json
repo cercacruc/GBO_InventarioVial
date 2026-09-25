@@ -1,0 +1,1897 @@
+{
+  "officialHead": "cdbe5e79df440fdbdfec071f7c0e1c214b9d1639",
+  "originMain": "cdbe5e79df440fdbdfec071f7c0e1c214b9d1639",
+  "branch": "main",
+  "zipBase": "393567166f68837e85415465683c5ef981073876",
+  "zipSha256": "405b9fc4a0dc4be12ffbd4e0712e93399cbef2946abda41dcf58b474d7e43d17",
+  "counts": {
+    "ZIP_ONLY_CHANGE": 26,
+    "IDENTICAL": 124,
+    "ADD_ZIP": 53
+  },
+  "realConflicts": [],
+  "files": [
+    {
+      "path": ".gitignore",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "MERGE_IGNORE_RULES",
+      "beforeSha256": "e1ee8ec8e7e789148aeeb95b3615b84f4140c6f3408f8a683836ba0e37993d50",
+      "zipSha256": "2f0b5d874dd0aa7368bba98e3ad93a52e387cab82912cf2c5ff7b6f009c20a51",
+      "ancestorSha256": "13dada17626b55b195d41522a9b7be1278ffeda1721832ee7ece9125822df306"
+    },
+    {
+      "path": "app/.gitignore",
+      "kind": "IDENTICAL",
+      "action": "KEEP_OUTSIDE_SCOPE",
+      "beforeSha256": "5c3174b74edc6f2b9e0743594b8bd3c7f31e4f4405758cc9872b3fe1de1d28b4",
+      "zipSha256": "5c3174b74edc6f2b9e0743594b8bd3c7f31e4f4405758cc9872b3fe1de1d28b4",
+      "ancestorSha256": "5c3174b74edc6f2b9e0743594b8bd3c7f31e4f4405758cc9872b3fe1de1d28b4"
+    },
+    {
+      "path": "app/build.gradle.kts",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "f8f23d6125edca83acb0e3d52f48e6b3641868b2bdec4fd35486607cb5a03dae",
+      "zipSha256": "2540b3d3b8b0f253697b902ced3b55bf14d33ac3f42ae87d2272f5f4dfb7bcac",
+      "ancestorSha256": "f1d16ad9f2aeeaacf89c67df382baf3f930cb90d975f33a3e05672e808115b82"
+    },
+    {
+      "path": "app/schemas/com.tuempresa.inventariovial.data.database.InventoryDatabase/4.json",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "809199ef002bdb935b965d2c42e480f4d3a9c582cbf3aa5295f2e770ede61dcf",
+      "zipSha256": "809199ef002bdb935b965d2c42e480f4d3a9c582cbf3aa5295f2e770ede61dcf",
+      "ancestorSha256": "8c97d0e2aad4b9990d27515b08aaa9389813d2635585d22d4a4e35c29d454219"
+    },
+    {
+      "path": "app/schemas/com.tuempresa.inventariovial.data.database.InventoryDatabase/5.json",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "9e7e74127dad6a601781e5d29b68c5f85f782858a2794afee9eeeced25d8504e",
+      "zipSha256": "9e7e74127dad6a601781e5d29b68c5f85f782858a2794afee9eeeced25d8504e",
+      "ancestorSha256": "c7ce0484140611df05f01a535c7a8e618288c02765cec0d061ce52cc7f5bd9e9"
+    },
+    {
+      "path": "app/schemas/com.tuempresa.inventariovial.data.database.InventoryDatabase/6.json",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "ea9c8a83d0bf1e042dca689638563cbf31eb7df1f91c557f1d1ef7453479dec6",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/androidTest/assets/inventory-v1.sql",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "2e7daf58b39515fa6e8ed02444f3bffe505f994b4eae65a8b46b8fd3328b00e1",
+      "zipSha256": "2e7daf58b39515fa6e8ed02444f3bffe505f994b4eae65a8b46b8fd3328b00e1",
+      "ancestorSha256": "f38f4bbbb886e436433948bb086720902412519112d08471a47a0487ee28c939"
+    },
+    {
+      "path": "app/src/androidTest/java/com/tuempresa/inventariovial/ExampleInstrumentedTest.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "63bf1a452f9dc21e0977bb98dfd996a1750d48041dde8665d5d6551618c1143f",
+      "zipSha256": "63bf1a452f9dc21e0977bb98dfd996a1750d48041dde8665d5d6551618c1143f",
+      "ancestorSha256": "7da78c6501dd32c23338c76520765e5ac06b9cbadd2f34138be43935b2e944b0"
+    },
+    {
+      "path": "app/src/androidTest/java/com/tuempresa/inventariovial/InventoryMigrationTest.kt",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "2f8ff65a5ae358817fe4c6b41556990717bf821b1cd597b8d654383eed45906a",
+      "zipSha256": "37f6ba6bdbd92ba88d9ec6aad9574a6f9d5c300b7c173ed931bcb7f7b54c4066",
+      "ancestorSha256": "67682fc6d458b08b1ffbd31c35697e0a7fbf93a479bed667e6b41fde71040eca"
+    },
+    {
+      "path": "app/src/androidTest/java/com/tuempresa/inventariovial/SicExportScreenTest.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "0aac53b327c691b33794ed567a960e4baa2dac6ee48ca88f9fe35d9c51eebb21",
+      "zipSha256": "0aac53b327c691b33794ed567a960e4baa2dac6ee48ca88f9fe35d9c51eebb21",
+      "ancestorSha256": "ea430b2eac1d2e1e3e4999b1376cea0cf800d81b1feef38b7e6f742c541bb6ac"
+    },
+    {
+      "path": "app/src/androidTest/java/com/tuempresa/inventariovial/SurveyFormsScreenTest.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "82b0012d82248448f9df4fb28396bb1cda32e555467bd9fedf7087474100c632",
+      "zipSha256": "82b0012d82248448f9df4fb28396bb1cda32e555467bd9fedf7087474100c632",
+      "ancestorSha256": "cf710ffcf5e800a14a9ebf9430a91073516dc81820c02ae44054c6f5499a7787"
+    },
+    {
+      "path": "app/src/main/AndroidManifest.xml",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "81cb7d46c0ec6ad5cc087a1541c42cf1c1290605bce03cf952b25e8a5555bc82",
+      "zipSha256": "81cb7d46c0ec6ad5cc087a1541c42cf1c1290605bce03cf952b25e8a5555bc82",
+      "ancestorSha256": "45354c9c3dac8f7e7388edd25abcde2ff6af436300e10a8af775d9632269ff90"
+    },
+    {
+      "path": "app/src/main/assets/allowed_devices.json",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "6f4d2512e89766693d028a0e6a5febb1e15c8a04e7aad7dcecc02ecbf1633e27",
+      "zipSha256": "6f4d2512e89766693d028a0e6a5febb1e15c8a04e7aad7dcecc02ecbf1633e27",
+      "ancestorSha256": "e0d4433a5cd3a24449d54b12b63aecd16aa8ecd3b20bbefde4401637af77a30d"
+    },
+    {
+      "path": "app/src/main/assets/road_reference.json",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "8404620f5e733f69b524d73bc6753a2a1a417cada119f7f5658c7d191263c5d3",
+      "zipSha256": "8404620f5e733f69b524d73bc6753a2a1a417cada119f7f5658c7d191263c5d3",
+      "ancestorSha256": "51975b3496f1498a373f4d2c2f5917ed8cb159ef47126decee435e4475966a10"
+    },
+    {
+      "path": "app/src/main/assets/scap_elements.json",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "c0f1dd80b6ac25eb37be2e6eb384de230b85dbc3e949b93665441a284a77ab73",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/assets/scap_fields.json",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "d69b780eeba7e2881a9ae177b7b713ea7ae0010240e59c3c0138a8b11aa6d4d2",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/assets/scap_options.json",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "f8f1c01fa615ce8b80e562455a25f2c6f580f9b90f1977866d8e5074bb98538e",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/ic_launcher-playstore.png",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "644a48da8061504e41cd64f6b61aff425f8cd7e504d0927f6296461cf4c65b6c",
+      "zipSha256": "644a48da8061504e41cd64f6b61aff425f8cd7e504d0927f6296461cf4c65b6c",
+      "ancestorSha256": "644a48da8061504e41cd64f6b61aff425f8cd7e504d0927f6296461cf4c65b6c"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/access/DeviceAccessManager.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "d2ff3cf3618c622fcb54b3908d3623ab8586f7e3275a723f1c1746363ebf34c7",
+      "zipSha256": "d2ff3cf3618c622fcb54b3908d3623ab8586f7e3275a723f1c1746363ebf34c7",
+      "ancestorSha256": "d2acb9191bd6d34946369098e0eaa90f59798bcb5717231fc96a4e580f930fdf"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/ai/AiAnalyzer.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "3b195f67a6306ee6ae53455f91113077fcf6afa2922c1fadf947b477d0f6bfca",
+      "zipSha256": "3b195f67a6306ee6ae53455f91113077fcf6afa2922c1fadf947b477d0f6bfca",
+      "ancestorSha256": "63d142dfd192912396fad469d4fcec3463ef1bbbf8d97234edfbb5f5fb3282b9"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/camera/PhotoStampService.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "d6083ab30e48bc6d7d7d6b75ca135d8aa309ad121723b8b6f34275c8c7e1b6d9",
+      "zipSha256": "d6083ab30e48bc6d7d7d6b75ca135d8aa309ad121723b8b6f34275c8c7e1b6d9",
+      "ancestorSha256": "db4cc4bc42a4d6b1551f3a319bc33cdd497bc1b8bde16621f41166a468666156"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/camera/PhotoUtils.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "4b68d3a90c8a19ed9a6dcff39194132cb8f4782b964be5fdfdb8e571c174d407",
+      "zipSha256": "4b68d3a90c8a19ed9a6dcff39194132cb8f4782b964be5fdfdb8e571c174d407",
+      "ancestorSha256": "02615c25bb66c91dd04ae4ba28c415058d5cab28027370a745ac7fc7fa040296"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/catalog/SicCatalogRepository.kt",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "f0924de6a146790b2384082423e58116d79a0594186b00e86908213a16a394cd",
+      "zipSha256": "23d22647b3b4f60809b215bc35df6cd6ccbfb0f91664110d984d5f5a36e6fee5",
+      "ancestorSha256": "c9368e7ea69715ad1d1756243ab7a02d5fd69c5f12e70a1a523cd4063b2ab5f1"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/dao/InventoryDao.kt",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "ea05e79fca3ec919bd09fffe392e95f7e77a40f4acc5cb6383ac3074ba1f5960",
+      "zipSha256": "c6bbe3454de47eaa1510e103014f67e0a1b13a91dcb479fd2e159ec532446daa",
+      "ancestorSha256": "523f8d6d61f1659b4cb9bd98ee01dd5ae01f426c54a70557fca675690f005a64"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/data/dao.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "07f1c39bb48c5ae1dd56dccb53d1fe8c5e8d1d9075c6df45fecc2ad8e09c768e",
+      "zipSha256": "07f1c39bb48c5ae1dd56dccb53d1fe8c5e8d1d9075c6df45fecc2ad8e09c768e",
+      "ancestorSha256": "2c00a991dd6d1296817fcf4639f398ba9cd134de34333a2a53fb6852548080bc"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/database/InventoryDatabase.kt",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "0be3f623281dbbc7fc29df027e8435ccf53125a1b5358277dd1f12fb8d1f27f6",
+      "zipSha256": "65845bd8a226fc59e83d319a9a636bfbf1a6e631f194a6624d38cd685b6b99f7",
+      "ancestorSha256": "7fa425fdf300b51cbf91a69555a4556aa394bd18299bd9a93c6d5f292e99c650"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/database/InventoryMigrations.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "0ec23ad752a2181e5a6a482c791dbc24be11511ab00298b0f79973b3fbbbc363",
+      "zipSha256": "0ec23ad752a2181e5a6a482c791dbc24be11511ab00298b0f79973b3fbbbc363",
+      "ancestorSha256": "f4e184829f2821e6328f19d484597b2719c3649506e6564f8279d14cfac506f1"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/entity/FieldSession.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "d77038945ee51a25eddd9c7e345793ab4fff7222d54fd84ceb1cc3aeecc7f4a8",
+      "zipSha256": "d77038945ee51a25eddd9c7e345793ab4fff7222d54fd84ceb1cc3aeecc7f4a8",
+      "ancestorSha256": "27ff3c547e798cfafa8b2a5b0ad33c9b2d000fd6bd6699c5a056c35bd6328d93"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/entity/InventoryRecordEntity.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "cb39527ccd3f48570c69a13a016d0fd07cd143aba1d991708bc6590a46f542b8",
+      "zipSha256": "cb39527ccd3f48570c69a13a016d0fd07cd143aba1d991708bc6590a46f542b8",
+      "ancestorSha256": "5a2c99b4639ad8ff90748d25ea0d13c01061f36473c01543b9885fd1511f3046"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/entity/InventoryRecordForExport.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "0101b76452b33dc832b0763ff475f386a98d1b92bdaaabb561856c6c0b7ebc62",
+      "zipSha256": "0101b76452b33dc832b0763ff475f386a98d1b92bdaaabb561856c6c0b7ebc62",
+      "ancestorSha256": "e8078a17cdc16e770197aef88078be713b3f0c9b5541a4d3af86d15dbabf83ed"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/entity/InventoryRecordWithPhotos.kt",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "39ec76449504a64c1163aea6a07b081c8f380bf1cc620487130a60ed10a7b816",
+      "zipSha256": "b6d8e0578831d68417482a77f73b63b0cb1a62ba56dc35bb3cc738a5084ea756",
+      "ancestorSha256": "524df4b50ce799e006c1ed9fedbdff8248268eca1fae068c9a8f7950f158e1ef"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/entity/InventorySnapshot.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "1bfb79ae38d733902cda981564f9f3a3732e3974c6c5f57d4353ca06f412d7b3",
+      "zipSha256": "1bfb79ae38d733902cda981564f9f3a3732e3974c6c5f57d4353ca06f412d7b3",
+      "ancestorSha256": "c16bed14ca9d04fbcbaf91d14865e00cccedebb78c1f8c08209c04e9e56f82e6"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/entity/PhotoEntity.kt",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "f765540db4c87e3859cb3a1ff8780f1ac0e6ef82f581fe7e9f8b30d5794bcf09",
+      "zipSha256": "2e2abae4e84eec94e3b2e596c7db2eb2aa5c75d730b991bd9dac31017728217e",
+      "ancestorSha256": "ef9d00d57fcce272b472a3091a5dd205a37f40666883e3a54bf6550ed016898d"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/entity/Sic17AEntity.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "f4a425dbd5efb501ae59be4da9c65d574e1a5a0455848f04ea0bb33861fac4fa",
+      "zipSha256": "f4a425dbd5efb501ae59be4da9c65d574e1a5a0455848f04ea0bb33861fac4fa",
+      "ancestorSha256": "6d243e43e9bc8a4b23a6d5149dfcbc8c4cebac75b4f8bd098e2f2507ef09f593"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/entity/Sic17BEntity.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "104d2eadff05acafda168bcb87669289c098a7ac7491e0d600c69863a05c27f0",
+      "zipSha256": "104d2eadff05acafda168bcb87669289c098a7ac7491e0d600c69863a05c27f0",
+      "ancestorSha256": "973e5bc479d97a4304b38b05ac6da724679829c853104bfeb385744381a000b5"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/entity/Sic17Entity.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "dbc3eb60f3c6812b477d191e06e8a6baad9344aeee779c65e631ba19117827a6",
+      "zipSha256": "dbc3eb60f3c6812b477d191e06e8a6baad9344aeee779c65e631ba19117827a6",
+      "ancestorSha256": "3659e0887ea9d8e6729f194cb4197aa07cb4dde6034ebe16d35e9c23476fb03f"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/entity/Sic18AEntity.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "0844b51e2d12354eb00647d2df1007e2d4c55d9b15a92593bc86b243ee5d3441",
+      "zipSha256": "0844b51e2d12354eb00647d2df1007e2d4c55d9b15a92593bc86b243ee5d3441",
+      "ancestorSha256": "d07a2563096555266c4c5b578bb602dc5b799eeecfb52d7ca2e68a84d772b6a4"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/entity/Sic18Entity.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "7f70749b7143b6029ee2c50b846a949f87995aa0dcaaa688b009dfc0932c0210",
+      "zipSha256": "7f70749b7143b6029ee2c50b846a949f87995aa0dcaaa688b009dfc0932c0210",
+      "ancestorSha256": "7155a2b939dc955673b36bcc520d31f0d26daab970a7c9b3ad6c893a0bfe249c"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/entity/Sic19Entity.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "97fcd10802ad186642d1348bb0658f5bbb021fb8b7b0a78af81defbfeda9edce",
+      "zipSha256": "97fcd10802ad186642d1348bb0658f5bbb021fb8b7b0a78af81defbfeda9edce",
+      "ancestorSha256": "73f7a4e829b142830f8d71d45d595bd060651b00805611579ecf91461d28a186"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/entity/Sic20Entity.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "6ddb9d32d8e4ce66972a9b0cb9d83eb124a4bbaff07bcc9795663746b705a103",
+      "zipSha256": "6ddb9d32d8e4ce66972a9b0cb9d83eb124a4bbaff07bcc9795663746b705a103",
+      "ancestorSha256": "cd5a1d17e0d6c6f52f6e9d2050e6b0c8d46d40d6eb491eaa18a403faa4d3c177"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/entity/Sic21Entity.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "d5e35ebee5fcd5038278addeab6e221fff85023f3db1c896a00583d1f289c1e5",
+      "zipSha256": "d5e35ebee5fcd5038278addeab6e221fff85023f3db1c896a00583d1f289c1e5",
+      "ancestorSha256": "5ff7d612abf6080a8892e3a466df2c1bc7ad4f716d5176488a9d84ba93e8bb13"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/entity/Sic22Entity.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "d95913e4bb142fbc0a2bff56b32f9be4b1f13b4af0abb7a1d4d863ef831a66d7",
+      "zipSha256": "d95913e4bb142fbc0a2bff56b32f9be4b1f13b4af0abb7a1d4d863ef831a66d7",
+      "ancestorSha256": "abb11bd2d6313a3b8b4ce50dfc80f98df2be5cca0800cc3f8e03c8b63fc2e4db"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/entity/Sic23Entity.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "91fd799e903c784296c18cbce50789c7450d54c911964a7eacf146a8bb44a196",
+      "zipSha256": "91fd799e903c784296c18cbce50789c7450d54c911964a7eacf146a8bb44a196",
+      "ancestorSha256": "6a61a91c857c7cf835937a710d19809902bdcb1fcfdf569750eb5e83e7b132a0"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/entity/TrackPointEntity.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "b16fb5fc0c93137c2b84b7f036033e3a19a3584a581dc635480162a41698f4ed",
+      "zipSha256": "b16fb5fc0c93137c2b84b7f036033e3a19a3584a581dc635480162a41698f4ed",
+      "ancestorSha256": "89bd970c9a2d6e16e320d142f3f6eaac90fbc7a652a391f44c9bfa8cf4b3c045"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/DriveConfig.kt",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "3190942515630a08970c25e74bb03f80d26c38686c9025a188fecb1994a1abf7",
+      "zipSha256": "3a0544587a5c1a42e8ceb73e921df0c80f1d4b864e0f94ccff70e2688d411aa3",
+      "ancestorSha256": "965a87dd53863e5d57a09fb652e9105405eeebdd78ec827b05f32fc49a448aa0"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/DriveFolderRouter.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "19306f0168e37d2217b8a2e21e3f6c02d556fcc6cb1cab270e725689fe63aaaf",
+      "zipSha256": "19306f0168e37d2217b8a2e21e3f6c02d556fcc6cb1cab270e725689fe63aaaf",
+      "ancestorSha256": "16c584b044a2f914030d8525faf8aaafeecfd2834007ff7d71d8d460ef2f9d73"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/DriveStatusPanel.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "cd3ce34aa9e51b6930d8feedc07d962598466687781da6cb06d070e0d243d548",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/DriveSync.kt",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "c666ec5084b5d25ea18905553bed957d6c3a1c45f11ff922bd7f9b403cb9f009",
+      "zipSha256": "ec1ab0de0429d4a5e23c8c93ccb560332a21a6a4aaddfde13bd195fbfb9d311b",
+      "ancestorSha256": "151c24c8ab193d5760ed5a8c463ea68f89c3aca0c89eae9bad5ad344546490d1"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/DriveUploadPolicy.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "879ec71722a57ebeb6047b3d8c5d2b5a84117ca164ce247318a758824e6eb715",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/DriveUploadWorker.kt",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "5a05673e54891ed254350315ee3c7a826bc8ab45fe4878c3b03b3ac148d94da7",
+      "zipSha256": "55f9987d321c95198a4d96ca7e9e98c7b2cf324f515730d89e58fb1d871b48f9",
+      "ancestorSha256": "ec64454031d370a46be80493ca661a5c5d5f2f07e60bf8fd6b702b5a31c52079"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/export/LocalSicExport.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "e1a7c9510b63748d584c9c0a5e0473359f228140a0c47ca2f193f78a6474898f",
+      "zipSha256": "e1a7c9510b63748d584c9c0a5e0473359f228140a0c47ca2f193f78a6474898f",
+      "ancestorSha256": "01cae4e88832b91996929cc819279e80baff8c176e6670ae5ad0db013e153baa"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/export/ObservationReport.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "801612ee0b89a1332b3d7ff76e7bf722d3d7c496dc54f22c7d80469adbd2e4d7",
+      "zipSha256": "801612ee0b89a1332b3d7ff76e7bf722d3d7c496dc54f22c7d80469adbd2e4d7",
+      "ancestorSha256": "e6cab3d0ece4cb68e24a3054faa9b1a1095bb3fb9a07caaf8e52d6be356a143d"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/export/SicExcelWriter.kt",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "0cecdf0d9caa30ce6ba0c9433dc9e5a36ef9ab1ccb272c662523b81bc80a4ec0",
+      "zipSha256": "b75081ecfe0926e9bd98d40755b70f0f1f1375c7e33ec5da715a5b9d064b974a",
+      "ancestorSha256": "6316f79f7fd9b942cdb33af2b0ca5ceb508c068856cedf52c419daca4b16248d"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/export/SicExportFormat.kt",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "b0b751bd3c8225d6c4a64d2885a3e0b235e6fecdfc81959ba8320649b269dfa2",
+      "zipSha256": "4ab918c648894d94b8ce7d9f000b9ac15aa2181cb011a9259d81b8b0b15f053d",
+      "ancestorSha256": "aff4fbc803d409a4a61e2268f6c2f85a02d0720cc0d3f3515ae79e34f3847313"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/field/CaptureSummary.kt",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "0e5b324534e89b6bb6abbd6dc0e8c074b659cdc218a1358d04c34b7619a6a1e8",
+      "zipSha256": "2586e607fa4425555fb06843d44fc062bd965d5449c522796af06bb12ba94f23",
+      "ancestorSha256": "0940ceabe61496cbff490b701849ebe0c807c3fb87294b2b64874ce62bbf922a"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/field/CaptureToolsUi.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "5c8f6916383233d9265c809382fd4fa51863339af0c4ff6e82d98cd0841a2fd1",
+      "zipSha256": "5c8f6916383233d9265c809382fd4fa51863339af0c4ff6e82d98cd0841a2fd1",
+      "ancestorSha256": "60fa17c8834dbe994d1ff6cf1d6cc0e33015893534b3f162572a2db7a5083d31"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/field/FieldController.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "9663ddd4cc70ba6dfe90d4bd9ecf01e7ddf054db2e850af8e90a4fa6877de7c2",
+      "zipSha256": "9663ddd4cc70ba6dfe90d4bd9ecf01e7ddf054db2e850af8e90a4fa6877de7c2",
+      "ancestorSha256": "1e3fc12c631f86016da30e87ea730cac00e71d7118fcde828082ede56803fe77"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/field/FieldSettings.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "066d7739ea7d0080fcc6e1af6d94ef33c5eb63a9f4ee7906b9b81f8aa0faaadf",
+      "zipSha256": "066d7739ea7d0080fcc6e1af6d94ef33c5eb63a9f4ee7906b9b81f8aa0faaadf",
+      "ancestorSha256": "cc7a7ea8fc2594463590bc6ec9d4474c0f6018a57649f22c6142b159d0c5fa2b"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/field/FieldUi.kt",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "85291a41426ccf522a3429b4631aacd7100e56e5fa0ca3fb9b18a4406b0fa56b",
+      "zipSha256": "ba4b321eab237da13cb26a5976d8255a2c5658f64f4b64c3edffefc8870edc1d",
+      "ancestorSha256": "cc24f456845200dded854cd15ae712569ec41d15cf24ee50ff8525da15484804"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/field/ObservationReportButton.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "7665377f410fdf28c825d4192ed0de2e190e20455b26d3206d16649f9110d81b",
+      "zipSha256": "7665377f410fdf28c825d4192ed0de2e190e20455b26d3206d16649f9110d81b",
+      "ancestorSha256": "84207e5146e179242af1bac327ba9c99427b34252490b9732d2c42b2604352c6"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/field/SurveyHeader.kt",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "de1cbf6f807e3763581a79b7627c87ebcafc91ee2fd68852183474454829aeed",
+      "zipSha256": "aeb149c323430a7bb9f546bfbc4e34528180af724ce3e3fd84ec9590fe5ea7bc",
+      "ancestorSha256": "d63026f28af5c2ea0c55714b394ecea2ae578766562a9a716c9a96a1ef2779ec"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/field/SurveyPreferences.kt",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "6f62ae320e3e662e9baf9ff8b7a6d75bcdb502de58a7888e7b51104ca25b6c3e",
+      "zipSha256": "c8739595c347543131ae29426443ba716cb9d342fc3924d7978280aef355a6b0",
+      "ancestorSha256": "b1c35321450e12eb3b811c15c1232fd3be82b213bde52e9b00a681c5f41afa59"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/gis/KmlExporter.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "ecf6511d2781f5a82dd748f02186b58cb046af20a9e794313e3b731bb3f4739e",
+      "zipSha256": "ecf6511d2781f5a82dd748f02186b58cb046af20a9e794313e3b731bb3f4739e",
+      "ancestorSha256": "a8df52156288538a0e48016552d071086db392f1a0d7f9c2a20e7fa1f517aa9e"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/gis/LocalKmlExport.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "f9da630da8f5e4b289fdd7434962e70eb048e4df41c9a57867bb6fe3795db846",
+      "zipSha256": "f9da630da8f5e4b289fdd7434962e70eb048e4df41c9a57867bb6fe3795db846",
+      "ancestorSha256": "d5323e6dbc06a7040e1a6fba914542d282d7272c78931da7c795ebcb103db80b"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/location/ExternalGnssProvider.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "56eb48f6413e40822bb4523f419abfcbd709703d9eb62f3b5c83612a062e5981",
+      "zipSha256": "56eb48f6413e40822bb4523f419abfcbd709703d9eb62f3b5c83612a062e5981",
+      "ancestorSha256": "1e617fcfbf22190177231330cba1407fde3d9469a8b58e46c1b34949a47b2548"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/location/GpsUtils.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "74808df1fb6d0eb09b66c0837c93224248dd0532c38e030959f0845078fab400",
+      "zipSha256": "74808df1fb6d0eb09b66c0837c93224248dd0532c38e030959f0845078fab400",
+      "ancestorSha256": "02db1b37ebd80143e39c1fe2280fee01042a26519e3ade80e1d32fe3111fea03"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/location/LocationProvider.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "0c4719841957d1be837959054fb4e82d082d3704aae0dd063efe71bb556997e8",
+      "zipSha256": "0c4719841957d1be837959054fb4e82d082d3704aae0dd063efe71bb556997e8",
+      "ancestorSha256": "72787f703aa76e77e936744e68b3420bdc1f97d65907244808df5e973950ee71"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/location/TabletLocationProvider.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "3c48124d16adc352e715b1dd9e947f5830623ec24e9aa30decaaedc4716aafc3",
+      "zipSha256": "3c48124d16adc352e715b1dd9e947f5830623ec24e9aa30decaaedc4716aafc3",
+      "ancestorSha256": "8ed7be3d1bdefba3e67382e4dc71623e43d4a4a4dab032291da4c06cd815af0c"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/MainActivity.kt",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "514c0a323fc6df986fd8e4dcba6be6aef326f0c8e6dffcd87acf3c5cc9ed2304",
+      "zipSha256": "f18df7410e71ce99e49c48b468c2f8aeabcbb3a172ab997a00594e7d84345159",
+      "ancestorSha256": "298a6cea44184c88a4427242c7709ef133fdcbd17415a8b4a7986091bcae6a50"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/model/form/CommonInventoryFormState.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "ba24bc9fc98b2d88863b34e0966a8187c7add12e73fcbf14aba413074e4f45de",
+      "zipSha256": "ba24bc9fc98b2d88863b34e0966a8187c7add12e73fcbf14aba413074e4f45de",
+      "ancestorSha256": "e0e4007f9a2d676f6ac21c97712bcc8f03975f45143bf501ca8184d955d8ef90"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/model/form/InventoryFormState.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "a5a93749119c53b23d382b342303b5cc657cd958a7fda3998e88beb3bb26fb94",
+      "zipSha256": "a5a93749119c53b23d382b342303b5cc657cd958a7fda3998e88beb3bb26fb94",
+      "ancestorSha256": "10e94f13885cd06c4b98cb7af6185890dea098b1a990a9ee2dbb8a084609e038"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/model/form/InventorySaveRequest.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "318deb16f80f24cc1f263fe595f1a8800bd92d2507e4f3bfc538e556222f1ee9",
+      "zipSha256": "318deb16f80f24cc1f263fe595f1a8800bd92d2507e4f3bfc538e556222f1ee9",
+      "ancestorSha256": "d5a15cb3081c2df9d06143ecabb4f05d52a1a9eab9e8a5c1d65704df5a521a31"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/model/form/Sic17FormState.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "13e3a9fe2a5850ac4a1d9b26dc997ad17d1ba20d72c4e256b9171e63f877b0f8",
+      "zipSha256": "13e3a9fe2a5850ac4a1d9b26dc997ad17d1ba20d72c4e256b9171e63f877b0f8",
+      "ancestorSha256": "1eba75d6519511dd85c17dd7ea78b24b782de8590dc2b8d82bb612190b55689f"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/model/form/Sic18FormState.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "9447936a8f3910bf0dd4bdaa748afede8b47ff1f4d722bbf5a2bf23ae97a026d",
+      "zipSha256": "9447936a8f3910bf0dd4bdaa748afede8b47ff1f4d722bbf5a2bf23ae97a026d",
+      "ancestorSha256": "8bd3fc31608c9003904bf6c556329f8c1ce74bd65a23901294f189c00c913ded"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/model/form/Sic19FormState.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "9f8652f26d7d5324bc89abc172f44dbec7515a2e204ea0b3f9b7ab07dd97d3d7",
+      "zipSha256": "9f8652f26d7d5324bc89abc172f44dbec7515a2e204ea0b3f9b7ab07dd97d3d7",
+      "ancestorSha256": "2554a869f715a3c62f52c08603fdfa3d96ac974141eaa0607fedce8375fc3d0e"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/model/form/Sic20FormState.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "479663a7fbf4932bffcabaf1d3fe054da8043f31fb2ee68025ad8d918fe3738c",
+      "zipSha256": "479663a7fbf4932bffcabaf1d3fe054da8043f31fb2ee68025ad8d918fe3738c",
+      "ancestorSha256": "42f1e9ed0360e4cc08b3fbe13c46620d96909691d31e2b7ce7ed9289608a35c4"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/model/form/Sic21FormState.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "60cb3e517539bb5b33aedead4a0d97433575411360d1cb7bdc7e2ca8fe75b7ae",
+      "zipSha256": "60cb3e517539bb5b33aedead4a0d97433575411360d1cb7bdc7e2ca8fe75b7ae",
+      "ancestorSha256": "1a38bdfb51183bc1620b060f9666451a5aec8861a2c23b906d2d8ed44c2fa660"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/model/form/Sic22FormState.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "86048de41e5534908a49ab0ebcfcce4bc749c2f131a212ff613efe6c1ae69a68",
+      "zipSha256": "86048de41e5534908a49ab0ebcfcce4bc749c2f131a212ff613efe6c1ae69a68",
+      "ancestorSha256": "03777ea53c97cc9a1f0e68ec4d4a1c5bed661b7d8ed132360d9723c5eb7c0c9b"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/model/form/Sic23FormState.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "4d6ab982f33e24701cf060f1ce3dd0de424a78be725976e40791212ecd30e3f8",
+      "zipSha256": "4d6ab982f33e24701cf060f1ce3dd0de424a78be725976e40791212ecd30e3f8",
+      "ancestorSha256": "d2ae58266012c0280733411587b2d1acab7cf4488dcf36d1c9d341c49429e4d5"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/model/RoadAssetType.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "b8d96acaa475116852a1274f4a38304d981e8bc5f13766458849263619ce84d7",
+      "zipSha256": "b8d96acaa475116852a1274f4a38304d981e8bc5f13766458849263619ce84d7",
+      "ancestorSha256": "1e7406e3316953f26110a65249df763ee2a90078f4b6747f9fbf357afd35fde3"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/model/SignalizationType.kt",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "d2356f9aba14ab518d3cc1a0f94168691dae3aa90eeb61846d6516c6a9e22f28",
+      "zipSha256": "11d79e454f5294e907c68242520818356ad61ea0383de12a8ec07504dba54d3a",
+      "ancestorSha256": "9ed9f23d3c0417e49e08f374d18180b7b3f8f42e28283f5e0b91ec0d25303314"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/RecordHistoryScreen.kt",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "c79278b4d2c9a1c0aea1295f9553b768e0a69dcfdde4f7676e794acd525f52a2",
+      "zipSha256": "340c28bff505b1fb42ba85f7a61f671073d947d6a1f225c7afa4a7a89c87c05c",
+      "ancestorSha256": "c649f74ce820acdc7b651260d384cbc49af5aec41faa54bd6b952bd00e315a07"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/repository/InventoryRepository.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "4f8d75cd86a295de07059ca09030df2c7dab018841d7325c8f75598bd2cd8676",
+      "zipSha256": "4f8d75cd86a295de07059ca09030df2c7dab018841d7325c8f75598bd2cd8676",
+      "ancestorSha256": "330794e208d26724e26420c7e8cfbbafbf3aa9dd8c732f0b1b11e52f01470bbf"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/road/RoadReference.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "61dfd0c9dd346c012ab064fb088ee33f180433bab980f9bccc76809d470625d7",
+      "zipSha256": "61dfd0c9dd346c012ab064fb088ee33f180433bab980f9bccc76809d470625d7",
+      "ancestorSha256": "12b6c6fee1a974c9998e92f879ddb8ec8db2ff50ee29c1786e0118d670e574ad"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/road/RoadReferenceRepository.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "6f64ac672b1d23aff05303fa4e03fd1151576627f2bb30e6b45422b3ed37962c",
+      "zipSha256": "6f64ac672b1d23aff05303fa4e03fd1151576627f2bb30e6b45422b3ed37962c",
+      "ancestorSha256": "f542845e9762cb36ddbfd3e688c790d4585e44277a9da57453bf676c60a7db7c"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/calculator/ScapConditionCalculator.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "e29c94e444419d336167a9f65a99850e148f695f8add96f4d09d97120154c83f",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/catalog/ScapCatalog.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "4eaf5894c4f6b8d2c85e11d8dbebd858f431ac847ef6fb7f8c7a3f255a7127b0",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/data/ScapDao.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "2ec7b276de681c3fec42833d71ba44939b54f009086dc26704287cc474d98b89",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/data/ScapEntities.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "aa7516f3cc9b1a56e163c08936c3165b7a8dc5c2fea3fa65e17d70a9099ca2f1",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/data/ScapMigration.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "59b88d7953bdfab477fa77f7d9f8be8eeb4995753fd66f4618f968ec84c8e42f",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/data/ScapRepository.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "e8ea456fbb31f22047691cc79d57b00c473ebdd2dce0198a4d9b77e231b07ef3",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/domain/ScapAiAnalyzer.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "39f367789a43bc89c07244c3e9471da14d8a9178a3ee2519c46dfeed869b0c88",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/domain/ScapToSicMapper.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "534af224835eed4bc53758987d092801b3889e6b2330166db0730b720024f968",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/domain/ScapValidation.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "2cc1f5ddbb6d88ee58397b2e94d75c70fc663f2bbaef76a918763339b6fc61ac",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/export/ScapDrivePayload.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "9934422efd355a9371511a5dabcac607fa76bfc3110718af063f250c7862effa",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/export/ScapExcelExporter.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "eff0ac28de5ef49fd08b2ac2fee6ef2c9255f557026752d2116fdeb83f8adb88",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/export/ScapSicExporter.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "e6e70d26747eb984d6fd44133e39bbcc5b94228a019e9d05f2b5d01b07012f7e",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/export/ScapTemplateMedia.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "0c5809b6985bd9cf63ea22ce9607b5d183fd53cd1aaf9898f0419e3c33ef6c6d",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/export/TemplateWorkbook.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "c9eb3cff310cb718eb7950b6cc2ca055dab4eef5293e3110590e011c86c17402",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/ui/ScapController.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "3f6f6f73cee16c8882e02a775c880e5f7933d70c55369dd98ceb42012c7169ee",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/ui/ScapElements.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "d871bfb58f584e9ccb2397d6d03f41ee3c37b8a8c60b61bf0237a0f82e8a1558",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/ui/ScapExportPanel.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "ccf8b4658cce7d40d38df878d7f5ee80bd1f40fc6b286d3d6b01d7be26bdf5f6",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/ui/ScapForms.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "17323a912ebba5913bb4c0f20759be6c4f8c5eb529cc1a782ab5ff2c0bc10f89",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/ui/ScapMedia.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "282cc7f65f8387cf3a2bb57893e196ea5f6edea19249beed491957dee941e125",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/ui/ScapWorkspace.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "5fd1ac9cc5adc7eb737abff2b4c900d71729a5fac229d51b1a66d8fc727bd9a8",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/server/ServerApi.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "15e7d254e41ced485f9d3aeb48d4a68e0bb9d053e5fbe38a0aa342f365be2455",
+      "zipSha256": "15e7d254e41ced485f9d3aeb48d4a68e0bb9d053e5fbe38a0aa342f365be2455",
+      "ancestorSha256": "8dbcdef12e0edbbe106f7a50f3c386ca8912972444dfbed19eb28e90d408b623"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/server/ServerPayload.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "b543af772dd2b84b7f6502f99a520fcf6af68f21a4d079037d09d328706be686",
+      "zipSha256": "b543af772dd2b84b7f6502f99a520fcf6af68f21a4d079037d09d328706be686",
+      "ancestorSha256": "91f05293da751d484f13ea8f983e187bc140e491ceea0386f1295f62afe54d28"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/server/ServerSyncWorker.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "09795d10b64180e96b792289eb1d5676c561d2baa662b1279003e077deee5a55",
+      "zipSha256": "09795d10b64180e96b792289eb1d5676c561d2baa662b1279003e077deee5a55",
+      "ancestorSha256": "3d2379bbf4bfc019648ff7587ca7bed7fde19c98c6d79af785dd01993cf9968a"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/Sic23Fields.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "c12bddbe64268d87302a51abd6e3f1e586f56d4928aef2ee32a1b080474fc205",
+      "zipSha256": "c12bddbe64268d87302a51abd6e3f1e586f56d4928aef2ee32a1b080474fc205",
+      "ancestorSha256": "b22b78b07b6d12960effe7a5753bceaa85031ce7a13c84f1ab228179738e1aeb"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/SicExportScreen.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "ba4ea0fe0b49a5ad13a4a80318f482feffb0df96c620709e18a919e7370d191b",
+      "zipSha256": "ba4ea0fe0b49a5ad13a4a80318f482feffb0df96c620709e18a919e7370d191b",
+      "ancestorSha256": "56bb8e46d0233de860da777fe09ddde2158ea64362a38c072c7ebb4886272f39"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/supplementary/SupplementaryForms.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "9c346e53906741d28b9dd4ec11101436c9cca429920f692297828ce174e422ae",
+      "zipSha256": "9c346e53906741d28b9dd4ec11101436c9cca429920f692297828ce174e422ae",
+      "ancestorSha256": "df2741e139bc4407f109b4b954ff0652870d36b5311d53604994274b3cdc4f4a"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/tracking/TrackCalculator.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "37af26e4212015f6aeb37ab53b4202f1532536558dadebf3a4b08e26b4282282",
+      "zipSha256": "37af26e4212015f6aeb37ab53b4202f1532536558dadebf3a4b08e26b4282282",
+      "ancestorSha256": "738eec2e76ac6ee48820bf73ddd160e88c3d30248cc8e75e6048e2d04fb90e51"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/tracking/TrackCaptureService.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "d8f8c57bf8845bce3bc7187ac7be2279b60b4f140918735b7a78fdb3caf043e0",
+      "zipSha256": "d8f8c57bf8845bce3bc7187ac7be2279b60b4f140918735b7a78fdb3caf043e0",
+      "ancestorSha256": "db0df0fd4af3aa1cdae7f5f0ba65aa8077445e1bd4303ffc7767a17d41f5066c"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/ui/theme/Color.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "3a7bdfc5483b8ea232b17602a39da8558f5122b49341c6d8315272ef3548ccc7",
+      "zipSha256": "3a7bdfc5483b8ea232b17602a39da8558f5122b49341c6d8315272ef3548ccc7",
+      "ancestorSha256": "d3954e2d6816721b0a79f2c404d96e3b8304ff92dd172f276b91c8e761696309"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/ui/theme/Theme.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "e89f2ae4570eb15257c9f612009408d704d0fba92fc7689714969d38cc3ca739",
+      "zipSha256": "e89f2ae4570eb15257c9f612009408d704d0fba92fc7689714969d38cc3ca739",
+      "ancestorSha256": "e2c1d9f08b93dd8e20cae97b1e36c537251a3c5759e99938404d238fbca577e4"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/ui/theme/Type.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "7e777a882d0c34ab644c7a8c5dc4de07120978dd7d958fbe9242e0bdd82bc04f",
+      "zipSha256": "7e777a882d0c34ab644c7a8c5dc4de07120978dd7d958fbe9242e0bdd82bc04f",
+      "ancestorSha256": "e581f7002a4410ef3d661ecf1067c289a7b1893bfbf46ce9fffce43145695094"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/validation/CaptureValidation.kt",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "b5b07243c5ef01f81ed4a08c08af133db5bb3a0112bb032d938ff041340a1b64",
+      "zipSha256": "c085ed4200101327fb7c33c6e45a7056d2d0ef701f986547ee760fa93b67df4d",
+      "ancestorSha256": "e8f11f1da51a4578c5c7cbfb3b74e463b2764d01276e6cc0920d941472cf6840"
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/validation/EndLocationPolicy.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "5516ebb9252838374344888868fdec3952b8f09f464d83347bcf9331985d52ca",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/viewmodel/InventoryViewModel.kt",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "72265eb3f49a43e736fac584d91a1467dc5b20475842b5ac3dec7f150b985790",
+      "zipSha256": "769267c037c4b922977a366be2674975448727e31c5c359b334df6c80d1f5359",
+      "ancestorSha256": "65a6d91d15f563b920969d250f01805f9d4da8ab9777f89a4eb79009bcdbf442"
+    },
+    {
+      "path": "app/src/main/keepRules/rules.keep",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "9e920813dbf36db3bdcc279837aac74db4c80647585a84d3e3f0c23d700105f2",
+      "zipSha256": "9e920813dbf36db3bdcc279837aac74db4c80647585a84d3e3f0c23d700105f2",
+      "ancestorSha256": "cd9f36ade2d8604e1b7cf24eff5b171f9c0816c0aa013ba7eb55be4fe2e1dac7"
+    },
+    {
+      "path": "app/src/main/res/drawable/ic_launcher_background.xml",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "38381d0d0a64770d992c98e5b5e492555690af40e2fc6ee59e5a1c2a7c0fdcde",
+      "zipSha256": "38381d0d0a64770d992c98e5b5e492555690af40e2fc6ee59e5a1c2a7c0fdcde",
+      "ancestorSha256": "ed423c73a6f40a4d2909f0901e60527b3a807cd59e1b5593bcaae1808b1c6321"
+    },
+    {
+      "path": "app/src/main/res/drawable/ic_launcher_foreground.xml",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "6e3c1bb64d9bec079cf0030d867c58b064d2fb19ca6c5a691543c43134f64a2a",
+      "zipSha256": "6e3c1bb64d9bec079cf0030d867c58b064d2fb19ca6c5a691543c43134f64a2a",
+      "ancestorSha256": "01d1a6a6c1234eb7fe270d097eb283d72b9c95ae5118886f1b6573aad280f1f7"
+    },
+    {
+      "path": "app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "ae7ebffe6b56372f159075bac34892be83c441c9d144fff5497b5936644f2fab",
+      "zipSha256": "ae7ebffe6b56372f159075bac34892be83c441c9d144fff5497b5936644f2fab",
+      "ancestorSha256": "3fa8b8e5fd786987da2f43419f74e94fb28f56adf0bf553797ccdcf3d6d6e290"
+    },
+    {
+      "path": "app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "ae7ebffe6b56372f159075bac34892be83c441c9d144fff5497b5936644f2fab",
+      "zipSha256": "ae7ebffe6b56372f159075bac34892be83c441c9d144fff5497b5936644f2fab",
+      "ancestorSha256": "3fa8b8e5fd786987da2f43419f74e94fb28f56adf0bf553797ccdcf3d6d6e290"
+    },
+    {
+      "path": "app/src/main/res/mipmap-hdpi/ic_launcher.webp",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "2a7d288a534005c12462e5a0a40588141b7d765689a8fa4f06b2914441011fa7",
+      "zipSha256": "2a7d288a534005c12462e5a0a40588141b7d765689a8fa4f06b2914441011fa7",
+      "ancestorSha256": "2a7d288a534005c12462e5a0a40588141b7d765689a8fa4f06b2914441011fa7"
+    },
+    {
+      "path": "app/src/main/res/mipmap-hdpi/ic_launcher_foreground.webp",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "5d5c2c2446d8c9bd4d023e212f19e1bf3bd05c0bd4e847140b881f540a22e030",
+      "zipSha256": "5d5c2c2446d8c9bd4d023e212f19e1bf3bd05c0bd4e847140b881f540a22e030",
+      "ancestorSha256": "5d5c2c2446d8c9bd4d023e212f19e1bf3bd05c0bd4e847140b881f540a22e030"
+    },
+    {
+      "path": "app/src/main/res/mipmap-hdpi/ic_launcher_round.webp",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "fd4a17e1cb5a17f5ec94c23a6cd8046aaf1bbeda92d960d3efaf0d4592db665a",
+      "zipSha256": "fd4a17e1cb5a17f5ec94c23a6cd8046aaf1bbeda92d960d3efaf0d4592db665a",
+      "ancestorSha256": "fd4a17e1cb5a17f5ec94c23a6cd8046aaf1bbeda92d960d3efaf0d4592db665a"
+    },
+    {
+      "path": "app/src/main/res/mipmap-mdpi/ic_launcher.webp",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "e3a3a0d3f54a155de885bf766559f8a6c25beae88153a2bc0a5b87ffdc38415c",
+      "zipSha256": "e3a3a0d3f54a155de885bf766559f8a6c25beae88153a2bc0a5b87ffdc38415c",
+      "ancestorSha256": "e3a3a0d3f54a155de885bf766559f8a6c25beae88153a2bc0a5b87ffdc38415c"
+    },
+    {
+      "path": "app/src/main/res/mipmap-mdpi/ic_launcher_foreground.webp",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "de9cd0f564ad1235bb35597e0d720a53497fa978a7341acb5edd7316df08f5e1",
+      "zipSha256": "de9cd0f564ad1235bb35597e0d720a53497fa978a7341acb5edd7316df08f5e1",
+      "ancestorSha256": "de9cd0f564ad1235bb35597e0d720a53497fa978a7341acb5edd7316df08f5e1"
+    },
+    {
+      "path": "app/src/main/res/mipmap-mdpi/ic_launcher_round.webp",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "6760c3073060866c3460bc599932b48cdcebf1e41ea883cf1b33bddebd264d16",
+      "zipSha256": "6760c3073060866c3460bc599932b48cdcebf1e41ea883cf1b33bddebd264d16",
+      "ancestorSha256": "6760c3073060866c3460bc599932b48cdcebf1e41ea883cf1b33bddebd264d16"
+    },
+    {
+      "path": "app/src/main/res/mipmap-xhdpi/ic_launcher.webp",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "a554f309428c1a2bf30e6662a002c852f4474e4f98261f4f0c6afb5332681bd0",
+      "zipSha256": "a554f309428c1a2bf30e6662a002c852f4474e4f98261f4f0c6afb5332681bd0",
+      "ancestorSha256": "a554f309428c1a2bf30e6662a002c852f4474e4f98261f4f0c6afb5332681bd0"
+    },
+    {
+      "path": "app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.webp",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "dda581ab150c9beb6af8367919fca0a8a6cd602d465d25dd2a4fb04b90f086c9",
+      "zipSha256": "dda581ab150c9beb6af8367919fca0a8a6cd602d465d25dd2a4fb04b90f086c9",
+      "ancestorSha256": "dda581ab150c9beb6af8367919fca0a8a6cd602d465d25dd2a4fb04b90f086c9"
+    },
+    {
+      "path": "app/src/main/res/mipmap-xhdpi/ic_launcher_round.webp",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "b2bc4c9a6a50408dcef578b968b22148c5a4b9eccb398327c7a608a857b0d071",
+      "zipSha256": "b2bc4c9a6a50408dcef578b968b22148c5a4b9eccb398327c7a608a857b0d071",
+      "ancestorSha256": "b2bc4c9a6a50408dcef578b968b22148c5a4b9eccb398327c7a608a857b0d071"
+    },
+    {
+      "path": "app/src/main/res/mipmap-xxhdpi/ic_launcher.webp",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "5f0ab825297ee2200d654194f674b292b266b0b98e28acf94d2d35f36013fbd6",
+      "zipSha256": "5f0ab825297ee2200d654194f674b292b266b0b98e28acf94d2d35f36013fbd6",
+      "ancestorSha256": "5f0ab825297ee2200d654194f674b292b266b0b98e28acf94d2d35f36013fbd6"
+    },
+    {
+      "path": "app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.webp",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "ec87e0c06e301334621c78cd1db5628a57094d5a4dba447e4a5b2592f1aa4a50",
+      "zipSha256": "ec87e0c06e301334621c78cd1db5628a57094d5a4dba447e4a5b2592f1aa4a50",
+      "ancestorSha256": "ec87e0c06e301334621c78cd1db5628a57094d5a4dba447e4a5b2592f1aa4a50"
+    },
+    {
+      "path": "app/src/main/res/mipmap-xxhdpi/ic_launcher_round.webp",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "7c597db5c0e28e8400adb812f335d3f1772fe0186843f4130ab157a6a9af90c3",
+      "zipSha256": "7c597db5c0e28e8400adb812f335d3f1772fe0186843f4130ab157a6a9af90c3",
+      "ancestorSha256": "7c597db5c0e28e8400adb812f335d3f1772fe0186843f4130ab157a6a9af90c3"
+    },
+    {
+      "path": "app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "51f62f3991ba4200782b24db8cfd7f725110a31f09476a062a0d63221fafed3a",
+      "zipSha256": "51f62f3991ba4200782b24db8cfd7f725110a31f09476a062a0d63221fafed3a",
+      "ancestorSha256": "51f62f3991ba4200782b24db8cfd7f725110a31f09476a062a0d63221fafed3a"
+    },
+    {
+      "path": "app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.webp",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "cc9bd9cc52aad42636e003f65d14dede7ee1cfe954c65c23b36cac0a94c1b55b",
+      "zipSha256": "cc9bd9cc52aad42636e003f65d14dede7ee1cfe954c65c23b36cac0a94c1b55b",
+      "ancestorSha256": "cc9bd9cc52aad42636e003f65d14dede7ee1cfe954c65c23b36cac0a94c1b55b"
+    },
+    {
+      "path": "app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "7119aa23cac56ddb532a6ae4f5703b92d760aa3f7467a705055c5c27a7409182",
+      "zipSha256": "7119aa23cac56ddb532a6ae4f5703b92d760aa3f7467a705055c5c27a7409182",
+      "ancestorSha256": "7119aa23cac56ddb532a6ae4f5703b92d760aa3f7467a705055c5c27a7409182"
+    },
+    {
+      "path": "app/src/main/res/values/colors.xml",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "31e0230ab2d96fa128a11705e85e590f3462745dc3c04bc851bc724a445921c1",
+      "zipSha256": "31e0230ab2d96fa128a11705e85e590f3462745dc3c04bc851bc724a445921c1",
+      "ancestorSha256": "b5626527d503417f0d8e5b1e08f338de7b31173bf0e122815f03e64932adbd88"
+    },
+    {
+      "path": "app/src/main/res/values/ic_launcher_background.xml",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "1cab1aa686b81505433a474a3408f56d39a3dff8f1ff66c16d866a8fa4b806be",
+      "zipSha256": "1cab1aa686b81505433a474a3408f56d39a3dff8f1ff66c16d866a8fa4b806be",
+      "ancestorSha256": "cd40bafe618ff506f4088778b135cb4faa15f25e0c9b475e22d730c74b7be115"
+    },
+    {
+      "path": "app/src/main/res/values/strings.xml",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "765dde6af915f347beb6388a889d3e157df398eab708c69e0bca8c9288765853",
+      "zipSha256": "765dde6af915f347beb6388a889d3e157df398eab708c69e0bca8c9288765853",
+      "ancestorSha256": "85ba873410f224d728452d771ccbd0ee7a3b9e4b3fa4e3d3ef88250df11e7ad4"
+    },
+    {
+      "path": "app/src/main/res/values/themes.xml",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "c15e41e50a4441f6ed3cf7d8b20fe624ab3c897ce41cb29260caba599cf30f98",
+      "zipSha256": "c15e41e50a4441f6ed3cf7d8b20fe624ab3c897ce41cb29260caba599cf30f98",
+      "ancestorSha256": "adc1fbe6d789d74b47fd74b9afa320196152f6052fca0c27a392821297502e6b"
+    },
+    {
+      "path": "app/src/main/res/xml/backup_rules.xml",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "86b70d890d831462845656c2b8d6dbd84952d30713617b664b5306582e678aa2",
+      "zipSha256": "86b70d890d831462845656c2b8d6dbd84952d30713617b664b5306582e678aa2",
+      "ancestorSha256": "b218b900c37594ebd3d0da84b20f81ebee72d8896b43616d7e9b721c27c51ae7"
+    },
+    {
+      "path": "app/src/main/res/xml/data_extraction_rules.xml",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "483d797224217d31af2167372d39f276707f62aef78f62062207aa7d8c973faa",
+      "zipSha256": "483d797224217d31af2167372d39f276707f62aef78f62062207aa7d8c973faa",
+      "ancestorSha256": "9bce47d7712d4799983fbae8b554b98329b69439841931ac3ca024a28a641e0a"
+    },
+    {
+      "path": "app/src/main/res/xml/file_paths.xml",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "925575cabb89f3d3dab2a371682ae8fbb1c751d6fb6457cccc5a02135e949fb2",
+      "zipSha256": "925575cabb89f3d3dab2a371682ae8fbb1c751d6fb6457cccc5a02135e949fb2",
+      "ancestorSha256": "479cf9bedee6a5945b90b062100e33d421d84d77e8e0abc7a0dbd466738275ba"
+    },
+    {
+      "path": "app/src/test/java/com/tuempresa/inventariovial/EngineeringDecisionsTest.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "2becfda749cc06f786a4117e21496ee42d94070f8a50b992c0e653b95c7a618c",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/test/java/com/tuempresa/inventariovial/ExampleUnitTest.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "b10965ca31e773adf6782e1d0e574fd1ea90d702a55c7bbd8f045585aaeae0d6",
+      "zipSha256": "b10965ca31e773adf6782e1d0e574fd1ea90d702a55c7bbd8f045585aaeae0d6",
+      "ancestorSha256": "47048d9de7b1af2a03a16476f4a01418492810f6e9e7a350ce1bf4c529fe66d8"
+    },
+    {
+      "path": "app/src/test/java/com/tuempresa/inventariovial/FieldReadinessTest.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "a7a2952af70f02e83abf4821a9df188602581270937f226180fc08874f7e62bd",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/test/java/com/tuempresa/inventariovial/FieldTestFixtures.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "ff7b1cedb229986655ed47036611b7ae1298ccf90a322fc28955e01a62030af9",
+      "zipSha256": "ff7b1cedb229986655ed47036611b7ae1298ccf90a322fc28955e01a62030af9",
+      "ancestorSha256": "745166246a233e7ec7ed5931d341a27f074bcb4716ffca361e9fffe19568b280"
+    },
+    {
+      "path": "app/src/test/java/com/tuempresa/inventariovial/InventoryRoomMigrationTest.kt",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "47440a6aba9927844e452b05a9e8691c35161ceb9634373592ec9604da94d25f",
+      "zipSha256": "437c0d9924f951a2c0b533ba9a4dc558722514748c132c233af8a3e416c93a10",
+      "ancestorSha256": "f24b58fe0e84d2b4af489f4254e13a6ad9dcd3a16f8914c54dd5775f9008f56c"
+    },
+    {
+      "path": "app/src/test/java/com/tuempresa/inventariovial/PhotoStampServiceTest.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "5e50a9bc35b2cbd1455015c9239f4b67a73af087d26a787c8b49cf1738651513",
+      "zipSha256": "5e50a9bc35b2cbd1455015c9239f4b67a73af087d26a787c8b49cf1738651513",
+      "ancestorSha256": "0c20ca1cc054c273d1a7904dd9146d3f42ea22c142ae16addadd45cf1da33ba4"
+    },
+    {
+      "path": "app/src/test/java/com/tuempresa/inventariovial/RoadMatcherTest.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "6339c849255a454d819a7d2836fafc70a34b616cd1f37a40c8c9dfc26357932f",
+      "zipSha256": "6339c849255a454d819a7d2836fafc70a34b616cd1f37a40c8c9dfc26357932f",
+      "ancestorSha256": "59ce6060a17515ab006b5c5ccd3ce3bd39845bb3c62a75b0e0e814c5aaba1f0d"
+    },
+    {
+      "path": "app/src/test/java/com/tuempresa/inventariovial/RoadPositionTest.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "1ec198c622af30b276e6fefc8f689dfe213311e4a805263959e5d6ecf2f46b98",
+      "zipSha256": "1ec198c622af30b276e6fefc8f689dfe213311e4a805263959e5d6ecf2f46b98",
+      "ancestorSha256": "fae0b7e46797d66ec7d0cb351d178406cc9bc0a40fd951bdde2f704d1b0bfa95"
+    },
+    {
+      "path": "app/src/test/java/com/tuempresa/inventariovial/ScapCalculationTest.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "f0779e5f3551c6f0fed9280a7d1a8046f3989339399fb14c75093a42989928ae",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/test/java/com/tuempresa/inventariovial/ScapExportTest.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "d14f7048e852c9cb0da248171ecb9074b4a9cdb3a8ac776bc2ab3308d87baf1d",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/test/java/com/tuempresa/inventariovial/ScapStorageTest.kt",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "3424408ec5d77984ac6b0cec31f0fada9539d195f3e819f17399bc2329602e6b",
+      "ancestorSha256": null
+    },
+    {
+      "path": "app/src/test/java/com/tuempresa/inventariovial/Sic23Test.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "720bb3d2bb9f66a949567b031030d579aa47b53cc3d45060d4aa4479abe9bbfb",
+      "zipSha256": "720bb3d2bb9f66a949567b031030d579aa47b53cc3d45060d4aa4479abe9bbfb",
+      "ancestorSha256": "9a1adb0544fd5ab6a9863ccdd76c0594f3a8ac621bc0b550149776d6df2ba2c5"
+    },
+    {
+      "path": "app/src/test/java/com/tuempresa/inventariovial/SicExcelWriterTest.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "5dc40aeefa60459100a3698718e492b049f66413918dbe04c29e5733f57b6578",
+      "zipSha256": "5dc40aeefa60459100a3698718e492b049f66413918dbe04c29e5733f57b6578",
+      "ancestorSha256": "441be403c783835c131571986dc91ed028471a69d0de0a100219cef1b314e8dc"
+    },
+    {
+      "path": "app/src/test/java/com/tuempresa/inventariovial/SurveyCorrectionsTest.kt",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "d41970244a0d68b697a7e3d83b2d80c8b56df25a476a37fefdcfc9c1f4b2bcfe",
+      "zipSha256": "2fd83fb171650c87a16765c3cb1e700bac125efc7e3d81f8e8f136c066bb2085",
+      "ancestorSha256": "a94f1a21339a572bf81d41a0e2236f09e688ecbb2dd429a0a36dd7ca03e7608f"
+    },
+    {
+      "path": "app/src/test/java/com/tuempresa/inventariovial/SurveyStorageTest.kt",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "57d121761cacb0ace2b1614eea5df812a5efe7ec6e73ab32193520c216e883bb",
+      "zipSha256": "8de2fa2943d70ac5758cc7b41e3a65b63b8c25adb431582a5f72c55aacf09e57",
+      "ancestorSha256": "7920c154460e9f2fcd23f7b38e71d054125b1397a49ef4d2358d38ffb1977b05"
+    },
+    {
+      "path": "app/src/test/java/com/tuempresa/inventariovial/TrackAndKmlTest.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "174223e5d471d647cd39213697260c101fcaadb2a9cb4ca4dc30f71cc4413e17",
+      "zipSha256": "174223e5d471d647cd39213697260c101fcaadb2a9cb4ca4dc30f71cc4413e17",
+      "ancestorSha256": "8bdd5ea04bbeb08f524ff89df002f97031f9f8688e208d54452374779a805c71"
+    },
+    {
+      "path": "app/src/test/java/com/tuempresa/inventariovial/ValidationAndServerTest.kt",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "2ee3e251ed1b53497e0c4fc2f163aee4af4009ae3d0a296f11d88dec5d88eeed",
+      "zipSha256": "2ee3e251ed1b53497e0c4fc2f163aee4af4009ae3d0a296f11d88dec5d88eeed",
+      "ancestorSha256": "e06025c094e6106837c14565dafc8b3303330d4d8f1704745aea43d45b640e6b"
+    },
+    {
+      "path": "app/src/test/resources/scap_agua_blanca.json",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "5cbbc26d39781ca6f4947d60fbeea2583763fadff6062d6442173e59479ea26b",
+      "ancestorSha256": null
+    },
+    {
+      "path": "build.gradle.kts",
+      "kind": "IDENTICAL",
+      "action": "KEEP_OUTSIDE_SCOPE",
+      "beforeSha256": "e880745ee2746267059b8859c6028182f90c495d4b4b5cdfcf8acda9b23b4d5b",
+      "zipSha256": "e880745ee2746267059b8859c6028182f90c495d4b4b5cdfcf8acda9b23b4d5b",
+      "ancestorSha256": "be7dbfa1841b18b020f744e203b995d3dac5709c2a6b8e310fbcfaed0364919a"
+    },
+    {
+      "path": "docs/ARCHITECTURE_REVIEW.md",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "b4c3852b66a7b32b13ade7ce9747b93b5c2a416f727556ccee021f5f3bdc051f",
+      "zipSha256": "b4c3852b66a7b32b13ade7ce9747b93b5c2a416f727556ccee021f5f3bdc051f",
+      "ancestorSha256": "ec1a5398a69030b32f6b05dcfa3b75c322f78efd51a2c677317744d9191d950d"
+    },
+    {
+      "path": "docs/DRIVE_SCAP_CONTRACT.md",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "254d4011413ee3e80ffab2b9b4fd17a3b537877c75e1f1abf497d5f3e70ce909",
+      "ancestorSha256": null
+    },
+    {
+      "path": "docs/ENGINEERING_CHANGED_FILES.md",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "8049a9fb40d81f92cffdbe1f9a9b46762523ace35be08abcc6d23f8a8c68348d",
+      "ancestorSha256": null
+    },
+    {
+      "path": "docs/ENGINEERING_RELEASE.md",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "b8e1335a33ec814e785dca492ae8bb73f53654f0a69ae90f2e5b7e4c5769db8f",
+      "ancestorSha256": null
+    },
+    {
+      "path": "docs/FIELD_CHANGED_FILES.md",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "c50597e2c6d8fa7414590b7564ee1a109ac8f117b1a0233557dc9b3e4094ce98",
+      "ancestorSha256": null
+    },
+    {
+      "path": "docs/FIELD_READINESS.md",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "5e14c54dc7147aa8bb9e8113eee31a6697a090c2a4f3a2f7c147bdf91ca55c44",
+      "ancestorSha256": null
+    },
+    {
+      "path": "docs/PRESERVACION_BASE.json",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "a3fc259f9e8541d572b2ffefe7fe7a23905bd709017f277d047fdfcb0c1cea4a",
+      "zipSha256": "a3fc259f9e8541d572b2ffefe7fe7a23905bd709017f277d047fdfcb0c1cea4a",
+      "ancestorSha256": "eb30582b82aa5e6d4a4373fa3116e69692c1baa07ff7915c12e6be25cbb97f20"
+    },
+    {
+      "path": "docs/reference/SCAP_EXTRACTION.json",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "67573344562d77cf685fd5bb1f4cf0ca34546dce1311daae0b0787cf30335168",
+      "ancestorSha256": null
+    },
+    {
+      "path": "docs/reference/SCAP_PUENTE_AGUA_BLANCA.xlsx",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "1df9f651722d06d6cd886c9be3edf565df7aae8b6fca10097011f48b12430b13",
+      "ancestorSha256": null
+    },
+    {
+      "path": "docs/ROAD_REFERENCE_FORMAT.md",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "44883f64100c18ae42fe0524cfc6e26e34c3e89deefa40cb64036ee52a061155",
+      "zipSha256": "44883f64100c18ae42fe0524cfc6e26e34c3e89deefa40cb64036ee52a061155",
+      "ancestorSha256": "f2478ce1591a6d9b3b75d04b3461b211ae6df73bd162140378beeb7eef6263c6"
+    },
+    {
+      "path": "docs/SCAP_ARCHITECTURE_REVIEW.md",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "2af875584d94150bc2d11ae4e8843783809d70a70b4c0a5767a934a476c810f2",
+      "ancestorSha256": null
+    },
+    {
+      "path": "docs/SCAP_CALCULATION.md",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "25e7a2036bb0a54ffb3cfedc2c0fd02fd5ffd4eb272bd38394f1ea924b839d96",
+      "ancestorSha256": null
+    },
+    {
+      "path": "docs/SCAP_EXCEL_VALIDATION.json",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "faefbe06adbf91845b0670e0a56af5862ed6b8b234c93bb70817d817b40c4915",
+      "ancestorSha256": null
+    },
+    {
+      "path": "docs/SCAP_IMPLEMENTATION.md",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "1aef00c5493e2e8838aba5a53da7a5a791cca0d8d4acbfedad51e24967c72174",
+      "ancestorSha256": null
+    },
+    {
+      "path": "docs/SCAP_PENDING_CLIENT_DECISIONS.md",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "5ed07084f0faf03a3873194f7e59e68b6329a66257c2c102bc5b26d647b38e7c",
+      "ancestorSha256": null
+    },
+    {
+      "path": "docs/SCAP_TO_SIC_MAPPING.md",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "90cb8bae9ebfc531f13b6254fd2188bd9b6e8e2e97847ac9d6a06999b53737ee",
+      "ancestorSha256": null
+    },
+    {
+      "path": "docs/SCAP_VERIFICATION.json",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "8d303eb8e42c87ca60168f2764bc420d5f8a0a0241844bd023c11c4fd9c0080e",
+      "ancestorSha256": null
+    },
+    {
+      "path": "docs/SERVER_API_CONTRACT.md",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "1d1ea255fb7695aa302aeef93bcebadf2cab0657d62398cf951f98f202f82876",
+      "zipSha256": "1d1ea255fb7695aa302aeef93bcebadf2cab0657d62398cf951f98f202f82876",
+      "ancestorSha256": "5269f9e8152c99f11d8d762829b91537cf647647631c3c598a646da8494a7c76"
+    },
+    {
+      "path": "docs/VALIDACION_ENTREGA.md",
+      "kind": "IDENTICAL",
+      "action": "KEEP",
+      "beforeSha256": "8c2f79007d35302022e3a2655ef85ce0203deadcf365ba5911fe199e9b516a65",
+      "zipSha256": "8c2f79007d35302022e3a2655ef85ce0203deadcf365ba5911fe199e9b516a65",
+      "ancestorSha256": "623310474fa9e90531e2df8f67e33ff34825e4d1399baf1359565f7fdba043e1"
+    },
+    {
+      "path": "drive.local.properties.example",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "6530e872277fa97052f9701fd52b250035c3c1e90edd75f91367f7e25b1c25f5",
+      "ancestorSha256": null
+    },
+    {
+      "path": "EXPORTACION_SIC.md",
+      "kind": "IDENTICAL",
+      "action": "KEEP_OUTSIDE_SCOPE",
+      "beforeSha256": "9a7084185f3805b8d6685e0f8c8d347149405fd5c04db8271f0c0c442f7eb285",
+      "zipSha256": "9a7084185f3805b8d6685e0f8c8d347149405fd5c04db8271f0c0c442f7eb285",
+      "ancestorSha256": "90b1e9784deca0cc1f73e1103a664ae6135351af17b02c451c9a12bce979b4a3"
+    },
+    {
+      "path": "gradle/gradle-daemon-jvm.properties",
+      "kind": "IDENTICAL",
+      "action": "KEEP_OUTSIDE_SCOPE",
+      "beforeSha256": "0c1930722202bec01874360fcb8f1272c84cba9fd8f4a99c86858af1671fe39e",
+      "zipSha256": "0c1930722202bec01874360fcb8f1272c84cba9fd8f4a99c86858af1671fe39e",
+      "ancestorSha256": "6c13aa5ba36690ccfbbb25a8807d01d98c15833e446d7ae82ddc726472cb8ef7"
+    },
+    {
+      "path": "gradle/libs.versions.toml",
+      "kind": "IDENTICAL",
+      "action": "KEEP_OUTSIDE_SCOPE",
+      "beforeSha256": "bc5eded0927cf08b0c88e3410c2c16a188a4307c9b9db9bb8a4d6373b6fcb1b5",
+      "zipSha256": "bc5eded0927cf08b0c88e3410c2c16a188a4307c9b9db9bb8a4d6373b6fcb1b5",
+      "ancestorSha256": "a89156eed7a59f735fdce12900968ebcdd36120e0f7dee0a312e02702c29c21f"
+    },
+    {
+      "path": "gradle/wrapper/gradle-wrapper.jar",
+      "kind": "IDENTICAL",
+      "action": "KEEP_OUTSIDE_SCOPE",
+      "beforeSha256": "76805e32c009c0cf0dd5d206bddc9fb22ea42e84db904b764f3047de095493f3",
+      "zipSha256": "76805e32c009c0cf0dd5d206bddc9fb22ea42e84db904b764f3047de095493f3",
+      "ancestorSha256": "76805e32c009c0cf0dd5d206bddc9fb22ea42e84db904b764f3047de095493f3"
+    },
+    {
+      "path": "gradle/wrapper/gradle-wrapper.properties",
+      "kind": "IDENTICAL",
+      "action": "KEEP_OUTSIDE_SCOPE",
+      "beforeSha256": "b78efe5798e78666a30180c92b9fb0860a0bd0e26503b67b4938d3d06724218d",
+      "zipSha256": "b78efe5798e78666a30180c92b9fb0860a0bd0e26503b67b4938d3d06724218d",
+      "ancestorSha256": "42d5197eff7fd12a86c896e2c66326c14a6ce31cbb2afead882be606344bb5cf"
+    },
+    {
+      "path": "gradle.properties",
+      "kind": "IDENTICAL",
+      "action": "KEEP_OUTSIDE_SCOPE",
+      "beforeSha256": "b47db4ee69642206bf25e184bb8bc25b984c0df0441647ea07ec74a75bee1fd9",
+      "zipSha256": "b47db4ee69642206bf25e184bb8bc25b984c0df0441647ea07ec74a75bee1fd9",
+      "ancestorSha256": "17b1831b4a5bb46978f677ef9977aada9a7247b209dd5dbbea9b01eb2af58da3"
+    },
+    {
+      "path": "gradlew",
+      "kind": "IDENTICAL",
+      "action": "KEEP_OUTSIDE_SCOPE",
+      "beforeSha256": "8cd81d7a40a14119b8e9e64647e02822b3511e9e4a536ab92c88daa3b0e170bc",
+      "zipSha256": "8cd81d7a40a14119b8e9e64647e02822b3511e9e4a536ab92c88daa3b0e170bc",
+      "ancestorSha256": "3238afb2aed5cb16eb7d6718077e7138059108f007b54179e9cc157c5a6e0e89"
+    },
+    {
+      "path": "gradlew.bat",
+      "kind": "IDENTICAL",
+      "action": "KEEP_OUTSIDE_SCOPE",
+      "beforeSha256": "1d297e00bd21de3ace22b4d7f2de1f9dfa858883d66bbf7c1ccbecccec8f4f3b",
+      "zipSha256": "1d297e00bd21de3ace22b4d7f2de1f9dfa858883d66bbf7c1ccbecccec8f4f3b",
+      "ancestorSha256": "94102713eb8fb22d032397924c0f38ab2da783ba60d07054339f1190a0c4e2cd"
+    },
+    {
+      "path": "INTEGRACION_SEPTIEMBRE_2026.md",
+      "kind": "IDENTICAL",
+      "action": "KEEP_OUTSIDE_SCOPE",
+      "beforeSha256": "f4ad70d4653809ad20f91a9157975ad508b182971ed0ca085f4d55a069ab6727",
+      "zipSha256": "f4ad70d4653809ad20f91a9157975ad508b182971ed0ca085f4d55a069ab6727",
+      "ancestorSha256": "d4a043418c3737960125c6a668e5c7747023901afcdcded17191d4d75b370be7"
+    },
+    {
+      "path": "INTEGRACION_ZIP.md",
+      "kind": "IDENTICAL",
+      "action": "KEEP_OUTSIDE_SCOPE",
+      "beforeSha256": "aefab3f199e7d9648a75a91e27cd3f3af22a90db4fa0cf40a15d3b20dd66592d",
+      "zipSha256": "aefab3f199e7d9648a75a91e27cd3f3af22a90db4fa0cf40a15d3b20dd66592d",
+      "ancestorSha256": "f31b76812ed90b7d0b897bd11f042def42fbabe9713629c8dbc7a34589ac8bc6"
+    },
+    {
+      "path": "server.local.properties.example",
+      "kind": "ZIP_ONLY_CHANGE",
+      "action": "PATCH_REVIEWED",
+      "beforeSha256": "8a6074b9d8049bcc06759b189d4dcbd5a4e095770ba7cf33e83cc917345d2d0a",
+      "zipSha256": "c8443fa7abefe9cd1872de9bb8f59c204c7673e7ee09ec8bce63881de11cfc0d",
+      "ancestorSha256": "9885ca85fe8c30d9067faf0536f974abfbbc68cb2f9b96ac654ec9da69cc80c9"
+    },
+    {
+      "path": "settings.gradle.kts",
+      "kind": "IDENTICAL",
+      "action": "KEEP_OUTSIDE_SCOPE",
+      "beforeSha256": "d9109a65aca7aba6cea45d591df1df792e79eb56a3b94c3b485ebc253e812227",
+      "zipSha256": "d9109a65aca7aba6cea45d591df1df792e79eb56a3b94c3b485ebc253e812227",
+      "ancestorSha256": "052233b613c940350df1f4cec6fdf843a56a536faa40588f3d765b3e3ade390a"
+    },
+    {
+      "path": "SIC23.md",
+      "kind": "IDENTICAL",
+      "action": "KEEP_OUTSIDE_SCOPE",
+      "beforeSha256": "0040747a87599effbd833089741c09ba3af2afdb8303934563498cdc8da6155d",
+      "zipSha256": "0040747a87599effbd833089741c09ba3af2afdb8303934563498cdc8da6155d",
+      "ancestorSha256": "6a371b199405c82e244842618d0e087b9497e6637f1440bc4f4ec9082da8c916"
+    },
+    {
+      "path": "tools/extract_scap_catalog.py",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "1f0fc08f86ca117662c940b73957ed50aba829efcb2c3832bf71d26a0beb873f",
+      "ancestorSha256": null
+    },
+    {
+      "path": "tools/package_field_delivery.py",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "34db06642fc571b3ad366c0e639ebcabef356b68ba0c021432c95368394b1163",
+      "ancestorSha256": null
+    },
+    {
+      "path": "tools/report_engineering_changes.py",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "4bf4aaac99144bef646ee74b86ebe129e7fce82e3525fe8f33e7fb41bd11b56c",
+      "ancestorSha256": null
+    },
+    {
+      "path": "tools/scap_field_map.json",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "ce625142a3125ffcab073f418b8696a01aa9f392abd171f0592ea4ba7be0eabc",
+      "ancestorSha256": null
+    },
+    {
+      "path": "tools/verify_excel_export.ps1",
+      "kind": "ADD_ZIP",
+      "action": "ADD",
+      "beforeSha256": null,
+      "zipSha256": "8556ad179a3a1f87b957a33fcc77d4c6ddbb1960003ea3e3c85f3ba6ee0fdc31",
+      "ancestorSha256": null
+    }
+  ],
+  "remoteChanges": [
+    "D\t.gradle/9.6.0/checksums/checksums.lock",
+    "D\t.gradle/9.6.0/checksums/md5-checksums.bin",
+    "D\t.gradle/9.6.0/checksums/sha1-checksums.bin",
+    "D\t.gradle/9.6.0/executionHistory/executionHistory.bin",
+    "D\t.gradle/9.6.0/executionHistory/executionHistory.lock",
+    "D\t.gradle/9.6.0/fileChanges/last-build.bin",
+    "D\t.gradle/9.6.0/fileHashes/fileHashes.bin",
+    "D\t.gradle/9.6.0/fileHashes/fileHashes.lock",
+    "D\t.gradle/9.6.0/fileHashes/resourceHashesCache.bin",
+    "D\t.gradle/9.6.0/gc.properties",
+    "D\t.gradle/9.6.0/kotlin-dsl-plugin-entries/jar-entries.bin",
+    "D\t.gradle/9.6.0/kotlin-dsl-plugin-entries/kotlin-dsl-plugin-entries.lock",
+    "D\t.gradle/buildOutputCleanup/buildOutputCleanup.lock",
+    "D\t.gradle/buildOutputCleanup/cache.properties",
+    "D\t.gradle/buildOutputCleanup/outputFiles.bin",
+    "D\t.gradle/configuration-cache/5bdfad8c-16be-4f84-bce9-665b2ec1f8a8/classloaderscopes5291575381278088961.tmp",
+    "D\t.gradle/configuration-cache/909813cb-c21f-4a9b-9696-f4f19f7e6391/classloaderscopes3604632775440361874.tmp",
+    "D\t.gradle/configuration-cache/aeaca469-a6df-4125-b86c-e95a2d416ac5/classloaderscopes11743832555248986221.tmp",
+    "D\t.gradle/configuration-cache/configuration-cache.lock",
+    "D\t.gradle/configuration-cache/d79bs6ovxg0vv148usj6qx2bn/candidates.bin",
+    "D\t.gradle/configuration-cache/gc.properties",
+    "D\t.gradle/file-system.probe",
+    "D\t.gradle/vcs-1/gc.properties",
+    "A\tgoogle-apps-script/Code.gs",
+    "A\tgoogle-apps-script/Code.test.cjs",
+    "A\tgoogle-apps-script/README.md"
+  ],
+  "initialGitStatus": [
+    "?? GBO_InventarioVial_campo.zip"
+  ],
+  "officialTrackedHashes": {
+    ".gitignore": "e1ee8ec8e7e789148aeeb95b3615b84f4140c6f3408f8a683836ba0e37993d50",
+    ".idea/.gitignore": "e2e37ed60c50d8e41c42aa9f3505642a5f1689e67fb6bc7fe8a06dab09a0fa96",
+    ".idea/.name": "6de74f0fe38599b318c0cc4d8be6c7b03b019cbd7ad09db6386308aa6085596f",
+    ".idea/AndroidProjectSystem.xml": "2554dcd4cf39576ef664ed9813181dc0991445ae282578655e874b3a0aa4a0a5",
+    ".idea/GBO_InventarioVial.iml": "c96ea0b5b29abb7d5807671dd208fd63f63694dd236335d2fe8c074e89e94aa6",
+    ".idea/assetWizardSettings.xml": "71b5038314d4290d49e5ffa33a8906c4e22d624e2258343de900d13e70e9893f",
+    ".idea/caches/deviceStreaming.xml": "8e3a4df7aa49e816ac508f9c16ca34bbc3e7cc83d6dee0d1a0d40f309d3070cf",
+    ".idea/codeStyles/Project.xml": "d00356ed05bf29db84201d100b467650d4cb6bfb2b7514fa18a8dd899a19ed37",
+    ".idea/codeStyles/codeStyleConfig.xml": "d8e8720a8dd48f11d9c361a208d80dbecaa3922428da2b84323488a009e9700b",
+    ".idea/compiler.xml": "0d901544110aa2858a07aab160a0f6534c00e815b61ce8145a89b4e4a17c9933",
+    ".idea/deploymentTargetSelector.xml": "40f6e1076d4c7a498494e680339cde6b4c9d52033ef4e45f6d1e5c62d6e71644",
+    ".idea/deviceManager.xml": "8ea74db7f42f70164d36a8e85bb74904906ded162e75ff4f9739934a9b67b999",
+    ".idea/gradle.xml": "cbeacf9c8f302a5859468988a0d5b5553c534c447771fa6efdc2a09f091f1cf4",
+    ".idea/inspectionProfiles/Project_Default.xml": "d2216d6215a8d6007a043b985103e05b28eed4af1f2973b57b733481381cf85b",
+    ".idea/misc.xml": "30bce813f75a69ec4148128d3e63f9322688808b2f994efcc77853470aff9ea4",
+    ".idea/runConfigurations.xml": "e2320a40fad164ac31f7a7afd9765fd1608235d0b904b148ed243c573c94cb69",
+    ".idea/vcs.xml": "136f8b0a20e3e16f5b60e8505219c34746e1ec62c68433f4f8ec97eefe3aa038",
+    "EXPORTACION_SIC.md": "9a7084185f3805b8d6685e0f8c8d347149405fd5c04db8271f0c0c442f7eb285",
+    "INTEGRACION_SEPTIEMBRE_2026.md": "f4ad70d4653809ad20f91a9157975ad508b182971ed0ca085f4d55a069ab6727",
+    "INTEGRACION_ZIP.md": "aefab3f199e7d9648a75a91e27cd3f3af22a90db4fa0cf40a15d3b20dd66592d",
+    "SIC23.md": "0040747a87599effbd833089741c09ba3af2afdb8303934563498cdc8da6155d",
+    "app/.gitignore": "5c3174b74edc6f2b9e0743594b8bd3c7f31e4f4405758cc9872b3fe1de1d28b4",
+    "app/build.gradle.kts": "f8f23d6125edca83acb0e3d52f48e6b3641868b2bdec4fd35486607cb5a03dae",
+    "app/schemas/com.tuempresa.inventariovial.data.database.InventoryDatabase/4.json": "809199ef002bdb935b965d2c42e480f4d3a9c582cbf3aa5295f2e770ede61dcf",
+    "app/schemas/com.tuempresa.inventariovial.data.database.InventoryDatabase/5.json": "9e7e74127dad6a601781e5d29b68c5f85f782858a2794afee9eeeced25d8504e",
+    "app/src/androidTest/assets/inventory-v1.sql": "2e7daf58b39515fa6e8ed02444f3bffe505f994b4eae65a8b46b8fd3328b00e1",
+    "app/src/androidTest/java/com/tuempresa/inventariovial/ExampleInstrumentedTest.kt": "63bf1a452f9dc21e0977bb98dfd996a1750d48041dde8665d5d6551618c1143f",
+    "app/src/androidTest/java/com/tuempresa/inventariovial/InventoryMigrationTest.kt": "2f8ff65a5ae358817fe4c6b41556990717bf821b1cd597b8d654383eed45906a",
+    "app/src/androidTest/java/com/tuempresa/inventariovial/SicExportScreenTest.kt": "0aac53b327c691b33794ed567a960e4baa2dac6ee48ca88f9fe35d9c51eebb21",
+    "app/src/androidTest/java/com/tuempresa/inventariovial/SurveyFormsScreenTest.kt": "82b0012d82248448f9df4fb28396bb1cda32e555467bd9fedf7087474100c632",
+    "app/src/main/AndroidManifest.xml": "81cb7d46c0ec6ad5cc087a1541c42cf1c1290605bce03cf952b25e8a5555bc82",
+    "app/src/main/assets/allowed_devices.json": "6f4d2512e89766693d028a0e6a5febb1e15c8a04e7aad7dcecc02ecbf1633e27",
+    "app/src/main/assets/road_reference.json": "8404620f5e733f69b524d73bc6753a2a1a417cada119f7f5658c7d191263c5d3",
+    "app/src/main/ic_launcher-playstore.png": "644a48da8061504e41cd64f6b61aff425f8cd7e504d0927f6296461cf4c65b6c",
+    "app/src/main/java/com/tuempresa/inventariovial/DriveConfig.kt": "3190942515630a08970c25e74bb03f80d26c38686c9025a188fecb1994a1abf7",
+    "app/src/main/java/com/tuempresa/inventariovial/DriveFolderRouter.kt": "19306f0168e37d2217b8a2e21e3f6c02d556fcc6cb1cab270e725689fe63aaaf",
+    "app/src/main/java/com/tuempresa/inventariovial/DriveSync.kt": "c666ec5084b5d25ea18905553bed957d6c3a1c45f11ff922bd7f9b403cb9f009",
+    "app/src/main/java/com/tuempresa/inventariovial/DriveUploadWorker.kt": "5a05673e54891ed254350315ee3c7a826bc8ab45fe4878c3b03b3ac148d94da7",
+    "app/src/main/java/com/tuempresa/inventariovial/MainActivity.kt": "514c0a323fc6df986fd8e4dcba6be6aef326f0c8e6dffcd87acf3c5cc9ed2304",
+    "app/src/main/java/com/tuempresa/inventariovial/RecordHistoryScreen.kt": "c79278b4d2c9a1c0aea1295f9553b768e0a69dcfdde4f7676e794acd525f52a2",
+    "app/src/main/java/com/tuempresa/inventariovial/Sic23Fields.kt": "c12bddbe64268d87302a51abd6e3f1e586f56d4928aef2ee32a1b080474fc205",
+    "app/src/main/java/com/tuempresa/inventariovial/SicExportScreen.kt": "ba4ea0fe0b49a5ad13a4a80318f482feffb0df96c620709e18a919e7370d191b",
+    "app/src/main/java/com/tuempresa/inventariovial/access/DeviceAccessManager.kt": "d2ff3cf3618c622fcb54b3908d3623ab8586f7e3275a723f1c1746363ebf34c7",
+    "app/src/main/java/com/tuempresa/inventariovial/ai/AiAnalyzer.kt": "3b195f67a6306ee6ae53455f91113077fcf6afa2922c1fadf947b477d0f6bfca",
+    "app/src/main/java/com/tuempresa/inventariovial/camera/PhotoStampService.kt": "d6083ab30e48bc6d7d7d6b75ca135d8aa309ad121723b8b6f34275c8c7e1b6d9",
+    "app/src/main/java/com/tuempresa/inventariovial/camera/PhotoUtils.kt": "4b68d3a90c8a19ed9a6dcff39194132cb8f4782b964be5fdfdb8e571c174d407",
+    "app/src/main/java/com/tuempresa/inventariovial/catalog/SicCatalogRepository.kt": "f0924de6a146790b2384082423e58116d79a0594186b00e86908213a16a394cd",
+    "app/src/main/java/com/tuempresa/inventariovial/data/dao/InventoryDao.kt": "ea05e79fca3ec919bd09fffe392e95f7e77a40f4acc5cb6383ac3074ba1f5960",
+    "app/src/main/java/com/tuempresa/inventariovial/data/data/dao.kt": "07f1c39bb48c5ae1dd56dccb53d1fe8c5e8d1d9075c6df45fecc2ad8e09c768e",
+    "app/src/main/java/com/tuempresa/inventariovial/data/database/InventoryDatabase.kt": "0be3f623281dbbc7fc29df027e8435ccf53125a1b5358277dd1f12fb8d1f27f6",
+    "app/src/main/java/com/tuempresa/inventariovial/data/database/InventoryMigrations.kt": "0ec23ad752a2181e5a6a482c791dbc24be11511ab00298b0f79973b3fbbbc363",
+    "app/src/main/java/com/tuempresa/inventariovial/data/entity/FieldSession.kt": "d77038945ee51a25eddd9c7e345793ab4fff7222d54fd84ceb1cc3aeecc7f4a8",
+    "app/src/main/java/com/tuempresa/inventariovial/data/entity/InventoryRecordEntity.kt": "cb39527ccd3f48570c69a13a016d0fd07cd143aba1d991708bc6590a46f542b8",
+    "app/src/main/java/com/tuempresa/inventariovial/data/entity/InventoryRecordForExport.kt": "0101b76452b33dc832b0763ff475f386a98d1b92bdaaabb561856c6c0b7ebc62",
+    "app/src/main/java/com/tuempresa/inventariovial/data/entity/InventoryRecordWithPhotos.kt": "39ec76449504a64c1163aea6a07b081c8f380bf1cc620487130a60ed10a7b816",
+    "app/src/main/java/com/tuempresa/inventariovial/data/entity/InventorySnapshot.kt": "1bfb79ae38d733902cda981564f9f3a3732e3974c6c5f57d4353ca06f412d7b3",
+    "app/src/main/java/com/tuempresa/inventariovial/data/entity/PhotoEntity.kt": "f765540db4c87e3859cb3a1ff8780f1ac0e6ef82f581fe7e9f8b30d5794bcf09",
+    "app/src/main/java/com/tuempresa/inventariovial/data/entity/Sic17AEntity.kt": "f4a425dbd5efb501ae59be4da9c65d574e1a5a0455848f04ea0bb33861fac4fa",
+    "app/src/main/java/com/tuempresa/inventariovial/data/entity/Sic17BEntity.kt": "104d2eadff05acafda168bcb87669289c098a7ac7491e0d600c69863a05c27f0",
+    "app/src/main/java/com/tuempresa/inventariovial/data/entity/Sic17Entity.kt": "dbc3eb60f3c6812b477d191e06e8a6baad9344aeee779c65e631ba19117827a6",
+    "app/src/main/java/com/tuempresa/inventariovial/data/entity/Sic18AEntity.kt": "0844b51e2d12354eb00647d2df1007e2d4c55d9b15a92593bc86b243ee5d3441",
+    "app/src/main/java/com/tuempresa/inventariovial/data/entity/Sic18Entity.kt": "7f70749b7143b6029ee2c50b846a949f87995aa0dcaaa688b009dfc0932c0210",
+    "app/src/main/java/com/tuempresa/inventariovial/data/entity/Sic19Entity.kt": "97fcd10802ad186642d1348bb0658f5bbb021fb8b7b0a78af81defbfeda9edce",
+    "app/src/main/java/com/tuempresa/inventariovial/data/entity/Sic20Entity.kt": "6ddb9d32d8e4ce66972a9b0cb9d83eb124a4bbaff07bcc9795663746b705a103",
+    "app/src/main/java/com/tuempresa/inventariovial/data/entity/Sic21Entity.kt": "d5e35ebee5fcd5038278addeab6e221fff85023f3db1c896a00583d1f289c1e5",
+    "app/src/main/java/com/tuempresa/inventariovial/data/entity/Sic22Entity.kt": "d95913e4bb142fbc0a2bff56b32f9be4b1f13b4af0abb7a1d4d863ef831a66d7",
+    "app/src/main/java/com/tuempresa/inventariovial/data/entity/Sic23Entity.kt": "91fd799e903c784296c18cbce50789c7450d54c911964a7eacf146a8bb44a196",
+    "app/src/main/java/com/tuempresa/inventariovial/data/entity/TrackPointEntity.kt": "b16fb5fc0c93137c2b84b7f036033e3a19a3584a581dc635480162a41698f4ed",
+    "app/src/main/java/com/tuempresa/inventariovial/export/LocalSicExport.kt": "e1a7c9510b63748d584c9c0a5e0473359f228140a0c47ca2f193f78a6474898f",
+    "app/src/main/java/com/tuempresa/inventariovial/export/ObservationReport.kt": "801612ee0b89a1332b3d7ff76e7bf722d3d7c496dc54f22c7d80469adbd2e4d7",
+    "app/src/main/java/com/tuempresa/inventariovial/export/SicExcelWriter.kt": "0cecdf0d9caa30ce6ba0c9433dc9e5a36ef9ab1ccb272c662523b81bc80a4ec0",
+    "app/src/main/java/com/tuempresa/inventariovial/export/SicExportFormat.kt": "b0b751bd3c8225d6c4a64d2885a3e0b235e6fecdfc81959ba8320649b269dfa2",
+    "app/src/main/java/com/tuempresa/inventariovial/field/CaptureSummary.kt": "0e5b324534e89b6bb6abbd6dc0e8c074b659cdc218a1358d04c34b7619a6a1e8",
+    "app/src/main/java/com/tuempresa/inventariovial/field/CaptureToolsUi.kt": "5c8f6916383233d9265c809382fd4fa51863339af0c4ff6e82d98cd0841a2fd1",
+    "app/src/main/java/com/tuempresa/inventariovial/field/FieldController.kt": "9663ddd4cc70ba6dfe90d4bd9ecf01e7ddf054db2e850af8e90a4fa6877de7c2",
+    "app/src/main/java/com/tuempresa/inventariovial/field/FieldSettings.kt": "066d7739ea7d0080fcc6e1af6d94ef33c5eb63a9f4ee7906b9b81f8aa0faaadf",
+    "app/src/main/java/com/tuempresa/inventariovial/field/FieldUi.kt": "85291a41426ccf522a3429b4631aacd7100e56e5fa0ca3fb9b18a4406b0fa56b",
+    "app/src/main/java/com/tuempresa/inventariovial/field/ObservationReportButton.kt": "7665377f410fdf28c825d4192ed0de2e190e20455b26d3206d16649f9110d81b",
+    "app/src/main/java/com/tuempresa/inventariovial/field/SurveyHeader.kt": "de1cbf6f807e3763581a79b7627c87ebcafc91ee2fd68852183474454829aeed",
+    "app/src/main/java/com/tuempresa/inventariovial/field/SurveyPreferences.kt": "6f62ae320e3e662e9baf9ff8b7a6d75bcdb502de58a7888e7b51104ca25b6c3e",
+    "app/src/main/java/com/tuempresa/inventariovial/gis/KmlExporter.kt": "ecf6511d2781f5a82dd748f02186b58cb046af20a9e794313e3b731bb3f4739e",
+    "app/src/main/java/com/tuempresa/inventariovial/gis/LocalKmlExport.kt": "f9da630da8f5e4b289fdd7434962e70eb048e4df41c9a57867bb6fe3795db846",
+    "app/src/main/java/com/tuempresa/inventariovial/location/ExternalGnssProvider.kt": "56eb48f6413e40822bb4523f419abfcbd709703d9eb62f3b5c83612a062e5981",
+    "app/src/main/java/com/tuempresa/inventariovial/location/GpsUtils.kt": "74808df1fb6d0eb09b66c0837c93224248dd0532c38e030959f0845078fab400",
+    "app/src/main/java/com/tuempresa/inventariovial/location/LocationProvider.kt": "0c4719841957d1be837959054fb4e82d082d3704aae0dd063efe71bb556997e8",
+    "app/src/main/java/com/tuempresa/inventariovial/location/TabletLocationProvider.kt": "3c48124d16adc352e715b1dd9e947f5830623ec24e9aa30decaaedc4716aafc3",
+    "app/src/main/java/com/tuempresa/inventariovial/model/RoadAssetType.kt": "b8d96acaa475116852a1274f4a38304d981e8bc5f13766458849263619ce84d7",
+    "app/src/main/java/com/tuempresa/inventariovial/model/SignalizationType.kt": "d2356f9aba14ab518d3cc1a0f94168691dae3aa90eeb61846d6516c6a9e22f28",
+    "app/src/main/java/com/tuempresa/inventariovial/model/form/CommonInventoryFormState.kt": "ba24bc9fc98b2d88863b34e0966a8187c7add12e73fcbf14aba413074e4f45de",
+    "app/src/main/java/com/tuempresa/inventariovial/model/form/InventoryFormState.kt": "a5a93749119c53b23d382b342303b5cc657cd958a7fda3998e88beb3bb26fb94",
+    "app/src/main/java/com/tuempresa/inventariovial/model/form/InventorySaveRequest.kt": "318deb16f80f24cc1f263fe595f1a8800bd92d2507e4f3bfc538e556222f1ee9",
+    "app/src/main/java/com/tuempresa/inventariovial/model/form/Sic17FormState.kt": "13e3a9fe2a5850ac4a1d9b26dc997ad17d1ba20d72c4e256b9171e63f877b0f8",
+    "app/src/main/java/com/tuempresa/inventariovial/model/form/Sic18FormState.kt": "9447936a8f3910bf0dd4bdaa748afede8b47ff1f4d722bbf5a2bf23ae97a026d",
+    "app/src/main/java/com/tuempresa/inventariovial/model/form/Sic19FormState.kt": "9f8652f26d7d5324bc89abc172f44dbec7515a2e204ea0b3f9b7ab07dd97d3d7",
+    "app/src/main/java/com/tuempresa/inventariovial/model/form/Sic20FormState.kt": "479663a7fbf4932bffcabaf1d3fe054da8043f31fb2ee68025ad8d918fe3738c",
+    "app/src/main/java/com/tuempresa/inventariovial/model/form/Sic21FormState.kt": "60cb3e517539bb5b33aedead4a0d97433575411360d1cb7bdc7e2ca8fe75b7ae",
+    "app/src/main/java/com/tuempresa/inventariovial/model/form/Sic22FormState.kt": "86048de41e5534908a49ab0ebcfcce4bc749c2f131a212ff613efe6c1ae69a68",
+    "app/src/main/java/com/tuempresa/inventariovial/model/form/Sic23FormState.kt": "4d6ab982f33e24701cf060f1ce3dd0de424a78be725976e40791212ecd30e3f8",
+    "app/src/main/java/com/tuempresa/inventariovial/repository/InventoryRepository.kt": "4f8d75cd86a295de07059ca09030df2c7dab018841d7325c8f75598bd2cd8676",
+    "app/src/main/java/com/tuempresa/inventariovial/road/RoadReference.kt": "61dfd0c9dd346c012ab064fb088ee33f180433bab980f9bccc76809d470625d7",
+    "app/src/main/java/com/tuempresa/inventariovial/road/RoadReferenceRepository.kt": "6f64ac672b1d23aff05303fa4e03fd1151576627f2bb30e6b45422b3ed37962c",
+    "app/src/main/java/com/tuempresa/inventariovial/server/ServerApi.kt": "15e7d254e41ced485f9d3aeb48d4a68e0bb9d053e5fbe38a0aa342f365be2455",
+    "app/src/main/java/com/tuempresa/inventariovial/server/ServerPayload.kt": "b543af772dd2b84b7f6502f99a520fcf6af68f21a4d079037d09d328706be686",
+    "app/src/main/java/com/tuempresa/inventariovial/server/ServerSyncWorker.kt": "09795d10b64180e96b792289eb1d5676c561d2baa662b1279003e077deee5a55",
+    "app/src/main/java/com/tuempresa/inventariovial/supplementary/SupplementaryForms.kt": "9c346e53906741d28b9dd4ec11101436c9cca429920f692297828ce174e422ae",
+    "app/src/main/java/com/tuempresa/inventariovial/tracking/TrackCalculator.kt": "37af26e4212015f6aeb37ab53b4202f1532536558dadebf3a4b08e26b4282282",
+    "app/src/main/java/com/tuempresa/inventariovial/tracking/TrackCaptureService.kt": "d8f8c57bf8845bce3bc7187ac7be2279b60b4f140918735b7a78fdb3caf043e0",
+    "app/src/main/java/com/tuempresa/inventariovial/ui/theme/Color.kt": "3a7bdfc5483b8ea232b17602a39da8558f5122b49341c6d8315272ef3548ccc7",
+    "app/src/main/java/com/tuempresa/inventariovial/ui/theme/Theme.kt": "e89f2ae4570eb15257c9f612009408d704d0fba92fc7689714969d38cc3ca739",
+    "app/src/main/java/com/tuempresa/inventariovial/ui/theme/Type.kt": "7e777a882d0c34ab644c7a8c5dc4de07120978dd7d958fbe9242e0bdd82bc04f",
+    "app/src/main/java/com/tuempresa/inventariovial/validation/CaptureValidation.kt": "b5b07243c5ef01f81ed4a08c08af133db5bb3a0112bb032d938ff041340a1b64",
+    "app/src/main/java/com/tuempresa/inventariovial/viewmodel/InventoryViewModel.kt": "72265eb3f49a43e736fac584d91a1467dc5b20475842b5ac3dec7f150b985790",
+    "app/src/main/keepRules/rules.keep": "9e920813dbf36db3bdcc279837aac74db4c80647585a84d3e3f0c23d700105f2",
+    "app/src/main/res/drawable/ic_launcher_background.xml": "38381d0d0a64770d992c98e5b5e492555690af40e2fc6ee59e5a1c2a7c0fdcde",
+    "app/src/main/res/drawable/ic_launcher_foreground.xml": "6e3c1bb64d9bec079cf0030d867c58b064d2fb19ca6c5a691543c43134f64a2a",
+    "app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml": "ae7ebffe6b56372f159075bac34892be83c441c9d144fff5497b5936644f2fab",
+    "app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml": "ae7ebffe6b56372f159075bac34892be83c441c9d144fff5497b5936644f2fab",
+    "app/src/main/res/mipmap-hdpi/ic_launcher.webp": "2a7d288a534005c12462e5a0a40588141b7d765689a8fa4f06b2914441011fa7",
+    "app/src/main/res/mipmap-hdpi/ic_launcher_foreground.webp": "5d5c2c2446d8c9bd4d023e212f19e1bf3bd05c0bd4e847140b881f540a22e030",
+    "app/src/main/res/mipmap-hdpi/ic_launcher_round.webp": "fd4a17e1cb5a17f5ec94c23a6cd8046aaf1bbeda92d960d3efaf0d4592db665a",
+    "app/src/main/res/mipmap-mdpi/ic_launcher.webp": "e3a3a0d3f54a155de885bf766559f8a6c25beae88153a2bc0a5b87ffdc38415c",
+    "app/src/main/res/mipmap-mdpi/ic_launcher_foreground.webp": "de9cd0f564ad1235bb35597e0d720a53497fa978a7341acb5edd7316df08f5e1",
+    "app/src/main/res/mipmap-mdpi/ic_launcher_round.webp": "6760c3073060866c3460bc599932b48cdcebf1e41ea883cf1b33bddebd264d16",
+    "app/src/main/res/mipmap-xhdpi/ic_launcher.webp": "a554f309428c1a2bf30e6662a002c852f4474e4f98261f4f0c6afb5332681bd0",
+    "app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.webp": "dda581ab150c9beb6af8367919fca0a8a6cd602d465d25dd2a4fb04b90f086c9",
+    "app/src/main/res/mipmap-xhdpi/ic_launcher_round.webp": "b2bc4c9a6a50408dcef578b968b22148c5a4b9eccb398327c7a608a857b0d071",
+    "app/src/main/res/mipmap-xxhdpi/ic_launcher.webp": "5f0ab825297ee2200d654194f674b292b266b0b98e28acf94d2d35f36013fbd6",
+    "app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.webp": "ec87e0c06e301334621c78cd1db5628a57094d5a4dba447e4a5b2592f1aa4a50",
+    "app/src/main/res/mipmap-xxhdpi/ic_launcher_round.webp": "7c597db5c0e28e8400adb812f335d3f1772fe0186843f4130ab157a6a9af90c3",
+    "app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp": "51f62f3991ba4200782b24db8cfd7f725110a31f09476a062a0d63221fafed3a",
+    "app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.webp": "cc9bd9cc52aad42636e003f65d14dede7ee1cfe954c65c23b36cac0a94c1b55b",
+    "app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp": "7119aa23cac56ddb532a6ae4f5703b92d760aa3f7467a705055c5c27a7409182",
+    "app/src/main/res/values/colors.xml": "31e0230ab2d96fa128a11705e85e590f3462745dc3c04bc851bc724a445921c1",
+    "app/src/main/res/values/ic_launcher_background.xml": "1cab1aa686b81505433a474a3408f56d39a3dff8f1ff66c16d866a8fa4b806be",
+    "app/src/main/res/values/strings.xml": "765dde6af915f347beb6388a889d3e157df398eab708c69e0bca8c9288765853",
+    "app/src/main/res/values/themes.xml": "c15e41e50a4441f6ed3cf7d8b20fe624ab3c897ce41cb29260caba599cf30f98",
+    "app/src/main/res/xml/backup_rules.xml": "86b70d890d831462845656c2b8d6dbd84952d30713617b664b5306582e678aa2",
+    "app/src/main/res/xml/data_extraction_rules.xml": "483d797224217d31af2167372d39f276707f62aef78f62062207aa7d8c973faa",
+    "app/src/main/res/xml/file_paths.xml": "925575cabb89f3d3dab2a371682ae8fbb1c751d6fb6457cccc5a02135e949fb2",
+    "app/src/test/java/com/tuempresa/inventariovial/ExampleUnitTest.kt": "b10965ca31e773adf6782e1d0e574fd1ea90d702a55c7bbd8f045585aaeae0d6",
+    "app/src/test/java/com/tuempresa/inventariovial/FieldTestFixtures.kt": "ff7b1cedb229986655ed47036611b7ae1298ccf90a322fc28955e01a62030af9",
+    "app/src/test/java/com/tuempresa/inventariovial/InventoryRoomMigrationTest.kt": "47440a6aba9927844e452b05a9e8691c35161ceb9634373592ec9604da94d25f",
+    "app/src/test/java/com/tuempresa/inventariovial/PhotoStampServiceTest.kt": "5e50a9bc35b2cbd1455015c9239f4b67a73af087d26a787c8b49cf1738651513",
+    "app/src/test/java/com/tuempresa/inventariovial/RoadMatcherTest.kt": "6339c849255a454d819a7d2836fafc70a34b616cd1f37a40c8c9dfc26357932f",
+    "app/src/test/java/com/tuempresa/inventariovial/RoadPositionTest.kt": "1ec198c622af30b276e6fefc8f689dfe213311e4a805263959e5d6ecf2f46b98",
+    "app/src/test/java/com/tuempresa/inventariovial/Sic23Test.kt": "720bb3d2bb9f66a949567b031030d579aa47b53cc3d45060d4aa4479abe9bbfb",
+    "app/src/test/java/com/tuempresa/inventariovial/SicExcelWriterTest.kt": "5dc40aeefa60459100a3698718e492b049f66413918dbe04c29e5733f57b6578",
+    "app/src/test/java/com/tuempresa/inventariovial/SurveyCorrectionsTest.kt": "d41970244a0d68b697a7e3d83b2d80c8b56df25a476a37fefdcfc9c1f4b2bcfe",
+    "app/src/test/java/com/tuempresa/inventariovial/SurveyStorageTest.kt": "57d121761cacb0ace2b1614eea5df812a5efe7ec6e73ab32193520c216e883bb",
+    "app/src/test/java/com/tuempresa/inventariovial/TrackAndKmlTest.kt": "174223e5d471d647cd39213697260c101fcaadb2a9cb4ca4dc30f71cc4413e17",
+    "app/src/test/java/com/tuempresa/inventariovial/ValidationAndServerTest.kt": "2ee3e251ed1b53497e0c4fc2f163aee4af4009ae3d0a296f11d88dec5d88eeed",
+    "build.gradle.kts": "e880745ee2746267059b8859c6028182f90c495d4b4b5cdfcf8acda9b23b4d5b",
+    "build/reports/configuration-cache/d79bs6ovxg0vv148usj6qx2bn/1usomb1g28gmlmmfzeie3ha44/configuration-cache-report.html": "c386af4859f2a4ee7cd4779b905fcccaf80a0070c3ac1d2c5fcf4d4912882e80",
+    "build/reports/configuration-cache/d79bs6ovxg0vv148usj6qx2bn/2yuhfxrhh4df33e8ohd9zlkhw/configuration-cache-report.html": "3738dda98d04212fd17cf32f30c7fd4453618606e8170a04e0950ea38769fe2d",
+    "build/reports/configuration-cache/d79bs6ovxg0vv148usj6qx2bn/3ayj8hjeah9rg2enohe3r82gp/configuration-cache-report.html": "e90224605ea5446e256cb8b6b63c27251b08bfd4ed613055c3c5b234db929d1f",
+    "build/reports/configuration-cache/d79bs6ovxg0vv148usj6qx2bn/5h3l7vnto4h8y025pdye3jd80/configuration-cache-report.html": "6297518c796172990de27218e301af442ab3e558d96b16a53a1582d582d5acac",
+    "build/reports/configuration-cache/d79bs6ovxg0vv148usj6qx2bn/63sujdg1msbuwys5zds8au6fk/configuration-cache-report.html": "fa9163110b74b9cd52c8396bbb8f74184726ef46b1124cf6d1bfa676fb722e78",
+    "build/reports/configuration-cache/d79bs6ovxg0vv148usj6qx2bn/8fazzm9as9qk2zuqz3z69xrj9/configuration-cache-report.html": "f83eab1e66378c815ec59ff0d42ccf4a1ba8f8d58b0fc9d26e1d8130ebe2c547",
+    "build/reports/configuration-cache/d79bs6ovxg0vv148usj6qx2bn/b08vxr80agwdiulwlswchivwc/configuration-cache-report.html": "dad41c22c8f928761e5fc3e8e5f7ba3eac7e886a47c24a1e2c633b0c4a4ba1ec",
+    "build/reports/configuration-cache/d79bs6ovxg0vv148usj6qx2bn/bl994vw4js8rrnm4gunyfbgiu/configuration-cache-report.html": "d9026386e8bda6edf764b696375b6c5c37fbb09a41cba155f5054e768179cc3c",
+    "build/reports/configuration-cache/d79bs6ovxg0vv148usj6qx2bn/deji0o02ureb67knorvyeabuy/configuration-cache-report.html": "adcf595c3b17fac6d522f06abd57f7edf79494fd1087505ba6a142b9486404f1",
+    "build/reports/configuration-cache/d79bs6ovxg0vv148usj6qx2bn/ejp72flu2tr8yeqj6wkhsm4nb/configuration-cache-report.html": "96e0b1defcf26fd76d2de85390f5a30b25c9e71b78999a4c4e1c536afd78f0de",
+    "docs/ARCHITECTURE_REVIEW.md": "b4c3852b66a7b32b13ade7ce9747b93b5c2a416f727556ccee021f5f3bdc051f",
+    "docs/PRESERVACION_BASE.json": "a3fc259f9e8541d572b2ffefe7fe7a23905bd709017f277d047fdfcb0c1cea4a",
+    "docs/ROAD_REFERENCE_FORMAT.md": "44883f64100c18ae42fe0524cfc6e26e34c3e89deefa40cb64036ee52a061155",
+    "docs/SERVER_API_CONTRACT.md": "1d1ea255fb7695aa302aeef93bcebadf2cab0657d62398cf951f98f202f82876",
+    "docs/VALIDACION_ENTREGA.md": "8c2f79007d35302022e3a2655ef85ce0203deadcf365ba5911fe199e9b516a65",
+    "google-apps-script/Code.gs": "8a7966e93424084929f632fbb97e09436336473d964962c63c2c72d633ff6792",
+    "google-apps-script/Code.test.cjs": "29998351a2a4a529f9086d3695acc9f453c367aece3c2236b4607c77c47979d4",
+    "google-apps-script/README.md": "8085be448ae4680a21e65fc9ac5229d8161a1ce75bef500fac023e9d1362cc4a",
+    "gradle.properties": "b47db4ee69642206bf25e184bb8bc25b984c0df0441647ea07ec74a75bee1fd9",
+    "gradle/gradle-daemon-jvm.properties": "0c1930722202bec01874360fcb8f1272c84cba9fd8f4a99c86858af1671fe39e",
+    "gradle/libs.versions.toml": "bc5eded0927cf08b0c88e3410c2c16a188a4307c9b9db9bb8a4d6373b6fcb1b5",
+    "gradle/wrapper/gradle-wrapper.jar": "76805e32c009c0cf0dd5d206bddc9fb22ea42e84db904b764f3047de095493f3",
+    "gradle/wrapper/gradle-wrapper.properties": "b78efe5798e78666a30180c92b9fb0860a0bd0e26503b67b4938d3d06724218d",
+    "gradlew": "8cd81d7a40a14119b8e9e64647e02822b3511e9e4a536ab92c88daa3b0e170bc",
+    "gradlew.bat": "1d297e00bd21de3ace22b4d7f2de1f9dfa858883d66bbf7c1ccbecccec8f4f3b",
+    "local.properties": "024de7bb8e7064ac75eac4ecf5b2a9dff272c5598385b1f0d1e3ea5a0b577dc8",
+    "server.local.properties.example": "8a6074b9d8049bcc06759b189d4dcbd5a4e095770ba7cf33e83cc917345d2d0a",
+    "settings.gradle.kts": "d9109a65aca7aba6cea45d591df1df792e79eb56a3b94c3b485ebc253e812227",
+    "tmp/export-review/SIC-17.png": "5db2430378e9462fdab0d094539298e53bc6ae294de233b5a8726749d581be2d",
+    "tmp/export-review/SIC-18.png": "8d788777d115eafb793d2756bb7ab97d27b68ef751fd664bc301ec567fc37048",
+    "tmp/export-review/SIC-19.png": "9b6641c7d36f27f0fef5031885605c98be5a89f09adaa7b2c6c8168d0f22c151",
+    "tmp/export-review/SIC-20.png": "3596094d5d97c8f48019e1dfb4f965f53249af2303aa7a9ae8f54cf69911bc3d",
+    "tmp/export-review/SIC-21.png": "9d2742a516c27c9e077b6714cca8dd140803177cb3743e3f2af2be2887572197",
+    "tmp/export-review/SIC-22.png": "aadc6b1965e42687694b10db5c284fb00c2a08c0175690cacabb363420e602a9",
+    "tmp/export-review/SIC-23.png": "efa1bfc6ae76dcff01bf958ef62fdc6fb72614b9134090c8719eeeda47aca877",
+    "tmp/export-review/review.mjs": "d4162416f099cf0d89b3a00b990f84fae07acb29ea54106b20174893776cb139"
+  },
+  "gitMetadataHashes": {
+    "config": "ab3ce693271ef9d003724b8573ecafd3df88b27db19d6988b0e2670e3e12c4f7",
+    "description": "85ab6c163d43a17ea9cf7788308bca1466f1b0a8d1cc92e26e9bf63da4062aee",
+    "HEAD": "28d25bf82af4c0e2b72f50959b2beb859e3e60b9630a5e8c603dad4ddb2b6e80",
+    "index": "5b3283256fc27b101f23747a3bc734ca0341bfd7e91ce7eb72d8f15d17c30f20",
+    "packed-refs": "7af563afccfb8a9349d3d951e2756115294d96aa2cf66a817b98312f6ae20d67",
+    "hooks/applypatch-msg.sample": "0223497a0b8b033aa58a3a521b8629869386cf7ab0e2f101963d328aa62193f7",
+    "hooks/commit-msg.sample": "1f74d5e9292979b573ebd59741d46cb93ff391acdd083d340b94370753d92437",
+    "hooks/fsmonitor-watchman.sample": "e0549964e93897b519bd8e333c037e51fff0f88ba13e086a331592bf801fa1d0",
+    "hooks/post-update.sample": "81765af2daef323061dcbc5e61fc16481cb74b3bac9ad8a174b186523586f6c5",
+    "hooks/pre-applypatch.sample": "e15c5b469ea3e0a695bea6f2c82bcf8e62821074939ddd85b77e0007ff165475",
+    "hooks/pre-commit.sample": "57185b7b9f05239d7ab52db045f5b89eb31348d7b2177eab214f5eb872e1971b",
+    "hooks/pre-merge-commit.sample": "d3825a70337940ebbd0a5c072984e13245920cdf8898bd225c8d27a6dfc9cb53",
+    "hooks/pre-push.sample": "ecce9c7e04d3f5dd9d8ada81753dd1d549a9634b26770042b58dda00217d086a",
+    "hooks/pre-rebase.sample": "4febce867790052338076f4e66cc47efb14879d18097d1d61c8261859eaaa7b3",
+    "hooks/pre-receive.sample": "a4c3d2b9c7bb3fd8d1441c31bd4ee71a595d66b44fcf49ddb310252320169989",
+    "hooks/prepare-commit-msg.sample": "e9ddcaa4189fddd25ed97fc8c789eca7b6ca16390b2392ae3276f0c8e1aa4619",
+    "hooks/push-to-checkout.sample": "a53d0741798b287c6dd7afa64aee473f305e65d3f49463bb9d7408ec3b12bf5f",
+    "hooks/sendemail-validate.sample": "44ebfc923dc5466bc009602f0ecf067b9c65459abfe8868ddc49b78e6ced7a92",
+    "hooks/update.sample": "8d5f2fa83e103cf08b57eaa67521df9194f45cbdbcb37da52ad586097a14d106",
+    "info/exclude": "6671fe83b7a07c8932ee89164d1f2793b2318058eb8b98dc5c06ee0a5a3b0ec1",
+    "logs/HEAD": "eea1207ff64de5a22b95b1426f6ca071ffb34bade7fb38f5ba682ff7df872f0b",
+    "logs/refs/heads/main": "eea1207ff64de5a22b95b1426f6ca071ffb34bade7fb38f5ba682ff7df872f0b",
+    "logs/refs/remotes/origin/HEAD": "eea1207ff64de5a22b95b1426f6ca071ffb34bade7fb38f5ba682ff7df872f0b",
+    "objects/07/e3da452987046079630cc0ba566eed65ffc71a": "ac60274b6e75dbd5f972f1cc2c7c7b45d81d7656c9f8ed74688142ec1140c53e",
+    "objects/5d/614a9357006e0342059bd72099742198fe4bf2": "202e3cff5ae46c4c2e445d77876afb75c439720de7b997a41ffb57cbcb28dbbd",
+    "objects/pack/pack-23baffaa1269a2b9f3940f2d8374a5cbbe1f1a9e.idx": "3a37107e9153bff7e5861fda328081cb29029f9db63f1aa5a903e3fd24f1ddb6",
+    "objects/pack/pack-23baffaa1269a2b9f3940f2d8374a5cbbe1f1a9e.pack": "0546e79c6bc594760e96fdefa1ef58f786ba80259117a504be05fba908b8b381",
+    "objects/pack/pack-23baffaa1269a2b9f3940f2d8374a5cbbe1f1a9e.rev": "d6674b6b489c1758ba029d60aa955c3d21ebe0f24e66047ea26c8c0f0b63cde1",
+    "refs/heads/main": "085633d251f566bdfbe624f847e3cdd4bec7f902a3013e8ce108a8a509d0c319",
+    "refs/codex/turn-diffs/captures/1790309823691/e923c347-6eac-4c7b-a790-264200a76d8c/base": "d5eeeb97276c1baea9df445af9647af79bac269aaf325708f8893973b22efa61",
+    "refs/codex/turn-diffs/checkpoints/9ba14e1d28dbaaf0ea6379c5f301b733/c6a1e063ff12479aa902503f3f51c99f/1790309761664/00db265d-a33c-4049-ba07-06603bf93e6e": "083709512bab6a648a94251e2ff9be65f328775148cc985548257f0bbeb86cac",
+    "refs/remotes/origin/HEAD": "2bb6a24aa0fc6c484100f5d51a29bbad841cd2c755f5d93faa204e5dbb4eb2b4"
+  },
+  "localConfigurationHashes": {
+    "local.properties": "024de7bb8e7064ac75eac4ecf5b2a9dff272c5598385b1f0d1e3ea5a0b577dc8"
+  }
+}

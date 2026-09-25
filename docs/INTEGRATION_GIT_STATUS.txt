@@ -1,0 +1,91 @@
+Rama: main
+HEAD y origin/main: cdbe5e79df440fdbdfec071f7c0e1c214b9d1639
+
+Comando: git -c core.quotepath=false status --short --untracked-files=all
+
+ M .gitignore
+ M app/build.gradle.kts
+ M app/src/androidTest/java/com/tuempresa/inventariovial/InventoryMigrationTest.kt
+ M app/src/main/java/com/tuempresa/inventariovial/DriveConfig.kt
+ M app/src/main/java/com/tuempresa/inventariovial/DriveSync.kt
+ M app/src/main/java/com/tuempresa/inventariovial/DriveUploadWorker.kt
+ M app/src/main/java/com/tuempresa/inventariovial/MainActivity.kt
+ M app/src/main/java/com/tuempresa/inventariovial/RecordHistoryScreen.kt
+ M app/src/main/java/com/tuempresa/inventariovial/catalog/SicCatalogRepository.kt
+ M app/src/main/java/com/tuempresa/inventariovial/data/dao/InventoryDao.kt
+ M app/src/main/java/com/tuempresa/inventariovial/data/database/InventoryDatabase.kt
+ M app/src/main/java/com/tuempresa/inventariovial/data/entity/InventoryRecordWithPhotos.kt
+ M app/src/main/java/com/tuempresa/inventariovial/data/entity/PhotoEntity.kt
+ M app/src/main/java/com/tuempresa/inventariovial/export/SicExcelWriter.kt
+ M app/src/main/java/com/tuempresa/inventariovial/export/SicExportFormat.kt
+ M app/src/main/java/com/tuempresa/inventariovial/field/CaptureSummary.kt
+ M app/src/main/java/com/tuempresa/inventariovial/field/FieldUi.kt
+ M app/src/main/java/com/tuempresa/inventariovial/field/SurveyHeader.kt
+ M app/src/main/java/com/tuempresa/inventariovial/field/SurveyPreferences.kt
+ M app/src/main/java/com/tuempresa/inventariovial/model/SignalizationType.kt
+ M app/src/main/java/com/tuempresa/inventariovial/validation/CaptureValidation.kt
+ M app/src/main/java/com/tuempresa/inventariovial/viewmodel/InventoryViewModel.kt
+ M app/src/test/java/com/tuempresa/inventariovial/InventoryRoomMigrationTest.kt
+ M app/src/test/java/com/tuempresa/inventariovial/SurveyCorrectionsTest.kt
+ M app/src/test/java/com/tuempresa/inventariovial/SurveyStorageTest.kt
+ M server.local.properties.example
+?? app/schemas/com.tuempresa.inventariovial.data.database.InventoryDatabase/6.json
+?? app/src/main/assets/scap_elements.json
+?? app/src/main/assets/scap_fields.json
+?? app/src/main/assets/scap_options.json
+?? app/src/main/java/com/tuempresa/inventariovial/DriveStatusPanel.kt
+?? app/src/main/java/com/tuempresa/inventariovial/DriveUploadPolicy.kt
+?? app/src/main/java/com/tuempresa/inventariovial/scap/calculator/ScapConditionCalculator.kt
+?? app/src/main/java/com/tuempresa/inventariovial/scap/catalog/ScapCatalog.kt
+?? app/src/main/java/com/tuempresa/inventariovial/scap/data/ScapDao.kt
+?? app/src/main/java/com/tuempresa/inventariovial/scap/data/ScapEntities.kt
+?? app/src/main/java/com/tuempresa/inventariovial/scap/data/ScapMigration.kt
+?? app/src/main/java/com/tuempresa/inventariovial/scap/data/ScapRepository.kt
+?? app/src/main/java/com/tuempresa/inventariovial/scap/domain/ScapAiAnalyzer.kt
+?? app/src/main/java/com/tuempresa/inventariovial/scap/domain/ScapToSicMapper.kt
+?? app/src/main/java/com/tuempresa/inventariovial/scap/domain/ScapValidation.kt
+?? app/src/main/java/com/tuempresa/inventariovial/scap/export/ScapDrivePayload.kt
+?? app/src/main/java/com/tuempresa/inventariovial/scap/export/ScapExcelExporter.kt
+?? app/src/main/java/com/tuempresa/inventariovial/scap/export/ScapSicExporter.kt
+?? app/src/main/java/com/tuempresa/inventariovial/scap/export/ScapTemplateMedia.kt
+?? app/src/main/java/com/tuempresa/inventariovial/scap/export/TemplateWorkbook.kt
+?? app/src/main/java/com/tuempresa/inventariovial/scap/ui/ScapController.kt
+?? app/src/main/java/com/tuempresa/inventariovial/scap/ui/ScapElements.kt
+?? app/src/main/java/com/tuempresa/inventariovial/scap/ui/ScapExportPanel.kt
+?? app/src/main/java/com/tuempresa/inventariovial/scap/ui/ScapForms.kt
+?? app/src/main/java/com/tuempresa/inventariovial/scap/ui/ScapMedia.kt
+?? app/src/main/java/com/tuempresa/inventariovial/scap/ui/ScapWorkspace.kt
+?? app/src/main/java/com/tuempresa/inventariovial/validation/EndLocationPolicy.kt
+?? app/src/test/java/com/tuempresa/inventariovial/EngineeringDecisionsTest.kt
+?? app/src/test/java/com/tuempresa/inventariovial/FieldReadinessTest.kt
+?? app/src/test/java/com/tuempresa/inventariovial/ScapCalculationTest.kt
+?? app/src/test/java/com/tuempresa/inventariovial/ScapExportTest.kt
+?? app/src/test/java/com/tuempresa/inventariovial/ScapStorageTest.kt
+?? app/src/test/resources/scap_agua_blanca.json
+?? docs/DRIVE_SCAP_CONTRACT.md
+?? docs/ENGINEERING_CHANGED_FILES.md
+?? docs/ENGINEERING_RELEASE.md
+?? docs/FIELD_CHANGED_FILES.md
+?? docs/FIELD_READINESS.md
+?? docs/INTEGRATION_GIT_STATUS.txt
+?? docs/INTEGRATION_SCAP_PLAN.json
+?? docs/INTEGRATION_SCAP_PLAN.md
+?? docs/INTEGRATION_SCAP_RESULT.md
+?? docs/SCAP_ARCHITECTURE_REVIEW.md
+?? docs/SCAP_CALCULATION.md
+?? docs/SCAP_EXCEL_VALIDATION.json
+?? docs/SCAP_IMPLEMENTATION.md
+?? docs/SCAP_PENDING_CLIENT_DECISIONS.md
+?? docs/SCAP_TO_SIC_MAPPING.md
+?? docs/SCAP_VERIFICATION.json
+?? docs/reference/SCAP_EXTRACTION.json
+?? docs/reference/SCAP_PUENTE_AGUA_BLANCA.xlsx
+?? drive.local.properties.example
+?? tools/extract_scap_catalog.py
+?? tools/package_field_delivery.py
+?? tools/report_engineering_changes.py
+?? tools/scap_field_map.json
+?? tools/verify_excel_export.ps1
+
+Resumen: 26 modificados, 57 nuevos sin seguimiento; 0 preparados para commit, 0 eliminados.
+El ZIP de entrada y los resultados de compilación están ignorados.
