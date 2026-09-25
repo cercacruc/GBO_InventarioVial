@@ -3,6 +3,8 @@ package com.tuempresa.inventariovial
 import androidx.compose.material3.*
 import androidx.compose.foundation.layout.Box
 import com.tuempresa.inventariovial.field.*
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.heightIn
 import android.Manifest
 import com.tuempresa.inventariovial.catalog.SicCatalogRepository
 import com.tuempresa.inventariovial.camera.PhotoStampData
@@ -304,19 +306,16 @@ fun HomeScreen(
     ) {
 
         item {
-
-            Text(
-                text = "Inventario Vial",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            Text(
-                text = "Levantamiento de información en campo",
-                modifier = Modifier.padding(top = 4.dp),
-                style =
-                    MaterialTheme.typography.bodyLarge
-            )
+            Surface(color=MaterialTheme.colorScheme.primary,contentColor=MaterialTheme.colorScheme.onPrimary,shape=androidx.compose.foundation.shape.RoundedCornerShape(20.dp)) {
+                Row(Modifier.fillMaxWidth().padding(20.dp),verticalAlignment=androidx.compose.ui.Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(8.dp)) {
+                        Text("GBO · INGENIERÍA EN CAMPO",style=MaterialTheme.typography.labelLarge)
+                        Text("Inventario vial",style=MaterialTheme.typography.headlineLarge,fontWeight=FontWeight.Bold)
+                        Text("Inspecciona, registra y revisa tus levantamientos.",style=MaterialTheme.typography.bodyLarge)
+                    }
+                    Image(androidx.compose.ui.res.painterResource(R.mipmap.ic_launcher_foreground),"GBO Ingenieros Consultores",modifier=Modifier.size(104.dp))
+                }
+            }
         }
 
         item {
@@ -379,17 +378,11 @@ fun HomeScreen(
             )
         }
 
-        items(
-            items =
-                RoadAssetType.entries
-        ) { asset ->
-
-            AssetButton(
-                asset = asset,
-                onClick = {
-                    onAssetSelected(asset)
-                }
-            )
+        items(RoadAssetType.entries.toList().chunked(2)) {assets->
+            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(12.dp)) {
+                assets.forEach {asset->Box(Modifier.weight(1f)) {AssetButton(asset) {onAssetSelected(asset)}}}
+                if(assets.size==1) Spacer(Modifier.weight(1f))
+            }
         }
 
         item {
@@ -582,35 +575,16 @@ fun StatusCard(
 
 
 @Composable
-fun AssetButton(
-    asset: RoadAssetType,
-    onClick: () -> Unit
-) {
-
-    Button(
-        onClick = onClick,
-
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(92.dp)
-    ) {
-
-        Column(
-            modifier =
-                Modifier.fillMaxWidth()
-        ) {
-
-            Text(
-                text = asset.title,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            Text(
-                text =
-                    "${asset.sicCode} · ${asset.subtitle}",
-                fontSize = 14.sp
-            )
+fun AssetButton(asset:RoadAssetType,onClick:()->Unit) {
+    OutlinedCard(onClick=onClick,modifier=Modifier.fillMaxWidth().heightIn(min=168.dp),
+        colors=CardDefaults.outlinedCardColors(containerColor=MaterialTheme.colorScheme.surface),
+        border=androidx.compose.foundation.BorderStroke(1.dp,MaterialTheme.colorScheme.outlineVariant)) {
+        Column(Modifier.padding(20.dp),verticalArrangement=Arrangement.spacedBy(10.dp)) {
+            Surface(color=MaterialTheme.colorScheme.primaryContainer,shape=androidx.compose.foundation.shape.RoundedCornerShape(12.dp)) {
+                Text("+",Modifier.padding(horizontal=16.dp,vertical=6.dp),style=MaterialTheme.typography.headlineSmall,color=MaterialTheme.colorScheme.primary)
+            }
+            Text(asset.title,style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.Bold,color=MaterialTheme.colorScheme.primary)
+            Text("${asset.sicCode} · ${asset.subtitle}",style=MaterialTheme.typography.bodyMedium)
         }
     }
 }
@@ -1947,6 +1921,19 @@ fun AssetFormScreen(
     draftRecord: InventoryRecordEntity? = null
 ) {
 
+    var savedCulvert by remember {mutableStateOf<InventoryRecordEntity?>(null)}
+    var completeCulvert by remember {mutableStateOf(false)}
+    savedCulvert?.let {record->
+        if(completeCulvert) SupplementaryScreen(inventoryViewModel,record,com.tuempresa.inventariovial.supplementary.SupplementaryFormat.SIC18A,onSave)
+        else Column(Modifier.fillMaxSize().padding(24.dp),verticalArrangement=Arrangement.spacedBy(16.dp)) {
+            Text("✓ SIC-18 guardado",style=MaterialTheme.typography.headlineMedium)
+            Text("Condición mala detectada",color=MaterialTheme.colorScheme.error,style=MaterialTheme.typography.titleLarge)
+            Text("Puedes completar la ficha asociada ahora o desde el historial.")
+            Button(onClick={completeCulvert=true}) {Text("Completar SIC-18A")}
+            OutlinedButton(onClick=onSave) {Text("Volver al inicio")}
+        }
+        return
+    }
     val context =
         LocalContext.current
     val fieldSession by inventoryViewModel.field.session.collectAsState()
@@ -2009,6 +1996,7 @@ fun AssetFormScreen(
     }
 
     var capturedPhotos by remember { mutableStateOf<List<String>>(emptyList()) }
+    var photoCategories by remember {mutableStateOf<Map<String,String>>(emptyMap())}
     var endLocation by remember { mutableStateOf<GeoLocation?>(null) }
     var photoPath by remember {
         mutableStateOf<String?>(null)
@@ -2685,6 +2673,9 @@ fun AssetFormScreen(
             )
         }
 
+        if(assetType==RoadAssetType.CULVERT) item {
+            CulvertPhotos(capturedPhotos,photoCategories) {paths,categories->capturedPhotos=paths;photoCategories=categories;photoPath=paths.lastOrNull();photoCaptured=paths.isNotEmpty()}
+        } else {
         item {
 
             SectionTitle("Fotografía")
@@ -2801,6 +2792,7 @@ fun AssetFormScreen(
             }
         }
 
+        }
         photoError?.let { error ->
 
             item {
@@ -3085,7 +3077,7 @@ fun AssetFormScreen(
                                                 observations,
 
                                             photoPath = capturedPhotos.firstOrNull().orEmpty(),
-                                            photoPaths = capturedPhotos,
+                                            photoPaths = capturedPhotos, photoCategories = photoCategories,
                                             recordId = draftId,
                                             location = location,
                                             endLocation = endLocation,
@@ -3102,7 +3094,8 @@ fun AssetFormScreen(
                                         ),
 
                                     onSuccess = {
-                                        onSave()
+                                        if(assetType==RoadAssetType.CULVERT && com.tuempresa.inventariovial.catalog.EngineeringConditions.badCulvert(sic18State.structuralConditionCode,sic18State.functionalConditionCode)) savedCulvert=inventoryViewModel.lastSavedRecord
+                                        else onSave()
                                     },
 
                                     onError = { error ->
@@ -3317,51 +3310,9 @@ fun Sic18Fields(
     } else Text("Dimensión 2: no aplica a sección circular")
 
 
-    Text(
-        "Condición estructural",
-        fontWeight = FontWeight.Bold
-    )
-
-    ChoiceSelector(
-        options = structuralOptions,
-        selected = optionForCode(
-            structuralOptions,
-            state.structuralConditionCode
-        ),
-        onSelected = {
-
-            onStateChange(
-                state.copy(
-                    structuralConditionCode =
-                        codeFromOption(it)
-                )
-            )
-        }
-    )
-
-
-    Text(
-        "Condición funcional",
-        fontWeight = FontWeight.Bold
-    )
-
-    ChoiceSelector(
-        options = functionalOptions,
-        selected = optionForCode(
-            functionalOptions,
-            state.functionalConditionCode
-        ),
-        onSelected = {
-
-            onStateChange(
-                state.copy(
-                    functionalConditionCode =
-                        codeFromOption(it)
-                )
-            )
-        }
-    )
-    Text(SicCatalogRepository.sic18StructuralDescriptions[state.structuralConditionCode].orEmpty())
+    ConditionSelector("CONDICIÓN ESTRUCTURAL",state.structuralConditionCode,SicCatalogRepository.sic18StructuralDescriptions) {onStateChange(state.copy(structuralConditionCode=it))}
+    ConditionSelector("Condición funcional",state.functionalConditionCode,com.tuempresa.inventariovial.catalog.EngineeringConditions.functional) {onStateChange(state.copy(functionalConditionCode=it))}
+    if(com.tuempresa.inventariovial.catalog.EngineeringConditions.badCulvert(state.structuralConditionCode,state.functionalConditionCode)) Text("! Condición mala detectada · Guarda SIC-18 para completar su ficha SIC-18A.",color=MaterialTheme.colorScheme.error)
     Text("La condición estructural y funcional la selecciona el ingeniero.")
 
 }
@@ -3470,51 +3421,16 @@ fun Sic19Fields(
     )
 
 
-    Text(
-        "Condición estructural",
-        fontWeight = FontWeight.Bold
-    )
-
-    ChoiceSelector(
-        options = structuralOptions,
-        selected = optionForCode(
-            structuralOptions,
-            state.structuralConditionCode
-        ),
-        onSelected = {
-
-            onStateChange(
-                state.copy(
-                    structuralConditionCode =
-                        codeFromOption(it)
-                )
-            )
+    if(state.typeCode=="4") {
+        Text("Criterio de condición estructural · interno")
+        com.tuempresa.inventariovial.scap.ui.ScapChoice("Criterio para Otro",when(state.structuralCriterion){"EARTH"->"Tierra";"PAVED"->"Pavimentado";else->""},listOf("Pavimentado","Tierra")) {
+            onStateChange(state.copy(structuralCriterion=when(it){"Tierra"->"EARTH";"Pavimentado"->"PAVED";else->""}))
         }
-    )
-
-
-    Text(
-        "Condición funcional",
-        fontWeight = FontWeight.Bold
-    )
-
-    ChoiceSelector(
-        options = functionalOptions,
-        selected = optionForCode(
-            functionalOptions,
-            state.functionalConditionCode
-        ),
-        onSelected = {
-
-            onStateChange(
-                state.copy(
-                    functionalConditionCode =
-                        codeFromOption(it)
-                )
-            )
-        }
-    )
-
+    }
+    val criterion=com.tuempresa.inventariovial.catalog.EngineeringConditions.criterion(state.typeCode,state.structuralCriterion)
+    Text(when(criterion){"EARTH"->"Elemento en tierra";"PAVED"->"Elemento pavimentado";else->"! Selecciona el criterio antes de evaluar."})
+    if(criterion!=null) ConditionSelector("Condición estructural",state.structuralConditionCode,com.tuempresa.inventariovial.catalog.EngineeringConditions.structural(state.typeCode,state.structuralCriterion)) {onStateChange(state.copy(structuralConditionCode=it))}
+    ConditionSelector("Condición funcional",state.functionalConditionCode,com.tuempresa.inventariovial.catalog.EngineeringConditions.functional) {onStateChange(state.copy(functionalConditionCode=it))}
 
     Text(
         text =
@@ -3668,53 +3584,10 @@ fun Sic20Fields(
     }
 
 
-    Text(
-        "Condición estructural",
-        fontWeight = FontWeight.Bold
-    )
+    if(state.classCode=="14") OutlinedTextField(state.wallLengthMeters,{onStateChange(state.copy(wallLengthMeters=it))},label={Text("Longitud del muro (m)")},supportingText={Text("Dato interno · no se exporta SIC")},keyboardOptions=androidx.compose.foundation.text.KeyboardOptions(keyboardType=androidx.compose.ui.text.input.KeyboardType.Decimal),modifier=Modifier.fillMaxWidth())
+    ConditionSelector("Condición estructural",state.structuralConditionCode,mapOf("1" to "No tiene problema.","2" to "Puede tener problemas.","3" to "Necesita repararse.")) {onStateChange(state.copy(structuralConditionCode=it))}
+    ConditionSelector("Condición funcional",state.functionalConditionCode,com.tuempresa.inventariovial.catalog.EngineeringConditions.functional) {onStateChange(state.copy(functionalConditionCode=it))}
 
-    ChoiceSelector(
-        options = structuralOptions,
-        selected = optionForCode(
-            structuralOptions,
-            state.structuralConditionCode
-        ),
-        onSelected = {
-
-            onStateChange(
-                state.copy(
-                    structuralConditionCode =
-                        codeFromOption(it)
-                )
-            )
-        }
-    )
-
-
-    if (state.usesFunctionalCondition) {
-
-        Text(
-            "Condición funcional",
-            fontWeight = FontWeight.Bold
-        )
-
-        ChoiceSelector(
-            options = functionalOptions,
-            selected = optionForCode(
-                functionalOptions,
-                state.functionalConditionCode
-            ),
-            onSelected = {
-
-                onStateChange(
-                    state.copy(
-                        functionalConditionCode =
-                            codeFromOption(it)
-                    )
-                )
-            }
-        )
-    }
 }
 
 

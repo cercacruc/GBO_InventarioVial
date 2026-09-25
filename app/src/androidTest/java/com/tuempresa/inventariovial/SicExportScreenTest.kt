@@ -16,6 +16,7 @@ class SicExportScreenTest {
         compose.onNodeWithText("SIC-23 · DERECHO DE VÍA").assertIsDisplayed()
         compose.onNodeWithText("Proyecto o servicio (opcional)").assertExists()
         compose.onNodeWithText("Volver").performScrollTo().performClick()
-        compose.onNodeWithText("Nuevo registro").assertExists()
+        compose.onNode(hasScrollToIndexAction()).performScrollToNode(hasText("Nuevo registro"))
+        compose.onNodeWithText("Nuevo registro").assertIsDisplayed()
     }
 }

@@ -52,6 +52,7 @@ class ScapRepository(private val db:InventoryDatabase,val catalog:ScapCatalog) {
         s.substructures.find {it.id==owner}?.let {e->dao.putSubstructure(e.copy(elevationType=values["elevationType"].orEmpty(),
             elevationMaterial=values["elevationMaterial"].orEmpty(),foundationType=values["foundationType"].orEmpty(),foundationMaterial=values["foundationMaterial"].orEmpty(),soil=values["soil"].orEmpty()))}
         s.supports.find {it.id==owner}?.let {e->dao.putSupport(e.copy(type=values["type"].orEmpty(),material=values["material"].orEmpty(),location=values["location"].orEmpty(),number=values["number"]?.toIntOrNull()))}
+        s.joints.find {it.id==owner}?.let {e->dao.putJoint(e.copy(type=values["jointType"].orEmpty(),material=values["jointMaterial"].orEmpty()))}
         s.profile.find {it.id==owner}?.let {e->dao.putProfilePoint(e.copy(distanceM=ScapNumbers.decimal(values["distanceM"]),downstreamM=ScapNumbers.decimal(values["downstreamM"]),upstreamM=ScapNumbers.decimal(values["upstreamM"]),axisM=ScapNumbers.decimal(values["axisM"])))}
         s.elements.find {it.element.id==owner}?.let {entry->
             if(key=="quantity") dao.putElement(entry.element.copy(quantity=ScapNumbers.decimal(value)))
@@ -67,6 +68,7 @@ class ScapRepository(private val db:InventoryDatabase,val catalog:ScapCatalog) {
         val s=editable(id);val rowId=uuid()
         when(kind) {
             "SPAN" -> dao.putSpan(ScapSpanEntity(rowId,id,(s.spans.maxOfOrNull {it.spanIndex} ?: 0)+1,null,"","","","",""))
+            "JOINT" -> dao.putJoint(ScapJointEntity(rowId,id,(s.joints.maxOfOrNull {it.jointIndex} ?: 0)+1,"",""))
             "BEARING" -> dao.putSupport(ScapSupportEntity(rowId,id,(s.supports.maxOfOrNull {it.supportIndex} ?: 0)+1,"","","",null))
             "PROFILE" -> dao.putProfilePoint(ScapProfilePointEntity(rowId,id,(s.profile.maxOfOrNull {it.pointIndex} ?: 0)+1,null,null,null,null))
             else -> {
@@ -79,7 +81,7 @@ class ScapRepository(private val db:InventoryDatabase,val catalog:ScapCatalog) {
     }
     suspend fun removeRow(id:String,rowId:String)=db.withTransaction {
         editable(id);dao.deleteValues(id,rowId);dao.deleteSpan(id,rowId);dao.deleteSubstructure(id,rowId)
-        dao.deleteSupport(id,rowId);dao.deleteProfilePoint(id,rowId);dao.touch(id,System.currentTimeMillis())
+        dao.deleteJoint(id,rowId);dao.deleteSupport(id,rowId);dao.deleteProfilePoint(id,rowId);dao.touch(id,System.currentTimeMillis())
     }
     suspend fun selectElement(id:String,code:String,present:Boolean)=db.withTransaction {
         val s=editable(id);val item=catalog.element(code) ?: error("Código SCAP desconocido.")
@@ -117,6 +119,23 @@ class ScapRepository(private val db:InventoryDatabase,val catalog:ScapCatalog) {
         val s=editable(id);require(category in PHOTO_CATEGORIES);require(code==null || catalog.element(code)!=null)
         val p=s.photos.single{it.id==photoId}
         dao.updatePhoto(p.copy(photoCategory=category,scapElementCode=code));dao.touch(id,System.currentTimeMillis())
+    }
+    suspend fun describePhoto(id:String,photoId:String,description:String)=db.withTransaction {
+        val s=editable(id);dao.updatePhoto(s.photos.single {it.id==photoId}.copy(description=description));dao.touch(id,System.currentTimeMillis())
+    }
+    suspend fun removePhoto(id:String,photoId:String)=db.withTransaction {
+        val s=editable(id)
+        s.defects.filter {it.photoId==photoId}.forEach {dao.putDefect(it.copy(photoId=null))}
+        dao.deletePhoto(id,photoId);dao.touch(id,System.currentTimeMillis())
+    }
+    suspend fun movePhoto(id:String,photoId:String,direction:Int)=db.withTransaction {
+        val s=editable(id);val ordered=s.photos.sortedBy {it.photoIndex};val index=ordered.indexOfFirst {it.id==photoId}
+        val other=ordered.getOrNull(index+direction) ?: return@withTransaction
+        val current=ordered[index]
+        // A free temporary index avoids the unique recordId/photoIndex constraint during the swap.
+        dao.updatePhoto(current.copy(photoIndex=(ordered.maxOfOrNull {it.photoIndex} ?: 0)+1))
+        dao.updatePhoto(other.copy(photoIndex=current.photoIndex,isPrimary=current.isPrimary))
+        dao.updatePhoto(current.copy(photoIndex=other.photoIndex,isPrimary=other.isPrimary));dao.touch(id,System.currentTimeMillis())
     }
     suspend fun removeSketch(id:String,sketchId:String)=db.withTransaction {editable(id);dao.deleteSketch(id,sketchId);dao.touch(id,System.currentTimeMillis())}
     suspend fun addPhoto(id:String,path:String,category:String,code:String?)=db.withTransaction {

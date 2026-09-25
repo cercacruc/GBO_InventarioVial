@@ -184,7 +184,7 @@ class ScapStorageTest {
             old.execSQL("INSERT INTO photos(id,recordId,photoIndex,localPath,isPrimary,syncStatus,createdAt,originalPath,stampedPath,generatedFileName,driveFolderId,driveFileId) VALUES ('oldphoto','bridge',1,'/final.jpg',1,'SYNCED',1,'/original.jpg','/stamp.jpg','keep.jpg','folder','file')")
             old.version=5
         }
-        val db=Room.databaseBuilder(context,InventoryDatabase::class.java,name).addMigrations(InventoryDatabase.MIGRATION_5_6).build()
+        val db=Room.databaseBuilder(context,InventoryDatabase::class.java,name).addMigrations(InventoryDatabase.MIGRATION_5_6,InventoryDatabase.MIGRATION_6_7).build()
         try {
             val s=db.inventoryDao().snapshot("bridge")!!
             assertEquals("ACTIVE",s.record.status);assertEquals("Tramo 1",s.record.segment);assertEquals("DECREASING",s.record.surveyDirection)

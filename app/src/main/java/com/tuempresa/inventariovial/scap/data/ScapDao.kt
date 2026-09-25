@@ -18,7 +18,8 @@ data class ScapInspectionSnapshot(
     @Relation(parentColumn="id",entityColumn="inspectionId") val defects:List<ScapDefectEntity> = emptyList(),
     @Relation(parentColumn="id",entityColumn="inspectionId") val sketches:List<ScapSketchEntity> = emptyList(),
     @Relation(parentColumn="id",entityColumn="scapInspectionId") val photos:List<PhotoEntity> = emptyList(),
-    @Relation(parentColumn="id",entityColumn="inspectionId") val profile:List<ScapProfilePointEntity> = emptyList()
+    @Relation(parentColumn="id",entityColumn="inspectionId") val profile:List<ScapProfilePointEntity> = emptyList(),
+    @Relation(parentColumn="id",entityColumn="inspectionId") val joints:List<ScapJointEntity> = emptyList()
 ) {
     fun values(owner:String="inspection")=values.filter {it.ownerId==owner}.associate {it.key to it.value}
 }
@@ -35,6 +36,9 @@ interface ScapDao {
     @Upsert suspend fun putValue(value:ScapFieldValueEntity)
     @Upsert suspend fun putSpan(value:ScapSpanEntity)
     @Upsert suspend fun putSubstructure(value:ScapSubstructureEntity)
+    @Upsert suspend fun putJoint(value:ScapJointEntity)
+    @Query("DELETE FROM scap_joints WHERE id=:id AND inspectionId=:inspectionId") suspend fun deleteJoint(inspectionId:String,id:String)
+    @Query("DELETE FROM photos WHERE id=:id AND scapInspectionId=:inspectionId") suspend fun deletePhoto(inspectionId:String,id:String)
     @Upsert suspend fun putSupport(value:ScapSupportEntity)
     @Upsert suspend fun putElement(value:ScapElementEntity)
     @Upsert suspend fun putCondition(value:ScapElementConditionEntity)

@@ -152,7 +152,7 @@ class InventoryViewModel(
         val values=when(format) {
             SupplementaryFormat.SIC17A -> snapshot.sic17a?.values() ?: mapOf("bridgeCode" to snapshot.sic17?.bridgeCode.orEmpty())
             SupplementaryFormat.SIC17B -> snapshot.sic17b?.values() ?: mapOf("bridgeCode" to snapshot.sic17?.bridgeCode.orEmpty())
-            SupplementaryFormat.SIC18A -> snapshot.sic18a?.values() ?: mapOf("classCode" to snapshot.sic18?.classCode.orEmpty(),
+            SupplementaryFormat.SIC18A -> snapshot.sic18a?.values().orEmpty() + mapOf("classCode" to snapshot.sic18?.classCode.orEmpty(),
                 "typeCode" to snapshot.sic18?.typeCode.orEmpty(),"spans" to snapshot.sic18?.spans?.toString().orEmpty())
         }
         return SupplementaryFormState(format,values)
@@ -164,6 +164,8 @@ class InventoryViewModel(
         }
     }
     val localExport = com.tuempresa.inventariovial.export.LocalSicExport(application, database, viewModelScope)
+    var lastSavedRecord: InventoryRecordEntity? = null
+        private set
     private var saving = false
     private val _driveFeedback=MutableStateFlow<String?>(null)
     val driveFeedback=_driveFeedback.asStateFlow()
@@ -574,7 +576,7 @@ class InventoryViewModel(
 
                 val photos = request.photoPaths.distinct().mapIndexed { index, path ->
                     photo.copy(id = UUID.randomUUID().toString(), localPath = path,
-                        originalPath = path, stampedPath = request.stampedPaths[path],
+                        originalPath = path, stampedPath = request.stampedPaths[path], photoCategory = request.photoCategories[path],
                         photoIndex = index + 1, isPrimary = index == 0,
                         generatedFileName = buildDriveFileName(request, index + 1))
                 }
@@ -829,7 +831,8 @@ class InventoryViewModel(
 
                                     functionalConditionCode =
                                         state
-                                            .functionalConditionCode
+                                            .functionalConditionCode,
+                                    structuralCriterion = state.structuralCriterion.ifBlank {null}
                                 ),
 
 
@@ -903,6 +906,7 @@ class InventoryViewModel(
                                             .structuralConditionCode,
 
 
+                                    wallLengthMeters = state.wallLengthMeters.replace(',','.').toDoubleOrNull(),
                                     functionalConditionCode =
                                         if (
                                             state
@@ -1092,6 +1096,7 @@ class InventoryViewModel(
                     _driveFeedback.value="ERROR: no se pudo programar una fotografía. El registro está guardado; revisa Drive en el historial."
                 }}
                 runCatching { scheduleServerSync(getApplication()) }
+                lastSavedRecord=record
                 onSuccess()
 
 

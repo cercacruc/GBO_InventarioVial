@@ -64,6 +64,8 @@ fun RecordHistoryScreen(viewModel: InventoryViewModel, onScap: (() -> Unit)? = n
     val ordered by viewModel.sequencedHistory.collectAsState()
     var showAnnulled by remember { mutableStateOf(false) }
     val records = ordered.filter { it.item.record.sicCode != "SCAP" && (showAnnulled || it.item.record.status == "ACTIVE") }
+    var technicalId by remember {mutableStateOf<String?>(null)}
+    technicalId?.let {id->com.tuempresa.inventariovial.field.EngineeringEditScreen(id) {technicalId=null};return}
     var complementary by remember { mutableStateOf<Pair<InventoryRecordEntity, SupplementaryFormat>?>(null) }
     complementary?.let { (record,format) ->
         SupplementaryScreen(viewModel,record,format) { complementary=null }
@@ -89,7 +91,7 @@ fun RecordHistoryScreen(viewModel: InventoryViewModel, onScap: (() -> Unit)? = n
             items = records,
             key = { item: SequencedRecord -> item.item.record.id }
         ) { row ->
-            HistoryRecordCard(row, viewModel, { complementary=row.item.record to it }) { error = it }
+            HistoryRecordCard(row, viewModel, {technicalId=row.item.record.id}, { complementary=row.item.record to it }) { error = it }
         }
     }
 }
@@ -98,6 +100,7 @@ fun RecordHistoryScreen(viewModel: InventoryViewModel, onScap: (() -> Unit)? = n
 private fun HistoryRecordCard(
     row: SequencedRecord,
     viewModel: InventoryViewModel,
+    onTechnical: ()->Unit,
     onSupplementary: (SupplementaryFormat)->Unit,
     onError: (String) -> Unit
 ) {
@@ -151,6 +154,27 @@ private fun HistoryRecordCard(
                 if (detail.description.isNotBlank()) Text("Descripción: ${detail.description}")
                 Text("Fin: PR ${record.endPrCode} + ${record.endDistanceM} · Lado: ${record.sideCode}")
             }
+            item.sic18?.let {d->
+                Text("Estructural: ${d.structuralConditionCode} · Funcional: ${d.functionalConditionCode}")
+                if(com.tuempresa.inventariovial.catalog.EngineeringConditions.badCulvert(d.structuralConditionCode,d.functionalConditionCode)) Text("! Condición mala detectada",color=MaterialTheme.colorScheme.error)
+                com.tuempresa.inventariovial.catalog.EngineeringConditions.culvertPhotos.forEach {(key,label)->Text("$label: ${item.photos.count {it.photoCategory==key}}")}
+                if(item.photos.any {it.photoCategory==null}) Text("Fotos históricas sin categoría: ${item.photos.count {it.photoCategory==null}}")
+            }
+            item.sic19?.let {d->
+                Text("Estructural: ${d.structuralConditionCode} · Funcional: ${d.functionalConditionCode}")
+                Text(com.tuempresa.inventariovial.catalog.EngineeringConditions.structural(d.typeCode,d.structuralCriterion)[d.structuralConditionCode] ?: "! Criterio estructural pendiente")
+            }
+            item.sic20?.let {d->
+                Text("Estructural: ${d.structuralConditionCode} · Funcional: ${d.functionalConditionCode ?: "Pendiente"}")
+                if(d.classCode=="14") {Text("Altura promedio del cuerpo: ${d.dimension1M ?: "Pendiente"} m");Text("Longitud del muro (interno): ${d.wallLengthMeters ?: "Pendiente"} m")}
+            }
+            item.sic18a?.let {d->
+                Text("✓ SIC-18A guardado · mismo UUID de SIC-18",style=MaterialTheme.typography.titleMedium)
+                com.tuempresa.inventariovial.supplementary.SupplementaryForms.fields(SupplementaryFormat.SIC18A,d.values()).forEach {f->
+                    val v=d.values()[f.key].orEmpty();Text("${f.label}: ${f.options.find {it.substringBefore(" - ")==v} ?: v}")
+                }
+            }
+            if(record.status=="ACTIVE" && record.sicCode in listOf("SIC-18","SIC-19","SIC-20")) OutlinedButton(onClick=onTechnical) {Text("Editar ficha técnica y fotografías")}
             if (!editing) {
                 if(record.status=="ACTIVE") SupplementaryFormat.entries.filter { it.enabled &&
                     if(record.sicCode=="SIC-17") it!=SupplementaryFormat.SIC18A else record.sicCode=="SIC-18" && it==SupplementaryFormat.SIC18A

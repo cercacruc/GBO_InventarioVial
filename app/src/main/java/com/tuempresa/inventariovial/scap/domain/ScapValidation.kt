@@ -24,11 +24,13 @@ object ScapValidation {
         owner in setOf("ACCESS_LEFT","ACCESS_RIGHT") -> "access"
         snapshot.spans.any {it.id==owner} -> "span"
         snapshot.supports.any {it.id==owner} -> "bearing"
+        snapshot.joints.any {it.id==owner} -> "joint"
         snapshot.profile.any {it.id==owner} -> "profile"
         else -> snapshot.substructures.find {it.id==owner}?.kind?.let {when {it=="PIER"->"pier";"ANCHOR" in it->"anchor";else->"abutment"}}
     }
     fun fieldError(field:ScapField,value:String,values:Map<String,String>,catalog:ScapCatalog):String? {
-        if(value.isBlank() || !field.visible(values)) return null
+        if(value.isBlank() || !field.visible(values) || !ScapFieldPolicy.enabled(field.key,field.owner,values)) return null
+        if(value==ScapFieldPolicy.NOT_APPLICABLE) return if(ScapFieldPolicy.allows(field)) null else "${field.label}: No aplica no permitido."
         val number=ScapNumbers.decimal(value)
         val valid=when(field.kind) {
             "DECIMAL" -> number!=null && number>=0
@@ -62,10 +64,10 @@ object ScapValidation {
             if(span.category=="ALCANTARILLA" && span.secondaryCharacteristic.isNotBlank() && span.secondaryCharacteristic.toIntOrNull()?.let {it>=0}!=true)
                 errors+="Tramo ${span.spanIndex}: ojos/vanos debe ser entero."
         }
-        val owners=listOf("inspection","ACCESS_LEFT","ACCESS_RIGHT")+s.spans.map {it.id}+s.substructures.map {it.id}+s.supports.map {it.id}+s.profile.map {it.id}
+        val owners=listOf("inspection","ACCESS_LEFT","ACCESS_RIGHT")+s.spans.map {it.id}+s.substructures.map {it.id}+s.supports.map {it.id}+s.profile.map {it.id}+s.joints.map {it.id}
         for(owner in owners) {
             val type=ownerType(s,owner);val values=s.values(owner)
-            catalog.fields.filter {it.owner==type}.distinctBy {it.key}.filter {it.visible(values)}.forEach {field->
+            (if(type=="joint") catalog.fields("C5","joint") else catalog.fields.filter {it.owner==type && it.key !in setOf("jointType","jointMaterial")}).distinctBy {it.key}.filter {it.visible(values) && ScapFieldPolicy.enabled(it.key,it.owner,values)}.forEach {field->
                 val value=values[field.key].orEmpty()
                 fieldError(field,value,values,catalog)?.let {errors+="${field.section} · $it"}
                 if(value.isBlank()) pending+="${field.section} · ${if(owner=="inspection") "" else "$type · "}${field.label}"

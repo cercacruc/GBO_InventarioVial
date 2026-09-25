@@ -34,7 +34,7 @@ internal val scapSections=linkedMapOf("A" to "Identificación", "B" to "Datos ge
     "C2" to "Tramos", "C3" to "Tablero", "C4" to "Subestructura", "C5" to "Detalles", "C6" to "Accesos",
     "C7" to "Seguridad vial", "C8" to "Cargas", "C9" to "Cruces alternativos", "C10" to "Estado de la vía",
     "D1" to "Suelos", "D2" to "Niveles de agua", "D3" to "Hidráulica", "D4" to "Perfil longitudinal",
-    "E" to "Croquis", "F1" to "Elementos y condición", "F2" to "Fotografías", "F3" to "Defectos", "G" to "Revisión y condición global")
+    "E" to "Croquis", "F1" to "Elementos y condición", "F2" to "Condición global del puente", "FOTO" to "Panel fotográfico", "F3" to "Defectos", "G" to "Revisión y condición global")
 
 @Composable
 fun ScapWorkspace(vm:InventoryViewModel,onBack:()->Unit) {
@@ -95,9 +95,9 @@ private fun ScapEditor(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapCat
     val editable=s.inspection.status!="COMPLETE"
     val review=remember(s,catalog){ScapValidation.review(s,catalog)}
     Column(Modifier.fillMaxSize()) {
-        Surface(tonalElevation=3.dp) {
+        Surface(color=MaterialTheme.colorScheme.primary,contentColor=MaterialTheme.colorScheme.onPrimary) {
             Column(Modifier.fillMaxWidth().padding(12.dp)) {
-                Text(values["bridgeName"].orEmpty().ifBlank {"Puente sin nombre"},style=MaterialTheme.typography.titleLarge)
+                Text("SCAP · " + values["bridgeName"].orEmpty().ifBlank {"Puente sin nombre"},style=MaterialTheme.typography.titleLarge)
                 Text("Ruta: ${values["route"].orEmpty().ifBlank {"Pendiente"}} · Progresiva: ${values["progressive"].orEmpty().ifBlank {"Pendiente"}}")
                 Text("$section · ${scapSections[section]} · ${statusLabel(s.inspection.status)}")
                 Text(saved,style=MaterialTheme.typography.labelMedium)
@@ -110,7 +110,7 @@ private fun ScapEditor(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapCat
         }
         val subsections=scapSections.keys.filter{it.startsWith(section.take(1))}
         if(subsections.size>1) LazyRow(contentPadding=PaddingValues(horizontal=12.dp),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
-            items(subsections) {key->FilterChip(section==key,{section=key},label={Text("$key · ${scapSections[key]}")})}
+            items(subsections) {key->FilterChip(section==key,{section=key},label={Text(if(key=="FOTO") "Panel fotográfico" else "${key.take(1)}.${key.drop(1)} · ${scapSections[key]}")})}
         }
         if(!editable) Row(Modifier.padding(horizontal=16.dp),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
             Text("Ficha cerrada",Modifier.weight(1f).padding(top=12.dp))
@@ -122,7 +122,8 @@ private fun ScapEditor(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapCat
                 "A"->ScapIdentification(s,c,catalog,vm,editable)
                 "E"->ScapMedia(s,c,catalog,editable,true)
                 "F1"->ScapElements(s,c,catalog,editable)
-                "F2"->ScapMedia(s,c,catalog,editable,false)
+                "F2"->ScapGlobalCondition(s,catalog)
+                "FOTO"->ScapMedia(s,c,catalog,editable,false)
                 "F3"->ScapDefects(s,c,catalog,editable)
                 "G"->ScapReviewPanel(s,catalog,review,pending==0 && error==null,c)
                 else->ScapTechnicalSection(s,c,catalog,section,editable)

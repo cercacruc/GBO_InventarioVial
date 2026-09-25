@@ -185,10 +185,12 @@ fun SupplementaryScreen(viewModel: InventoryViewModel,record: InventoryRecordEnt
         Text("${record.routeCode} / ${record.roadbedCode} · PR ${record.startPrCode} + ${record.startDistanceM}")
         Text("Fecha: ${record.surveyDate} · UUID: ${record.id}")
         if(!format.enabled) Text("Formato deshabilitado por configuración.") else if(loaded) {
-            Text("Ficha complementaria; los campos pendientes se pueden completar después.")
+            Text(if(format==SupplementaryFormat.SIC18A) "ALCANTARILLAS - CONDICIÓN MALA · Cabecera heredada de SIC-18" else "Ficha complementaria; los campos pendientes se pueden completar después.")
             SupplementaryForms.fields(format,state.values).forEach { field ->
                 val value=state.values[field.key].orEmpty()
-                if(field.kind in setOf(FieldKind.CODE,FieldKind.DESCRIBED_CODE)) {
+                if(format==SupplementaryFormat.SIC18A && field.key in setOf("classCode","typeCode","spans")) {
+                    Text("${field.label}: ${field.options.find {it.substringBefore(" - ")==value} ?: value} · heredado")
+                } else if(field.kind in setOf(FieldKind.CODE,FieldKind.DESCRIBED_CODE)) {
                     Text(field.label)
                     ChoiceSelector(listOf("Sin completar")+field.options,
                         field.options.find { if(field.kind==FieldKind.CODE) it.substringBefore(" - ")==value else it==value } ?: "Sin completar",
@@ -201,6 +203,7 @@ fun SupplementaryScreen(viewModel: InventoryViewModel,record: InventoryRecordEnt
                 } else OutlinedTextField(value,{state=state.copy(values=state.values+(field.key to it))},label={Text(field.label)},
                     readOnly=field.key=="bridgeCode",modifier=Modifier.fillMaxWidth())
             }
+            if(format==SupplementaryFormat.SIC18A) Sic18AExportButton(record,state)
             Button(enabled=!saving,onClick={saving=true;viewModel.saveSupplementary(record.id,state,
                 {saving=false;onBack()},{saving=false;error=it})}) {Text("Guardar ${format.title}")}
         }

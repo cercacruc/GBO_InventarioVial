@@ -23,6 +23,12 @@ import androidx.room.Upsert
 
 @Dao
 interface InventoryDao {
+    @Update suspend fun updateSic18(detail:Sic18Entity)
+    @Update suspend fun updateSic19(detail:Sic19Entity)
+    @Update suspend fun updateSic20(detail:Sic20Entity)
+    @Update suspend fun updatePhotoMetadata(photo:PhotoEntity)
+    @Query("DELETE FROM photos WHERE id=:id AND recordId=:recordId") suspend fun deleteLocalPhoto(id:String,recordId:String)
+
     @androidx.room.Transaction
     @Query("""SELECT * FROM inventory_records
         WHERE status = 'ACTIVE' AND sicCode IN ('SIC-17','SIC-18','SIC-19','SIC-20','SIC-21','SIC-22','SIC-23')

@@ -21,7 +21,8 @@ El encabezado permanece visible con nombre, ruta, progresiva, sección, estado y
 | D4 | Perfil longitudinal y N puntos, presente en el workbook aunque omitido en el listado del prompt. |
 | E | Múltiples imágenes de elevación, planta y sección transversal por cámara/importación. |
 | F1 | Búsqueda de los 112 elementos por nombre/código; selección de presentes, metrado y porcentajes 0–5. |
-| F2 | Fotos con categoría y elemento opcional, vista previa y apertura de imagen. |
+| F2 | Condición Global del Puente (hoja física `sec F`): grupos I–V, código, elemento y descripción. |
+| Panel fotográfico | Hoja física `F.2.-PANEL FOTOGRAFICO`; fotos, fecha, descripción, categoría, elemento, reordenación y eliminación. |
 | F3 | N defectos por elemento, descripción, ubicación, foto opcional y validación de sugerencias. |
 | G | Identificación, datos generales, tramos, elementos, defectos, conteos de fotos/croquis, errores, pendientes y cálculo global cuando está definido. |
 
@@ -37,7 +38,7 @@ Paquete independiente `com.tuempresa.inventariovial.scap`:
 - `calculator`: función pura documentada en `SCAP_CALCULATION.md`.
 - `ui`: controlador retenido por InventoryViewModel, cola de guardado y pantallas Compose.
 
-Room pasa de **5 a 6** mediante `MIGRATION_5_6`. Se conserva la cadena 1→2→3→4→5→6, sin migración destructiva. El esquema exportado es `app/schemas/com.tuempresa.inventariovial.data.database.InventoryDatabase/6.json`.
+La integración inicial pasó de 5 a 6. La revisión de ingeniería actual usa **Room 7**, con `MIGRATION_6_7` explícita y cadena 1→2→3→4→5→6→7, sin migración destructiva. Esquema actual: `app/schemas/com.tuempresa.inventariovial.data.database.InventoryDatabase/7.json`. Ver `REVISION_INGENIERIA_UX.md`.
 
 ## Persistencia
 
@@ -48,12 +49,13 @@ Room pasa de **5 a 6** mediante `MIGRATION_5_6`. Se conserva la cadena 1→2→3
 | ScapSpanEntity | UUID, FK inspección, índice único dentro de ella; configuración y longitud tipadas. |
 | ScapSubstructureEntity | UUID; clase (estribo/pilar/anclaje), índice, elevación, cimentación y suelo. |
 | ScapSupportEntity | UUID; N apoyos, tipo/material/ubicación/conteo. |
+| ScapJointEntity | UUID; N juntas, tipo/material; migración de la junta histórica. |
 | ScapElementEntity | UUID; código único por inspección, nombre, unidad/factor oficiales, metrado y presencia. |
 | ScapElementConditionEntity | UUID; relación única al elemento; seis porcentajes nullable mientras se captura. |
 | ScapDefectEntity | UUID; N defectos, código opcional, foto opcional de la misma inspección, revisión IA y fecha. |
 | ScapSketchEntity | UUID; inspección, tipo y ruta privada de imagen. |
 | ScapProfilePointEntity | UUID; N puntos del perfil, distancia y cotas. |
-| PhotoEntity existente | Se añaden únicamente scapInspectionId, scapElementCode y photoCategory nullable. |
+| PhotoEntity existente | v6 añade scapInspectionId, scapElementCode y photoCategory; v7 añade description nullable. Metadatos Drive y rutas históricas se conservan. |
 
 Las colecciones tienen FK e índices; la eliminación del registro vial padre propaga a SCAP. Las relaciones de foto/defecto se verifican transaccionalmente en el repositorio. El valor raw evita perder un campo parcialmente escrito; las columnas numéricas reflejan valores analizables. Se validan los valores completos al cerrar. Las selecciones retiradas conservan la evaluación y pueden reactivarse.
 

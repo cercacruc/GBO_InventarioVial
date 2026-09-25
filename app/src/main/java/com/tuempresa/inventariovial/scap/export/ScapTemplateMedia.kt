@@ -16,12 +16,12 @@ internal object ScapTemplateMedia {
         w.set(5,"H1",photos.size);w.set(5,"H5","NO")
         for(i in 0..31) {
             val p=photos.getOrNull(i);val row=i+13
-            w.set(5,"B$row",p?.photoIndex)
+            w.set(5,"B$row",p?.let {i+1})
             w.set(5,"C$row",p?.let{ChronoUnit.DAYS.between(LocalDate.of(1899,12,30),Instant.ofEpochMilli(it.createdAt).atZone(ZoneId.systemDefault()).toLocalDate())})
-            val description=p?.let{listOfNotNull(it.photoCategory,it.scapElementCode).joinToString(" · ") + s.defects.filter{d->d.photoId==it.id}.joinToString("",prefix=""){d->"\n${d.description} · ${d.locationDescription}"}}
+            val description=p?.let{listOfNotNull(it.description?.takeIf(String::isNotBlank),it.photoCategory,it.scapElementCode).joinToString(" · ") + s.defects.filter{d->d.photoId==it.id}.joinToString("",prefix=""){d->"\n${d.description} · ${d.locationDescription}"}}
             w.set(5,"D$row",description)
         }
-        replace(w,5,photos.map{Picture(DriveUploadPolicy.uploadPath(it),listOfNotNull(it.photoCategory,it.scapElementCode).joinToString(" · "))},read)
+        replace(w,5,photos.map{Picture(DriveUploadPolicy.uploadPath(it),listOfNotNull(it.description?.takeIf(String::isNotBlank),it.photoCategory,it.scapElementCode).joinToString(" · "))},read)
         replace(w,2,listOf("ELEVATION","PLAN","CROSS_SECTION").map{type->s.sketches.singleOrNull{it.type==type}?.let{Picture(it.localUri,type)}},read)
     }
     private fun replace(w:TemplateWorkbook,sheet:Int,pictures:List<Picture?>,read:(String)->ByteArray) {

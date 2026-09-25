@@ -8,5 +8,7 @@ data class InventoryRecordWithPhotos(
     @Relation(parentColumn = "id", entityColumn = "recordId") val photos: List<PhotoEntity>,
     @Relation(parentColumn = "id", entityColumn = "recordId") val sic23: Sic23Entity? = null,
     @Relation(parentColumn = "id", entityColumn = "recordId") val sic18: Sic18Entity? = null,
-    @Relation(parentColumn = "id", entityColumn = "recordId") val sic20: Sic20Entity? = null
+    @Relation(parentColumn = "id", entityColumn = "recordId") val sic20: Sic20Entity? = null,
+    @Relation(parentColumn = "id", entityColumn = "recordId") val sic19: Sic19Entity? = null,
+    @Relation(parentColumn = "id", entityColumn = "recordId") val sic18a: Sic18AEntity? = null
 )

@@ -5,17 +5,17 @@ import com.tuempresa.inventariovial.BuildConfig
 enum class FieldKind { TEXT, YEAR, INTEGER, DECIMAL, SIGNED_DECIMAL, LATITUDE, LONGITUDE, CODE, DESCRIBED_CODE }
 data class SupplementaryField(val key: String, val label: String, val kind: FieldKind, val options: List<String> = emptyList())
 enum class SupplementaryFormat(val title: String) { SIC17A("SIC-17A"), SIC17B("SIC-17B"), SIC18A("SIC-18A");
-    val enabled get() = when(this) { SIC17A -> BuildConfig.SIC17A_ENABLED; SIC17B -> BuildConfig.SIC17B_ENABLED; SIC18A -> BuildConfig.SIC18A_ENABLED }
+    val enabled get() = when(this) { SIC17A -> BuildConfig.SIC17A_ENABLED; SIC17B -> BuildConfig.SIC17B_ENABLED; SIC18A -> true }
 }
 data class SupplementaryFormState(val format: SupplementaryFormat, val values: Map<String, String> = emptyMap()) {
     fun validate(): List<String> = SupplementaryForms.fields(format, values).mapNotNull { field ->
         val value=values[field.key].orEmpty().trim()
-        if(value.isEmpty()) return@mapNotNull null // These optional forms can be progressively completed.
+        if(value.isEmpty()) return@mapNotNull if(format==SupplementaryFormat.SIC18A) "${field.label}: obligatorio." else null // These optional forms can be progressively completed.
         val number=value.replace(',', '.').toDoubleOrNull()
         val valid=when(field.kind) {
             FieldKind.TEXT -> true
             FieldKind.YEAR -> value.matches(Regex("[0-9]{4}")) && value.toInt() in 1000..java.time.Year.now().value
-            FieldKind.INTEGER -> value.toIntOrNull()?.let { it>=0 } == true
+            FieldKind.INTEGER -> value.toIntOrNull()?.let { if(format==SupplementaryFormat.SIC18A && field.key=="spans") it>0 else it>=0 } == true
             FieldKind.DECIMAL -> number!=null && number.isFinite() && number>=0 && value.matches(Regex("[0-9]+([.,][0-9]{1,2})?"))
             FieldKind.SIGNED_DECIMAL -> number?.isFinite()==true
             FieldKind.LATITUDE -> number!=null && number in -90.0..90.0
@@ -30,7 +30,7 @@ object SupplementaryForms {
     fun fields(format: SupplementaryFormat, values: Map<String,String> = emptyMap()): List<SupplementaryField> {
         val fields=definitions.getValue(format)
         return if(format==SupplementaryFormat.SIC18A && values["classCode"]=="07") fields.map {
-            if(it.key=="typeCode") it.copy(options=listOf("1 - Concreto","2 - Mampostería","3 - Piedra")) else it
+            if(it.key=="typeCode") it.copy(options=com.tuempresa.inventariovial.catalog.SicCatalogRepository.options("sic18.type.1")) else it
         } else fields
     }
     private val definitions = mapOf(

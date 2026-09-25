@@ -47,7 +47,7 @@ class InventoryRoomMigrationTest {
                 old.version=version
             }
             val db=Room.databaseBuilder(context,InventoryDatabase::class.java,name)
-                .addMigrations(InventoryDatabase.MIGRATION_1_2,InventoryDatabase.MIGRATION_2_3,InventoryDatabase.MIGRATION_3_4,InventoryDatabase.MIGRATION_4_5,InventoryDatabase.MIGRATION_5_6).build()
+                .addMigrations(InventoryDatabase.MIGRATION_1_2,InventoryDatabase.MIGRATION_2_3,InventoryDatabase.MIGRATION_3_4,InventoryDatabase.MIGRATION_4_5,InventoryDatabase.MIGRATION_5_6,InventoryDatabase.MIGRATION_6_7).build()
             try {
                 val snapshot=db.inventoryDao().snapshot("old")!! // Opening invokes Room's full schema validator.
                 assertEquals("ANNULLED",snapshot.record.status);assertEquals("old",snapshot.record.id)

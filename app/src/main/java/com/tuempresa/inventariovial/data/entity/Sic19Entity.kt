@@ -32,5 +32,6 @@ data class Sic19Entity(
 
     val structuralConditionCode: String,
 
-    val functionalConditionCode: String
+    val functionalConditionCode: String,
+    val structuralCriterion: String? = null
 )

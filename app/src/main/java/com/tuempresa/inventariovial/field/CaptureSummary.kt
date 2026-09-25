@@ -41,13 +41,14 @@ fun captureSummary(r: InventorySaveRequest): List<Pair<String,String>> = buildLi
         }
         is SicFormDetail.Sic19 -> with(d.state) {
             option("Clase","sic19.class.0",classCode);option("Tipo","sic19.type.0",typeCode)
-            option("Sección","sic19.section.0",crossSectionCode);conditions("sic19",structuralConditionCode,functionalConditionCode)
+            row("Criterio estructural interno",when(com.tuempresa.inventariovial.catalog.EngineeringConditions.criterion(typeCode,structuralCriterion)){"EARTH"->"Tierra";"PAVED"->"Pavimentado";else->"Pendiente"});option("Sección","sic19.section.0",crossSectionCode);conditions("sic19",structuralConditionCode,functionalConditionCode)
         }
         is SicFormDetail.Sic20 -> with(d.state) {
             option("Clase","sic20.class.0",classCode)
             option("Tipo","sic20.type.${when(classCode){"12"->0;"13"->1;else->2}}",typeCode)
             row(if(classCode=="14") "Altura promedio (m)" else "Ancho (m)",dimension1M)
             if(usesDimension2) row("Dimensión 2 (m)",dimension2M)
+            if(classCode=="14") row("Longitud del muro (m) · interno",wallLengthMeters)
             conditions("sic20",structuralConditionCode,if(usesFunctionalCondition) functionalConditionCode else null)
         }
         is SicFormDetail.Sic17 -> with(d.state) {
