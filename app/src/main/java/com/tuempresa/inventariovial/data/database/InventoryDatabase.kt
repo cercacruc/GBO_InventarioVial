@@ -38,10 +38,10 @@ import com.tuempresa.inventariovial.scap.data.*
         ScapInspectionEntity::class, ScapFieldValueEntity::class, ScapSpanEntity::class,
         ScapSubstructureEntity::class, ScapSupportEntity::class, ScapElementEntity::class,
         ScapElementConditionEntity::class, ScapDefectEntity::class, ScapSketchEntity::class,
-        ScapProfilePointEntity::class
+        ScapProfilePointEntity::class, ScapJointEntity::class
     ],
 
-    version = 6,
+    version = 7,
 
     exportSchema = true
 )
@@ -55,6 +55,7 @@ abstract class InventoryDatabase :
 
 
     companion object {
+        val MIGRATION_6_7 = EngineeringMigration.MIGRATION_6_7
         val MIGRATION_5_6 = ScapMigration.MIGRATION_5_6
         val MIGRATION_4_5 = InventoryMigrations.MIGRATION_4_5
         val MIGRATION_3_4 = InventoryMigrations.MIGRATION_3_4
@@ -95,7 +96,7 @@ abstract class InventoryDatabase :
                             InventoryDatabase::class.java,
                             "inventario_vial.db"
                         )
-                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
                             .build()
 
                     INSTANCE = instance

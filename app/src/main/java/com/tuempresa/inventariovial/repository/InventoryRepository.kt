@@ -160,7 +160,11 @@ class InventoryRepository(
                 require(snapshot.record.sicCode=="SIC-17") { "El formato requiere un puente." }
                 val bridge=snapshot.sic17?.bridgeCode.orEmpty()
                 require(state.values["bridgeCode"].orEmpty()==bridge) { "El código de puente debe coincidir con SIC-17." }
-            } else require(snapshot.record.sicCode=="SIC-18") { "El formato requiere una alcantarilla." }
+            } else {
+                require(snapshot.record.sicCode=="SIC-18") { "El formato requiere una alcantarilla." }
+                val parent=requireNotNull(snapshot.sic18)
+                require(state.values["classCode"]==parent.classCode && state.values["typeCode"]==parent.typeCode && state.values["spans"]==parent.spans?.toString()) {"Clase, tipo y ojos/vanos deben coincidir con SIC-18; vuelve a abrir la ficha."}
+            }
             when(state.format) {
                 SupplementaryFormat.SIC17A -> dao.saveSic17A(Sic17AEntity.from(recordId,state.values))
                 SupplementaryFormat.SIC17B -> dao.saveSic17B(Sic17BEntity.from(recordId,state.values))

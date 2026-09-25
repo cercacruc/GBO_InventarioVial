@@ -34,5 +34,6 @@ data class Sic20Entity(
 
     val structuralConditionCode: String,
 
-    val functionalConditionCode: String?
+    val functionalConditionCode: String?,
+    val wallLengthMeters: Double? = null
 )

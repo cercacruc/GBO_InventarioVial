@@ -81,5 +81,6 @@ data class InventorySaveRequest(
     val sessionId: String? = null,
     val stampedPaths: Map<String, String> = emptyMap(),
     val segment: String = "",
-    val direction: String = "INCREASING"
+    val direction: String = "INCREASING",
+    val photoCategories: Map<String,String> = emptyMap()
 )

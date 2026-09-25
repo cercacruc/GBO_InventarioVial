@@ -28,6 +28,7 @@ class ScapExcelExporter(private val template:()->InputStream, fieldMap:String) {
         if(s.photos.size>32) errors+="La plantilla admite 32 fotos; esta inspección tiene ${s.photos.size}."
         if(s.profile.size>15) errors+="La plantilla admite 15 puntos de perfil; esta inspección tiene ${s.profile.size}."
         if(s.spans.size>3) errors+="La plantilla admite longitudes de tres tramos; esta inspección tiene ${s.spans.size}."
+        if(s.joints.size>1) errors+="La plantilla admite una junta según el mapa validado; esta inspección tiene ${s.joints.size}. La captura se conserva."
         if(s.supports.size>2) errors+="La plantilla admite dos grupos de apoyos; esta inspección tiene ${s.supports.size}."
         if(s.substructures.count{it.kind=="PIER"}>3) errors+="La plantilla no distingue individualmente más de tres pilares."
         if(s.sketches.groupBy{it.type}.any{it.value.size>1}) errors+="La plantilla admite un croquis de cada tipo."
@@ -46,7 +47,7 @@ class ScapExcelExporter(private val template:()->InputStream, fieldMap:String) {
         fun put(field:Field,ref:String,values:Map<String,String>) {
             val rule=field.visible
             val visible=if(rule==null) true else if("!=" in rule) values[rule.substringBefore("!=")]!=rule.substringAfter("!=") else values[rule.substringBefore('=')]==rule.substringAfter('=')
-            val raw=values[field.key].orEmpty().takeIf{visible}.orEmpty().trim()
+            val raw=com.tuempresa.inventariovial.scap.domain.ScapFieldPolicy.exportValue(field.key,field.owner,values).takeIf{visible}.orEmpty().trim()
             val value:Any?=when {
                 raw.isEmpty()->null
                 field.kind=="CHAINAGE"->ScapNumbers.chainage(raw)
@@ -57,7 +58,10 @@ class ScapExcelExporter(private val template:()->InputStream, fieldMap:String) {
             // E66 is a genuine link to total length. J62 was an example-only single-span assumption.
             if(ref!="E66") w.set(1,ref,value)
         }
-        fields.filter{it.owner=="inspection"}.forEach{put(it,it.cell,common)}
+        fields.filter{it.owner=="inspection"}.forEach{field->
+            val source=if(field.key in setOf("jointType","jointMaterial")) s.joints.singleOrNull()?.let {s.values(it.id)}.orEmpty() else common
+            put(field,field.cell,source)
+        }
         w.set(1,"C4",s.inspection.bridgeName)
         w.set(1,"C47",s.inspection.createdBy.takeIf{it.isNotBlank()}?.let{"Evaluación: $it"})
         w.set(1,"E62",s.spans.size.takeIf{it>0})

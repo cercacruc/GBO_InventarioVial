@@ -88,6 +88,7 @@ fun ScapMedia(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapCatalog,edit
     }
     val elementOptions=s.elements.filter{it.element.isPresent}.map{"${it.element.elementCode} · ${it.element.description}"}
     LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(16.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+        if(sketch) item {ScapSketchDimensions(s,c,editable)}
         item {
             Text(if(sketch) "Croquis del puente" else "Panel fotográfico",style=MaterialTheme.typography.titleLarge)
             Text(if(sketch) "Adjunta una fotografía o imagen de elevación, planta o sección transversal." else "Cada fotografía queda asociada a esta inspección y, opcionalmente, a un elemento SCAP.")
@@ -110,7 +111,16 @@ fun ScapMedia(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapCatalog,edit
             }
         }} else items(s.photos.sortedBy{it.photoIndex},key={it.id}) {photo->Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(12.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
-                Text("Foto ${photo.photoIndex}",style=MaterialTheme.typography.titleMedium)
+                Text("Foto ${s.photos.sortedBy {it.photoIndex}.indexOf(photo)+1}",style=MaterialTheme.typography.titleMedium)
+                Text("Fecha: ${java.text.SimpleDateFormat("dd/MM/yyyy",java.util.Locale.getDefault()).format(java.util.Date(photo.createdAt))}")
+                Text("✓ Guardada localmente · ${if(photo.description.isNullOrBlank()) "Descripción pendiente" else "Con descripción"}")
+                var description by remember(photo.id) {mutableStateOf(photo.description.orEmpty())}
+                OutlinedTextField(description,{description=it;c.submit {repo->repo.describePhoto(s.inspection.id,photo.id,it)}},label={Text("Descripción")},enabled=editable,modifier=Modifier.fillMaxWidth())
+                Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                    TextButton(enabled=editable && photo!=s.photos.minByOrNull {it.photoIndex},onClick={c.submit {it.movePhoto(s.inspection.id,photo.id,-1)}}) {Text("↑ Subir")}
+                    TextButton(enabled=editable && photo!=s.photos.maxByOrNull {it.photoIndex},onClick={c.submit {it.movePhoto(s.inspection.id,photo.id,1)}}) {Text("↓ Bajar")}
+                    TextButton(enabled=editable,onClick={removing=photo.id}) {Text("Eliminar")}
+                }
                 ScapImage(photo.originalPath ?: photo.localPath)
                 ScapChoice("Categoría",photoLabels[photo.photoCategory].orEmpty(),photoLabels.values.toList(),editable) {v->
                     photoLabels.entries.find{it.value==v}?.key?.let{cat->c.submit{it.setPhotoMetadata(s.inspection.id,photo.id,cat,photo.scapElementCode)}}
@@ -122,8 +132,8 @@ fun ScapMedia(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapCatalog,edit
         }}
         item {Text(if(sketch) "Croquis guardados: ${s.sketches.size}" else "Fotografías guardadas: ${s.photos.size}")}
     }
-    removing?.let{id->AlertDialog(onDismissRequest={removing=null},title={Text("Retirar croquis")},text={Text("Se retirará esta imagen de la ficha SCAP.")},
-        confirmButton={TextButton(onClick={c.submit{it.removeSketch(s.inspection.id,id)};removing=null}){Text("Retirar")}},dismissButton={TextButton(onClick={removing=null}){Text("Cancelar")}})}
+    removing?.let{id->AlertDialog(onDismissRequest={removing=null},title={Text(if(sketch) "Retirar croquis" else "Eliminar fotografía")},text={Text("Se retirará esta imagen de la ficha SCAP.")},
+        confirmButton={TextButton(onClick={c.submit{if(sketch) it.removeSketch(s.inspection.id,id) else it.removePhoto(s.inspection.id,id)};removing=null}){Text("Retirar")}},dismissButton={TextButton(onClick={removing=null}){Text("Cancelar")}})}
 }
 
 @Composable

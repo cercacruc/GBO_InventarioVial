@@ -40,5 +40,6 @@ data class Sic19FormState(
     // 1 - Buena / limpia
     // 2 - Regular / parcialmente obstruida
     // 3 - Mala / totalmente obstruida
-    val functionalConditionCode: String = "1"
+    val functionalConditionCode: String = "1",
+    val structuralCriterion: String = ""
 )

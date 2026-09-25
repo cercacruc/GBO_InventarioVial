@@ -15,6 +15,15 @@ object CaptureValidation {
             if(it.state.typeCode !in com.tuempresa.inventariovial.catalog.SicCatalogRepository.newSic22Types)
                 add(ValidationError("typeCode","Nueva señal SIC-22: selecciona Reglamento, Preventiva o Informativa. El hito kilométrico es Informativa."))
         }
+        (request.detail as? SicFormDetail.Sic19)?.state?.let {state->
+            if(com.tuempresa.inventariovial.catalog.EngineeringConditions.criterion(state.typeCode,state.structuralCriterion)==null)
+                add(ValidationError("structuralCriterion","Otro: selecciona criterio Pavimentado o Tierra."))
+        }
+        (request.detail as? SicFormDetail.Sic20)?.state?.let {state->
+            if(state.functionalConditionCode !in setOf("1","2","3")) add(ValidationError("functionalConditionCode","Selecciona condición funcional."))
+            if(state.classCode=="14" && state.wallLengthMeters.isNotBlank() && state.wallLengthMeters.replace(',','.').toDoubleOrNull()?.let {it.isFinite() && it>=0}!=true)
+                add(ValidationError("wallLengthMeters","Longitud del muro inválida."))
+        }
         if(request.routeCode.isBlank()) add(ValidationError("routeCode","Ruta obligatoria."))
         if(request.roadbedCode.isBlank()) add(ValidationError("roadbedCode","Calzada obligatoria."))
         if(!request.startPrCode.trim().matches(Regex("[0-9]{1,4}"))) add(ValidationError("startPrCode","PR inicial: de 1 a 4 dígitos."))

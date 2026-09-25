@@ -17,7 +17,7 @@ class ScapCatalog(val elements:List<ScapCatalogElement>,val fields:List<ScapFiel
     private val options:Map<String,List<String>>,private val types:Map<String,List<String>>,val sourceHash:String) {
     fun options(name:String?)=options[name].orEmpty()
     fun types(category:String)=types[category].orEmpty()
-    fun fields(section:String,owner:String)=fields.filter {it.section==section && it.owner==owner}
+    fun fields(section:String,owner:String)=if(owner=="joint") fields.filter {it.key in setOf("jointType","jointMaterial")}.map {it.copy(owner="joint")} else fields.filter {it.section==section && it.owner==owner}
     fun element(code:String)=elements.singleOrNull {it.code==code}
     companion object {
         fun load(context:Context)=parse(

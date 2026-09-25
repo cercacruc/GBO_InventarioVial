@@ -49,12 +49,13 @@ data class Sic20FormState(
     val structuralConditionCode: String = "1",
 
 
-    // Se utiliza funcionalmente para badenes.
+    // Decisión de ingeniería del proyecto: funcional en badén, túnel y muro.
     //
     // 1 - Buena / limpia
     // 2 - Regular / parcialmente obstruida
     // 3 - Mala / totalmente obstruida
-    val functionalConditionCode: String = "1"
+    val functionalConditionCode: String = "1",
+    val wallLengthMeters: String = ""
 ) {
 
     val usesDimension2: Boolean
@@ -62,5 +63,5 @@ data class Sic20FormState(
 
 
     val usesFunctionalCondition: Boolean
-        get() = classCode == "12"
+        get() = classCode in setOf("12", "13", "14")
 }

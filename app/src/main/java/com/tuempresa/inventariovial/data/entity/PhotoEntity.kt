@@ -56,5 +56,6 @@ data class PhotoEntity(
     val stampedPath: String? = null,
     val scapInspectionId: String? = null,
     val scapElementCode: String? = null,
-    val photoCategory: String? = null
+    val photoCategory: String? = null,
+    val description: String? = null
 )
