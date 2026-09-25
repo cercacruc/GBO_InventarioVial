@@ -130,6 +130,7 @@ class InventoryViewModel(
 
 
     val field = FieldController(application, database, viewModelScope)
+    val scap = com.tuempresa.inventariovial.scap.ui.ScapController(application, database, viewModelScope)
     val sequencedHistory = combine(repository.observeHistory(),field.reference) { records, reference ->
         RoadOrdering.order(records,ChainageCalculator(reference.prs))
     }.stateIn(viewModelScope,SharingStarted.WhileSubscribed(5_000),emptyList())
@@ -164,16 +165,26 @@ class InventoryViewModel(
     }
     val localExport = com.tuempresa.inventariovial.export.LocalSicExport(application, database, viewModelScope)
     private var saving = false
+    private val _driveFeedback=MutableStateFlow<String?>(null)
+    val driveFeedback=_driveFeedback.asStateFlow()
 
     fun syncPending(onResult: (String) -> Unit) {
         viewModelScope.launch {
+            com.tuempresa.inventariovial.DriveUploadPolicy.configurationError()?.let {
+                _driveFeedback.value=it;onResult(it);return@launch
+            }
             try {
                 val photos = database.inventoryDao().pendingPhotos()
-                photos.forEach { enqueuePhoto(it) }
+                var queued=0;var errors=0
+                photos.forEach { photo->
+                    try {enqueuePhoto(photo);queued++} catch(e:Exception) {errors++}
+                }
                 scheduleServerSync(getApplication())
-                onResult("Fotografías programadas: ${photos.size}")
+                val message="PROGRAMADA: $queued fotografía(s) · ERROR: $errors. Consulta los estados de Drive en el historial."
+                _driveFeedback.value=message;onResult(message)
             } catch (error: Exception) {
-                onResult(error.message ?: "No se pudo programar la sincronización.")
+                val message="ERROR: no se pudo programar la sincronización de Drive. Las fotos permanecen guardadas."
+                _driveFeedback.value=message;onResult(message)
             }
         }
     }
@@ -192,6 +203,10 @@ class InventoryViewModel(
                     "No se encontró el registro asociado a la fotografía."
                 )
 
+
+        if(!com.tuempresa.inventariovial.DriveUploadPolicy.eligible(record.sicCode,record.status,photo.scapInspectionId)) return
+        com.tuempresa.inventariovial.DriveUploadPolicy.requireConfiguration()
+        val uploadPath=withContext(Dispatchers.IO) {com.tuempresa.inventariovial.DriveUploadPolicy.uploadPath(photo)}
 
         val routeCode =
             record
@@ -228,13 +243,17 @@ class InventoryViewModel(
                 ).name
 
 
-        scheduleDriveUpload(
+        withContext(Dispatchers.IO) {
+          try {
+            check(java.io.File(uploadPath).let {it.isFile && it.canRead() && it.length()>0}) {"Fotografía no disponible para subida."}
+            database.inventoryDao().setPhotoSyncStatus(photo.id,"QUEUED")
+            scheduleDriveUpload(
 
             context =
                 getApplication(),
 
             photoPath =
-                photo.localPath,
+                uploadPath,
 
             driveFileName =
                 driveFileName,
@@ -253,7 +272,12 @@ class InventoryViewModel(
 
             recordId =
                 photo.recordId
-        )
+            ).result.get()
+          } catch(e:Exception) {
+            database.inventoryDao().setPhotoSyncStatus(photo.id,"ERROR")
+            throw e
+          }
+        }
     }
 
     fun setRecordStatus(id: String, active: Boolean, onError: (String) -> Unit) {
@@ -1062,7 +1086,11 @@ class InventoryViewModel(
 
                 // Local save has committed; scheduling can be retried from Home.
                 com.tuempresa.inventariovial.field.SurveyPreferences(getApplication()).remember(request)
-                runCatching { photos.forEach { enqueuePhoto(it) } }
+                val driveError=com.tuempresa.inventariovial.DriveUploadPolicy.configurationError()
+                if(driveError!=null) _driveFeedback.value=driveError
+                else photos.forEach { photo->runCatching {enqueuePhoto(photo)}.onFailure {
+                    _driveFeedback.value="ERROR: no se pudo programar una fotografía. El registro está guardado; revisa Drive en el historial."
+                }}
                 runCatching { scheduleServerSync(getApplication()) }
                 onSuccess()
 

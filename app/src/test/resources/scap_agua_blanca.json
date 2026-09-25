@@ -1,0 +1,217 @@
+{
+  "sourceSha256": "1df9f651722d06d6cd886c9be3edf565df7aae8b6fca10097011f48b12430b13",
+  "elements": [
+    {
+      "code": "104",
+      "quantity": 29.328,
+      "importanceFactor": 0.6,
+      "percentages": [
+        0,
+        100,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expectedCondition": 1,
+      "source": "G.- CONDICION ESTADISTICA!A14:K14"
+    },
+    {
+      "code": "110",
+      "quantity": 66.05,
+      "importanceFactor": 1,
+      "percentages": [
+        0,
+        90,
+        10,
+        0,
+        0,
+        0
+      ],
+      "expectedCondition": 1.6804320641498556,
+      "source": "G.- CONDICION ESTADISTICA!A15:K15"
+    },
+    {
+      "code": "111",
+      "quantity": 6.5625,
+      "importanceFactor": 0.8,
+      "percentages": [
+        0,
+        100,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expectedCondition": 1,
+      "source": "G.- CONDICION ESTADISTICA!A16:K16"
+    },
+    {
+      "code": "202",
+      "quantity": 120.132,
+      "importanceFactor": 1,
+      "percentages": [
+        0,
+        100,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expectedCondition": 1,
+      "source": "G.- CONDICION ESTADISTICA!A17:K17"
+    },
+    {
+      "code": "205",
+      "quantity": 22.26,
+      "importanceFactor": 0.6,
+      "percentages": [
+        0,
+        100,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expectedCondition": 1,
+      "source": "G.- CONDICION ESTADISTICA!A18:K18"
+    },
+    {
+      "code": "302",
+      "quantity": 109.2,
+      "importanceFactor": 0.4,
+      "percentages": [
+        0,
+        100,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expectedCondition": 1,
+      "source": "G.- CONDICION ESTADISTICA!A19:K19"
+    },
+    {
+      "code": "311",
+      "quantity": 37.44,
+      "importanceFactor": 0.2,
+      "percentages": [
+        0,
+        90,
+        0,
+        10,
+        0,
+        0
+      ],
+      "expectedCondition": 2.561157691070283,
+      "source": "G.- CONDICION ESTADISTICA!A20:K20"
+    },
+    {
+      "code": "353",
+      "quantity": 62.4,
+      "importanceFactor": 0.4,
+      "percentages": [
+        0,
+        100,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expectedCondition": 1,
+      "source": "G.- CONDICION ESTADISTICA!A21:K21"
+    },
+    {
+      "code": "372",
+      "quantity": 12,
+      "importanceFactor": 0.4,
+      "percentages": [
+        0,
+        0,
+        0,
+        100,
+        0,
+        0
+      ],
+      "expectedCondition": 3.0000000000000004,
+      "source": "G.- CONDICION ESTADISTICA!A22:K22"
+    },
+    {
+      "code": "401",
+      "quantity": 500,
+      "importanceFactor": 0.6,
+      "percentages": [
+        0,
+        75,
+        25,
+        0,
+        0,
+        0
+      ],
+      "expectedCondition": 2,
+      "source": "G.- CONDICION ESTADISTICA!A23:K23"
+    },
+    {
+      "code": "402",
+      "quantity": 250,
+      "importanceFactor": 0.6,
+      "percentages": [
+        0,
+        100,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expectedCondition": 1,
+      "source": "G.- CONDICION ESTADISTICA!A24:K24"
+    },
+    {
+      "code": "501",
+      "quantity": 1,
+      "importanceFactor": 0.2,
+      "percentages": [
+        0,
+        100,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expectedCondition": 1,
+      "source": "G.- CONDICION ESTADISTICA!A25:K25"
+    },
+    {
+      "code": "511",
+      "quantity": 70,
+      "importanceFactor": 0.2,
+      "percentages": [
+        0,
+        50,
+        0,
+        50,
+        0,
+        0
+      ],
+      "expectedCondition": 3.0000000000000004,
+      "source": "G.- CONDICION ESTADISTICA!A26:K26"
+    },
+    {
+      "code": "530",
+      "quantity": 40,
+      "importanceFactor": 0.2,
+      "percentages": [
+        0,
+        0,
+        100,
+        0,
+        0,
+        0
+      ],
+      "expectedCondition": 2,
+      "source": "G.- CONDICION ESTADISTICA!A27:K27"
+    }
+  ],
+  "expected": 2.0700860438436695,
+  "classification": "REGULAR"
+}

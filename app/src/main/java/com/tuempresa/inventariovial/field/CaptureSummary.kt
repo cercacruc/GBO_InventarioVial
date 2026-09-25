@@ -38,7 +38,6 @@ fun captureSummary(r: InventorySaveRequest): List<Pair<String,String>> = buildLi
             row(if(usesDimension2) "Ancho (m)" else "Diámetro (m)",dimension1M)
             if(usesDimension2) row("Altura (m)",dimension2M)
             conditions("sic18",structuralConditionCode,functionalConditionCode)
-            row("Longitud con daño (%)",structuralDamagePercent);row("Obstrucción de sección (%)",functionalObstructionPercent)
         }
         is SicFormDetail.Sic19 -> with(d.state) {
             option("Clase","sic19.class.0",classCode);option("Tipo","sic19.type.0",typeCode)
@@ -69,6 +68,6 @@ fun captureSummary(r: InventorySaveRequest): List<Pair<String,String>> = buildLi
     }
     row("Fecha",r.surveyDate);row("Observaciones para informe",r.observations)
     row("GPS inicial","${r.latitude}, ${r.longitude}");row("Precisión GPS (m)",r.gpsAccuracyM)
-    if(r.endLatitude!=null) row("GPS final","${r.endLatitude}, ${r.endLongitude}")
+    if(com.tuempresa.inventariovial.validation.requiresEndLocation(r) && r.endLatitude!=null) row("GPS final","${r.endLatitude}, ${r.endLongitude}")
     row("Fotografías",r.photoPaths.size);row("Fotografías con sello confirmado",r.stampedPaths.size)
 }

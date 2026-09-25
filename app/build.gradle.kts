@@ -12,6 +12,8 @@ val driveProperties = Properties().apply {
 }
 val driveApiToken = driveProperties.getProperty("DRIVE_API_TOKEN", "")
     .replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r")
+val driveWebAppUrl = driveProperties.getProperty("DRIVE_WEB_APP_URL", "").trim()
+    .replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r")
 
 val serverProperties = Properties().apply {
     val config = rootProject.file("server.local.properties")
@@ -23,6 +25,13 @@ fun localFlag(name: String) = serverProperties.getProperty(name, "false").toBool
 
 ksp { arg("room.schemaLocation", "$projectDir/schemas") }
 
+val scapTemplateAssets = tasks.register<Copy>("scapTemplateAssets") {
+    from(rootProject.file("docs/reference/SCAP_PUENTE_AGUA_BLANCA.xlsx")) { rename { "scap_template.xlsx" } }
+    from(rootProject.file("tools/scap_field_map.json"))
+    into(layout.buildDirectory.dir("generated/scapAssets"))
+}
+tasks.named("preBuild").configure { dependsOn(scapTemplateAssets) }
+
 android {
     namespace = "com.tuempresa.inventariovial"
     compileSdk {
@@ -31,8 +40,9 @@ android {
 
     defaultConfig {
         buildConfigField("String", "DRIVE_API_TOKEN", "\"$driveApiToken\"")
+        buildConfigField("String", "DRIVE_WEB_APP_URL", "\"$driveWebAppUrl\"")
         buildConfigField("String", "SERVER_BASE_URL", "\"${localString("SERVER_BASE_URL")}\"")
-        for (flag in listOf("ACCESS_CONTROL_ENABLED", "AI_ENABLED", "SIC17A_ENABLED", "SIC17B_ENABLED", "SIC18A_ENABLED")) {
+        for (flag in listOf("ACCESS_CONTROL_ENABLED", "AI_ENABLED", "AI_SCAP_ENABLED", "SIC17A_ENABLED", "SIC17B_ENABLED", "SIC18A_ENABLED")) {
             buildConfigField("boolean", flag, localFlag(flag))
         }
         applicationId = "com.tuempresa.inventariovial"
@@ -61,6 +71,7 @@ android {
     }
     testOptions { unitTests.isIncludeAndroidResources = true }
     sourceSets.getByName("androidTest").assets.srcDir("$projectDir/schemas")
+    sourceSets.getByName("main").assets.srcDir(layout.buildDirectory.dir("generated/scapAssets").get().asFile)
 }
 
 dependencies {

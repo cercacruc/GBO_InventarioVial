@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import com.tuempresa.inventariovial.field.*
 import android.Manifest
 import com.tuempresa.inventariovial.catalog.SicCatalogRepository
-import com.tuempresa.inventariovial.field.*
 import com.tuempresa.inventariovial.camera.PhotoStampData
 import com.tuempresa.inventariovial.data.entity.InventoryRecordEntity
 import com.tuempresa.inventariovial.location.TabletLocationProvider
@@ -31,11 +30,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -90,6 +88,7 @@ import com.tuempresa.inventariovial.model.form.InventorySaveRequest
 import com.tuempresa.inventariovial.model.form.SicFormDetail
 
 import com.tuempresa.inventariovial.viewmodel.InventoryViewModel
+import com.tuempresa.inventariovial.validation.requiresEndLocation
 
 
 // =========================================================
@@ -152,7 +151,7 @@ fun InventarioVialApp(
     InventoryViewModel
 ) {
 
-    if (!DeviceAccessGate(inventoryViewModel)) return
+    if (!deviceAccessGate(inventoryViewModel)) return
     SaveWarningsDialog(inventoryViewModel)
     var selectedDraft by remember { mutableStateOf<InventoryRecordEntity?>(null) }
     var showExport by rememberSaveable { mutableStateOf(false) }
@@ -189,7 +188,7 @@ fun InventarioVialApp(
 
             when {
                 showExport -> SicExportScreen(inventoryViewModel) { showExport = false }
-                showHistory -> RecordHistoryScreen(inventoryViewModel) { showHistory = false }
+                showHistory -> RecordHistoryScreen(inventoryViewModel, onScap = { showHistory = false; selectedAsset = RoadAssetType.BRIDGE }) { showHistory = false }
 
                 selectedAsset == null -> {
 
@@ -219,8 +218,10 @@ fun InventarioVialApp(
                 }
 
 
-                selectedAsset == RoadAssetType.SIGNALIZATION &&
-                        selectedSignalization == null -> {
+                selectedAsset == RoadAssetType.BRIDGE -> com.tuempresa.inventariovial.scap.ui.ScapWorkspace(inventoryViewModel) { selectedAsset = null }
+
+                (selectedAsset == RoadAssetType.SIGNALIZATION &&
+                        selectedSignalization == null) -> {
 
                     SignalizationMenuScreen(
                         onBack = {
@@ -328,6 +329,7 @@ fun HomeScreen(
             }
             OutlinedButton(onClick = onExport, modifier = Modifier.fillMaxWidth()) { Text("Exportar SIC a Excel") }
             syncMessage?.let { Text(it) }
+            inventoryViewModel?.let { DriveStatusPanel(it) }
         }
 
         item {
@@ -379,7 +381,7 @@ fun HomeScreen(
 
         items(
             items =
-                RoadAssetType.values().toList()
+                RoadAssetType.entries
         ) { asset ->
 
             AssetButton(
@@ -392,7 +394,7 @@ fun HomeScreen(
 
         item {
 
-            Divider(
+            HorizontalDivider(
                 modifier =
                     Modifier.padding(vertical = 8.dp)
             )
@@ -469,7 +471,7 @@ fun SignalizationMenuScreen(
 
         items(
             items =
-                SignalizationType.values().toList()
+                SignalizationType.entries
         ) { item ->
 
             Button(
@@ -1033,7 +1035,7 @@ fun SignalizationFormScreen(
             OutlinedButton(enabled = !locating, onClick = { if(hasLocationPermission()) captureLocation() else locationPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION)) }) { Text("Actualizar GPS inicial") }
         }
 
-        if (signalizationType != SignalizationType.VERTICAL) {
+        if (requiresEndLocation(signalizationType.sicCode, signalizationType.name)) {
             item {
                 TrackCapturePanel(inventoryViewModel,draftId,"SIC-21",signalizationType.name,route,roadbed,startPr,startDistance,codeFromOption(side),location,
                     onRecordId = { draftId=it }, onEndLocation = { endLocation=it }, segment=segment, direction=direction)
@@ -1043,7 +1045,7 @@ fun SignalizationFormScreen(
         // GPS
         item {
 
-            SectionTitle("Ubicación GPS")
+            SectionTitle("GPS inicial")
 
             Card(
                 modifier =
@@ -1132,7 +1134,7 @@ fun SignalizationFormScreen(
         }
 
         item {
-            Divider()
+            HorizontalDivider()
         }
 
         // UBICACIÓN VIAL COMÚN
@@ -1243,7 +1245,7 @@ fun SignalizationFormScreen(
         }
 
         item {
-            Divider()
+            HorizontalDivider()
         }
 
         // CAMPOS SEGÚN TIPO
@@ -1276,7 +1278,7 @@ fun SignalizationFormScreen(
         }
 
         item {
-            Divider()
+            HorizontalDivider()
         }
 
         item {
@@ -1366,7 +1368,9 @@ fun SignalizationFormScreen(
                     }) { Text("Quitar") }
                 }
             }
-            FinalLocationCapture(endLocation) { endLocation = it }
+            if (requiresEndLocation(signalizationType.sicCode, signalizationType.name)) {
+                FinalLocationCapture(endLocation) { endLocation = it }
+            }
         }
         if (
             photoCaptured &&
@@ -1502,19 +1506,6 @@ fun SignalizationFormScreen(
                         }
 
 
-                        signalizationType ==
-                                SignalizationType.VERTICAL &&
-                                sic22State
-                                    .usesKilometerPostNumber &&
-                                sic22State
-                                    .kilometerPostNumber
-                                    .trim()
-                                    .isEmpty() -> {
-
-                            formError =
-                                "Debes ingresar el número del poste kilométrico."
-                        }
-
                         else -> {
                             formError = null
 
@@ -1645,6 +1636,7 @@ fun Sic22Fields(
     onStateChange: (Sic22FormState) -> Unit
 ) {
 
+    Text("Hito kilométrico: registrar como Informativa. El número independiente del hito está pendiente de confirmación.")
     val typeOptions = SicCatalogRepository.options("sic22.type.0")
 
     val materialOptions = SicCatalogRepository.options("sic22.material.0")
@@ -1769,33 +1761,6 @@ fun Sic22Fields(
     }
 
 
-    if (
-        state.usesKilometerPostNumber
-    ) {
-
-        OutlinedTextField(
-            value =
-                state.kilometerPostNumber,
-
-            onValueChange = {
-
-                onStateChange(
-                    state.copy(
-                        kilometerPostNumber = it
-                    )
-                )
-            },
-
-            label = {
-                Text(
-                    "Número del poste kilométrico"
-                )
-            },
-
-            modifier =
-                Modifier.fillMaxWidth()
-        )
-    }
 
 
     Text(
@@ -2409,7 +2374,8 @@ fun AssetFormScreen(
             OutlinedButton(enabled = !locating, onClick = { if(hasLocationPermission()) captureLocation() else locationPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION)) }) { Text("Actualizar GPS inicial") }
         }
 
-        if (assetType == RoadAssetType.DITCH || (assetType == RoadAssetType.RIGHT_OF_WAY && sic23State.classCode !in listOf("23","24")) || (assetType in setOf(RoadAssetType.FORD, RoadAssetType.TUNNEL, RoadAssetType.WALL) && sic20State.classCode in listOf("13","14"))) {
+        if (requiresEndLocation(assetType.sicCode, assetType.name,
+            sic20Class=if(assetType.sicCode=="SIC-20") sic20State.classCode else null, sic23Class=sic23State.classCode)) {
             item {
                 TrackCapturePanel(inventoryViewModel,draftId,assetType.sicCode,assetType.name,route,roadbed,startPr,startDistance,codeFromOption(side),location,
                     onRecordId = { draftId=it }, onEndLocation = { endLocation=it }, segment=segment, direction=direction)
@@ -2419,7 +2385,7 @@ fun AssetFormScreen(
         // GPS
         item {
 
-            SectionTitle("Ubicación GPS")
+            SectionTitle("GPS inicial")
 
             Card(
                 modifier =
@@ -2508,7 +2474,7 @@ fun AssetFormScreen(
         }
 
         item {
-            Divider()
+            HorizontalDivider()
         }
 
         // DATOS COMUNES
@@ -2627,7 +2593,7 @@ fun AssetFormScreen(
         }
 
         item {
-            Divider()
+            HorizontalDivider()
         }
 
         item {
@@ -2686,7 +2652,7 @@ fun AssetFormScreen(
         }
 
         item {
-            Divider()
+            HorizontalDivider()
         }
 
         item {
@@ -2775,7 +2741,10 @@ fun AssetFormScreen(
                     }) { Text("Quitar") }
                 }
             }
-            FinalLocationCapture(endLocation) { endLocation = it }
+            if (requiresEndLocation(assetType.sicCode, assetType.name,
+                sic20Class=if(assetType.sicCode=="SIC-20") sic20State.classCode else null, sic23Class=sic23State.classCode)) {
+                FinalLocationCapture(endLocation) { endLocation = it }
+            }
         }
         if (
             photoCaptured &&
@@ -3055,7 +3024,7 @@ fun AssetFormScreen(
                                                 else -> "SIC20"
                                             }
 
-                                        RoadAssetType.SIGNALIZATION ->
+                                        else ->
                                             "SENALIZACION"
                                     }
 
@@ -3392,11 +3361,8 @@ fun Sic18Fields(
             )
         }
     )
-    OutlinedTextField(state.structuralDamagePercent, { onStateChange(state.copy(structuralDamagePercent=it)) },
-        label={Text("Longitud con daño estructural (%)")}, modifier=Modifier.fillMaxWidth())
-    OutlinedTextField(state.functionalObstructionPercent, { onStateChange(state.copy(functionalObstructionPercent=it)) },
-        label={Text("Obstrucción de la sección (%)")}, modifier=Modifier.fillMaxWidth())
-    Text("Porcentajes observados: 0 a 100. La calificación la confirma el ingeniero. Referencia: MTC SIC-18, p. 216; confirmar el límite exacto de 30% y el criterio contractual.")
+    Text(SicCatalogRepository.sic18StructuralDescriptions[state.structuralConditionCode].orEmpty())
+    Text("La condición estructural y funcional la selecciona el ingeniero.")
 
 }
 

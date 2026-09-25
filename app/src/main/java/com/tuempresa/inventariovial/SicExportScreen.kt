@@ -26,11 +26,13 @@ fun SicExportScreen(viewModel: InventoryViewModel, onBack: () -> Unit) {
     var project by rememberSaveable { mutableStateOf(exporter.savedHeading.project) }
     var road by rememberSaveable { mutableStateOf(exporter.savedHeading.road) }
     var section by rememberSaveable { mutableStateOf(exporter.savedHeading.section) }
-    var picking by rememberSaveable { mutableStateOf(false) }
+    var picking by rememberSaveable { mutableStateOf(value = false) }
     var pickerMessage by rememberSaveable { mutableStateOf<String?>(null) }
     val format = SicExportFormat.entries.firstOrNull { it.code == formatCode }
-    val active = history.map { it.record }.filter { it.status == "ACTIVE" &&
-        SicExportFormat.entries.any { f -> f.code == it.sicCode } }
+    val active = history.asSequence().map { it.record }.filter {
+        (it.status == "ACTIVE" &&
+            SicExportFormat.entries.any { f -> f.code == it.sicCode })
+    }.toList()
     val routes = active.map { it.routeCode }.distinct().sorted()
     val count = active.count { (format == null || it.sicCode == format.code) && (route == null || it.routeCode == route) }
     val locked = state.busy || picking
@@ -45,8 +47,13 @@ fun SicExportScreen(viewModel: InventoryViewModel, onBack: () -> Unit) {
         else pickerMessage = "Guardado cancelado. El archivo preparado sigue disponible."
     }
     BackHandler(onBack = onBack)
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
         OutlinedButton(onClick = onBack) { Text("Volver") }
         Text("Exportar SIC a Excel", style = MaterialTheme.typography.headlineMedium)
         Text("Inventario vial calificado · SIC-17 a SIC-23")

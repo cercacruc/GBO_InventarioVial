@@ -28,7 +28,9 @@ fun scheduleDriveUpload(
 
     recordId: String? = null
 
-) {
+) : androidx.work.Operation {
+    DriveUploadPolicy.requireSic(sicCode)
+    DriveUploadPolicy.requireConfiguration()
 
     // =========================================================
     // REQUERIR INTERNET
@@ -109,7 +111,7 @@ fun scheduleDriveUpload(
     // PROGRAMAR SUBIDA
     // =========================================================
 
-    WorkManager
+    return WorkManager
         .getInstance(
             context
         )

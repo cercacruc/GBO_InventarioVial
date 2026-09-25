@@ -26,7 +26,11 @@ fun SurveyHeader(preferences: SurveyPreferences, segment: String, route: String,
         } else {
             ChoiceSelector(routes,route) { if(it!=route) onRoute(it) }
             val index=routes.indexOf(route)
-            if(index>=0 && index<routes.lastIndex) OutlinedButton(onClick={onRoute(routes[index+1])}) {Text("Siguiente ruta: ${routes[index+1]}")}
+            if(preferences.hasConfiguredCatalog(segment) && index>=0 && index<routes.lastIndex) OutlinedButton(onClick={onRoute(routes[index+1])}) {Text("Siguiente ruta: ${routes[index+1]}")}
+            if(!preferences.hasConfiguredCatalog(segment)) {
+                Text("Catálogo inicial común. La relación con los tramos y su orden están pendientes de confirmación.")
+                OutlinedTextField(route,{onRoute(it.uppercase())},label={Text("Ruta seleccionada / ingreso manual")},modifier=Modifier.fillMaxWidth())
+            }
         }
         OutlinedButton(enabled=segment.isNotBlank(),onClick={editCatalog=true}) {Text("Configurar rutas de este tramo")}
         Text("Calzada",style=MaterialTheme.typography.titleMedium)

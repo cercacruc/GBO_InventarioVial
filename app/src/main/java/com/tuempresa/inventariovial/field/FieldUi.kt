@@ -23,7 +23,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 
 @Composable
-fun DeviceAccessGate(viewModel: InventoryViewModel): Boolean {
+fun deviceAccessGate(viewModel: InventoryViewModel): Boolean {
     val state by viewModel.field.access.collectAsState()
     if(state?.authorized==true) return true
     Column(Modifier.fillMaxSize().padding(32.dp),verticalArrangement=Arrangement.Center) {
@@ -57,7 +57,8 @@ fun SaveWarningsDialog(viewModel: InventoryViewModel) {
 fun FieldHomePanel(viewModel: InventoryViewModel,onResumeDraft: (InventoryRecordEntity)->Unit) {
     val field=viewModel.field
     val session by field.session.collectAsState()
-    val drafts by field.drafts.collectAsState()
+    val allDrafts by field.drafts.collectAsState()
+    val drafts = allDrafts.filter { it.sicCode != "SCAP" }
     val reference by field.reference.collectAsState()
     val referenceError by field.referenceError.collectAsState()
     var showSession by remember { mutableStateOf(false) }
@@ -145,8 +146,16 @@ private fun KmlControls(viewModel: InventoryViewModel) {
     var message by remember { mutableStateOf<String?>(null) }
     val save=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/vnd.google-earth.kml+xml")) { uri ->
         if(uri!=null) scope.launch {
-            try { withContext(Dispatchers.IO) { context.contentResolver.openOutputStream(uri)?.use { output -> file!!.inputStream().use { it.copyTo(output) } } ?: error("No se pudo abrir el destino.") };message="KML guardado." }
-            catch(error:Exception) {message=error.message}
+            message = try {
+                withContext(Dispatchers.IO) {
+                    context.contentResolver.openOutputStream(uri)?.use { output ->
+                        file!!.inputStream().use { it.copyTo(output) }
+                    } ?: error("No se pudo abrir el destino.")
+                }
+                "KML guardado."
+            } catch(error:Exception) {
+                error.message
+            }
         }
     }
     OutlinedButton(enabled=!busy,onClick={scope.launch {
@@ -186,7 +195,7 @@ fun SupplementaryScreen(viewModel: InventoryViewModel,record: InventoryRecordEnt
                         { option ->
                             val selected=if(option=="Sin completar") "" else if(field.kind==FieldKind.CODE) option.substringBefore(" - ") else option
                             var values=state.values+(field.key to selected)
-                            if(field.key=="classCode") values=values+("typeCode" to "")
+                            if(field.key=="classCode") values = values + ("typeCode" to "")
                             state=state.copy(values=values)
                         })
                 } else OutlinedTextField(value,{state=state.copy(values=state.values+(field.key to it))},label={Text(field.label)},

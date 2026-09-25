@@ -8,7 +8,7 @@ enum class SignalizationType(
 
     VERTICAL(
         "Señal vertical",
-        "Reglamento, preventiva, informativa, poste km, semáforo o SOS",
+        "Reglamento, preventiva e informativa (incluye hitos kilométricos)",
         "SIC-22"
     ),
 

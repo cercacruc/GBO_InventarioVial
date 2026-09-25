@@ -1,0 +1,488 @@
+{
+  "generatedAtUtc": "2026-09-25T00:53:16.353288+00:00",
+  "comparisonBase": "393567166f68837e85415465683c5ef981073876",
+  "commands": [
+    "gradlew.bat testDebugUnitTest",
+    "gradlew.bat assembleDebug"
+  ],
+  "tests": 82,
+  "failures": 0,
+  "errors": 0,
+  "suites": [
+    {
+      "name": "com.tuempresa.inventariovial.EngineeringDecisionsTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.tuempresa.inventariovial.ExampleUnitTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.tuempresa.inventariovial.FieldReadinessTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.tuempresa.inventariovial.InventoryRoomMigrationTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.tuempresa.inventariovial.PhotoStampServiceTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.tuempresa.inventariovial.RoadMatcherTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.tuempresa.inventariovial.RoadPositionTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.tuempresa.inventariovial.ScapCalculationTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.tuempresa.inventariovial.ScapExportTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.tuempresa.inventariovial.ScapStorageTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.tuempresa.inventariovial.Sic23Test",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.tuempresa.inventariovial.SicExcelWriterTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.tuempresa.inventariovial.SurveyCorrectionsTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.tuempresa.inventariovial.SurveyStorageTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.tuempresa.inventariovial.TrackAndKmlTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.tuempresa.inventariovial.ValidationAndServerTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "roomVersion": 6,
+  "scapExample": {
+    "value": 2.0700860438436695,
+    "display": "2.070",
+    "classification": "REGULAR"
+  },
+  "catalogElements": 112,
+  "workbookSha256": "1df9f651722d06d6cd886c9be3edf565df7aae8b6fca10097011f48b12430b13",
+  "protectedFiles": [
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/export/LocalSicExport.kt",
+      "sha256": "e1a7c9510b63748d584c9c0a5e0473359f228140a0c47ca2f193f78a6474898f",
+      "unchangedVsHead": true
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/export/ObservationReport.kt",
+      "sha256": "801612ee0b89a1332b3d7ff76e7bf722d3d7c496dc54f22c7d80469adbd2e4d7",
+      "unchangedVsHead": true
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/gis/KmlExporter.kt",
+      "sha256": "ecf6511d2781f5a82dd748f02186b58cb046af20a9e794313e3b731bb3f4739e",
+      "unchangedVsHead": true
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/gis/LocalKmlExport.kt",
+      "sha256": "f9da630da8f5e4b289fdd7434962e70eb048e4df41c9a57867bb6fe3795db846",
+      "unchangedVsHead": true
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/DriveFolderRouter.kt",
+      "sha256": "19306f0168e37d2217b8a2e21e3f6c02d556fcc6cb1cab270e725689fe63aaaf",
+      "unchangedVsHead": true
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/SicExportScreen.kt",
+      "sha256": "ba4ea0fe0b49a5ad13a4a80318f482feffb0df96c620709e18a919e7370d191b",
+      "unchangedVsHead": true
+    },
+    {
+      "path": "app/src/main/java/com/tuempresa/inventariovial/camera/PhotoUtils.kt",
+      "sha256": "4b68d3a90c8a19ed9a6dcff39194132cb8f4782b964be5fdfdb8e571c174d407",
+      "unchangedVsHead": true
+    }
+  ],
+  "buildDriveFileNameUnchanged": true,
+  "existingSicWriterFunctionsUnchanged": true,
+  "runtimeTemplateAndFieldMapMatchSources": true,
+  "engineeringRelease": "docs/ENGINEERING_RELEASE.md",
+  "scapDriveUploadEnabled": false,
+  "deviceTest": "Not run: adb devices -l returned no connected devices",
+  "liveDriveTest": "Not run: local Drive configuration absent at verification",
+  "changedFiles": [
+    {
+      "status": "M",
+      "path": ".gitignore"
+    },
+    {
+      "status": "M",
+      "path": "app/build.gradle.kts"
+    },
+    {
+      "status": "A",
+      "path": "app/schemas/com.tuempresa.inventariovial.data.database.InventoryDatabase/6.json"
+    },
+    {
+      "status": "M",
+      "path": "app/src/androidTest/java/com/tuempresa/inventariovial/InventoryMigrationTest.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/assets/scap_elements.json"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/assets/scap_fields.json"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/assets/scap_options.json"
+    },
+    {
+      "status": "M",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/catalog/SicCatalogRepository.kt"
+    },
+    {
+      "status": "M",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/dao/InventoryDao.kt"
+    },
+    {
+      "status": "M",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/database/InventoryDatabase.kt"
+    },
+    {
+      "status": "M",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/entity/InventoryRecordWithPhotos.kt"
+    },
+    {
+      "status": "M",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/data/entity/PhotoEntity.kt"
+    },
+    {
+      "status": "M",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/DriveConfig.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/DriveStatusPanel.kt"
+    },
+    {
+      "status": "M",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/DriveSync.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/DriveUploadPolicy.kt"
+    },
+    {
+      "status": "M",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/DriveUploadWorker.kt"
+    },
+    {
+      "status": "M",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/export/SicExcelWriter.kt"
+    },
+    {
+      "status": "M",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/export/SicExportFormat.kt"
+    },
+    {
+      "status": "M",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/field/CaptureSummary.kt"
+    },
+    {
+      "status": "M",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/field/FieldUi.kt"
+    },
+    {
+      "status": "M",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/field/SurveyHeader.kt"
+    },
+    {
+      "status": "M",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/field/SurveyPreferences.kt"
+    },
+    {
+      "status": "M",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/MainActivity.kt"
+    },
+    {
+      "status": "M",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/model/SignalizationType.kt"
+    },
+    {
+      "status": "M",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/RecordHistoryScreen.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/calculator/ScapConditionCalculator.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/catalog/ScapCatalog.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/data/ScapDao.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/data/ScapEntities.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/data/ScapMigration.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/data/ScapRepository.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/domain/ScapAiAnalyzer.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/domain/ScapToSicMapper.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/domain/ScapValidation.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/export/ScapDrivePayload.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/export/ScapExcelExporter.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/export/ScapSicExporter.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/export/ScapTemplateMedia.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/export/TemplateWorkbook.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/ui/ScapController.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/ui/ScapElements.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/ui/ScapExportPanel.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/ui/ScapForms.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/ui/ScapMedia.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/scap/ui/ScapWorkspace.kt"
+    },
+    {
+      "status": "M",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/validation/CaptureValidation.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/validation/EndLocationPolicy.kt"
+    },
+    {
+      "status": "M",
+      "path": "app/src/main/java/com/tuempresa/inventariovial/viewmodel/InventoryViewModel.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/test/java/com/tuempresa/inventariovial/EngineeringDecisionsTest.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/test/java/com/tuempresa/inventariovial/FieldReadinessTest.kt"
+    },
+    {
+      "status": "M",
+      "path": "app/src/test/java/com/tuempresa/inventariovial/InventoryRoomMigrationTest.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/test/java/com/tuempresa/inventariovial/ScapCalculationTest.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/test/java/com/tuempresa/inventariovial/ScapExportTest.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/test/java/com/tuempresa/inventariovial/ScapStorageTest.kt"
+    },
+    {
+      "status": "M",
+      "path": "app/src/test/java/com/tuempresa/inventariovial/SurveyCorrectionsTest.kt"
+    },
+    {
+      "status": "M",
+      "path": "app/src/test/java/com/tuempresa/inventariovial/SurveyStorageTest.kt"
+    },
+    {
+      "status": "A",
+      "path": "app/src/test/resources/scap_agua_blanca.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/DRIVE_SCAP_CONTRACT.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/ENGINEERING_CHANGED_FILES.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/ENGINEERING_RELEASE.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/FIELD_READINESS.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/reference/SCAP_EXTRACTION.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/reference/SCAP_PUENTE_AGUA_BLANCA.xlsx"
+    },
+    {
+      "status": "A",
+      "path": "docs/SCAP_ARCHITECTURE_REVIEW.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/SCAP_CALCULATION.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/SCAP_EXCEL_VALIDATION.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/SCAP_IMPLEMENTATION.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/SCAP_PENDING_CLIENT_DECISIONS.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/SCAP_TO_SIC_MAPPING.md"
+    },
+    {
+      "status": "A",
+      "path": "drive.local.properties.example"
+    },
+    {
+      "status": "M",
+      "path": "server.local.properties.example"
+    },
+    {
+      "status": "A",
+      "path": "tools/extract_scap_catalog.py"
+    },
+    {
+      "status": "A",
+      "path": "tools/package_field_delivery.py"
+    },
+    {
+      "status": "A",
+      "path": "tools/report_engineering_changes.py"
+    },
+    {
+      "status": "A",
+      "path": "tools/scap_field_map.json"
+    },
+    {
+      "status": "A",
+      "path": "tools/verify_excel_export.ps1"
+    }
+  ],
+  "debugApkSha256": "6e79ff2bdd2e972b8d1fbbe33da14efde8332540be3dc5f6d111889760ac4af2"
+}

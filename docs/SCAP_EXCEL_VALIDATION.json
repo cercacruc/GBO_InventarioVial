@@ -1,0 +1,13 @@
+{
+  "file": "tmp/engineering/export-validation.xlsx",
+  "engine": "Microsoft Excel",
+  "version": "16.0",
+  "sheets": 10,
+  "elementCount": 2.0,
+  "maximumContribution": 1.6804320641498556,
+  "globalCondition": 2.2804320641498554,
+  "globalConditionText": "2.280",
+  "classification": "REGULAR",
+  "name": "Puente de prueba Ñ",
+  "recalculatedReadOnly": true
+}

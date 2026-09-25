@@ -1,0 +1,901 @@
+{
+  "sourceSha256": "1df9f651722d06d6cd886c9be3edf565df7aae8b6fca10097011f48b12430b13",
+  "elements": [
+    {
+      "code": "101",
+      "name": "Losa de concreto armado (Refuerzo longitudinal)",
+      "unit": "m3",
+      "importanceFactor": 1,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C5:G5"
+    },
+    {
+      "code": "102",
+      "name": "Losa de concreto pretensado (Pretensado Longitudinal)",
+      "unit": "m3",
+      "importanceFactor": 1,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C6:G6"
+    },
+    {
+      "code": "103",
+      "name": "Losa de Concreto Simple",
+      "unit": "m3",
+      "importanceFactor": 0.6,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C7:G7"
+    },
+    {
+      "code": "104",
+      "name": "Losa de concreto armado (Refuerzo Transversal)",
+      "unit": "m3",
+      "importanceFactor": 0.6,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C8:G8"
+    },
+    {
+      "code": "105",
+      "name": "Losa de concreto pretensado (Pretensado Transversal)",
+      "unit": "m3",
+      "importanceFactor": 0.6,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C9:G9"
+    },
+    {
+      "code": "106",
+      "name": "Plancha Metálica Corrugada",
+      "unit": "m2",
+      "importanceFactor": 0.6,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C10:G10"
+    },
+    {
+      "code": "107",
+      "name": "Tablero de Madera",
+      "unit": "ft.2",
+      "importanceFactor": 0.6,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C11:G11"
+    },
+    {
+      "code": "110",
+      "name": "Viga Principales concreto armado",
+      "unit": "m3",
+      "importanceFactor": 1,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C12:G12"
+    },
+    {
+      "code": "111",
+      "name": "Vigas Secundarias de concreto armado",
+      "unit": "m3",
+      "importanceFactor": 0.8,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C13:G13"
+    },
+    {
+      "code": "112",
+      "name": "Vigas Principales de concreto pretensado",
+      "unit": "m3",
+      "importanceFactor": 1,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C14:G14"
+    },
+    {
+      "code": "113",
+      "name": "Vigas Secundarias de concreto Pretensado",
+      "unit": "m3",
+      "importanceFactor": 0.8,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C15:G15"
+    },
+    {
+      "code": "114",
+      "name": "Vigas Principales de Acero Estructural",
+      "unit": "kg",
+      "importanceFactor": 1,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C16:G16"
+    },
+    {
+      "code": "115",
+      "name": "Vigas Secundarias de Acero",
+      "unit": "kg",
+      "importanceFactor": 0.8,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C17:G17"
+    },
+    {
+      "code": "116",
+      "name": "Vigas de Madera",
+      "unit": "ft.2",
+      "importanceFactor": 1,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C18:G18"
+    },
+    {
+      "code": "117",
+      "name": "Arriostres de Acero",
+      "unit": "kg",
+      "importanceFactor": 0.6,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C19:G19"
+    },
+    {
+      "code": "131",
+      "name": "Columnas de concreto armado",
+      "unit": "m3",
+      "importanceFactor": 1,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C20:G20"
+    },
+    {
+      "code": "132",
+      "name": "Columnas de concreto pretensado",
+      "unit": "m3",
+      "importanceFactor": 1,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C21:G21"
+    },
+    {
+      "code": "133",
+      "name": "Columna de acero estructural",
+      "unit": "kg",
+      "importanceFactor": 1,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C22:G22"
+    },
+    {
+      "code": "134",
+      "name": "Muros de Concreto Armado",
+      "unit": "m3",
+      "importanceFactor": 1,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C23:G23"
+    },
+    {
+      "code": "135",
+      "name": "Muros de Concreto Simple",
+      "unit": "m3",
+      "importanceFactor": 1,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C24:G24"
+    },
+    {
+      "code": "136",
+      "name": "Tirante de Concreto Pretensado en pórticos",
+      "unit": "m3",
+      "importanceFactor": 1,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C25:G25"
+    },
+    {
+      "code": "137",
+      "name": "Arriostres de Acero",
+      "unit": "kg",
+      "importanceFactor": 1,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C26:G26"
+    },
+    {
+      "code": "145",
+      "name": "Arco de concreto armado",
+      "unit": "m3",
+      "importanceFactor": 1,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C27:G27"
+    },
+    {
+      "code": "146",
+      "name": "Arco de acero estructural",
+      "unit": "kg",
+      "importanceFactor": 1,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C28:G28"
+    },
+    {
+      "code": "147",
+      "name": "Arriostres de Acero",
+      "unit": "kg",
+      "importanceFactor": 0.6,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C29:G29"
+    },
+    {
+      "code": "160",
+      "name": "Bridas superior e inferior, Montantes y Diagonales de Acero",
+      "unit": "kg",
+      "importanceFactor": 1,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C30:G30"
+    },
+    {
+      "code": "161",
+      "name": "Vigas Transversales y Largueros de Acero",
+      "unit": "kg",
+      "importanceFactor": 0.8,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C31:G31"
+    },
+    {
+      "code": "162",
+      "name": "Arriostres de Acero",
+      "unit": "kg",
+      "importanceFactor": 0.6,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C32:G32"
+    },
+    {
+      "code": "168",
+      "name": "Estructura Metálica Bailey",
+      "unit": "und.",
+      "importanceFactor": 1,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C33:G33"
+    },
+    {
+      "code": "180",
+      "name": "Cables Principales de Acero",
+      "unit": "kg",
+      "importanceFactor": 1,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C34:G34"
+    },
+    {
+      "code": "181",
+      "name": "Barras de Anclaje en puentes colgantes",
+      "unit": "und.",
+      "importanceFactor": 1,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C35:G35"
+    },
+    {
+      "code": "182",
+      "name": "Torres de Acero",
+      "unit": "kg",
+      "importanceFactor": 1,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C36:G36"
+    },
+    {
+      "code": "183",
+      "name": "Péndolas de Acero con Sockets",
+      "unit": "kg",
+      "importanceFactor": 1,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C37:G37"
+    },
+    {
+      "code": "184",
+      "name": "Accesorios (Sillas de Montar, Montura de Péndolas) en ptes colgantes",
+      "unit": "und.",
+      "importanceFactor": 1,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C38:G38"
+    },
+    {
+      "code": "185",
+      "name": "Vigas de Rigidez",
+      "unit": "kg",
+      "importanceFactor": 1,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C39:G39"
+    },
+    {
+      "code": "186",
+      "name": "Arriostres de Acero",
+      "unit": "kg",
+      "importanceFactor": 0.6,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C40:G40"
+    },
+    {
+      "code": "190",
+      "name": "Losa de Concreto Simple",
+      "unit": "m3",
+      "importanceFactor": 0.6,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C41:G41"
+    },
+    {
+      "code": "191",
+      "name": "Losa de concreto armado (Refuerzo longitudinal)",
+      "unit": "m3",
+      "importanceFactor": 0.6,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C42:G42"
+    },
+    {
+      "code": "192",
+      "name": "Muros de Concreto Simple",
+      "unit": "m3",
+      "importanceFactor": 0.6,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C43:G43"
+    },
+    {
+      "code": "193",
+      "name": "Muros de Concreto Armado Alcantarilla",
+      "unit": "m3",
+      "importanceFactor": 0.6,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C44:G44"
+    },
+    {
+      "code": "195",
+      "name": "Relleno",
+      "unit": "m3",
+      "importanceFactor": 0.6,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C45:G45"
+    },
+    {
+      "code": "196",
+      "name": "Plancha Metálica Corrugada (TMC)",
+      "unit": "m2",
+      "importanceFactor": 1,
+      "group": "SUPERESTRUCTURA",
+      "source": "AUXILIAR!C46:G46"
+    },
+    {
+      "code": "201",
+      "name": "Elevación Cuerpo del Estribo de Concreto Simple",
+      "unit": "m3",
+      "importanceFactor": 1,
+      "group": "SUBESTRUCTURA",
+      "source": "AUXILIAR!C47:G47"
+    },
+    {
+      "code": "202",
+      "name": "Elevación Cuerpo del Estribo de Concreto Armado",
+      "unit": "m3",
+      "importanceFactor": 1,
+      "group": "SUBESTRUCTURA",
+      "source": "AUXILIAR!C48:G48"
+    },
+    {
+      "code": "203",
+      "name": "Elevación Cuerpo del Estribo Madera",
+      "unit": "ft.2",
+      "importanceFactor": 1,
+      "group": "SUBESTRUCTURA",
+      "source": "AUXILIAR!C49:G49"
+    },
+    {
+      "code": "204",
+      "name": "Elevación Alas del Estribo Concreto Simple",
+      "unit": "m3",
+      "importanceFactor": 0.6,
+      "group": "SUBESTRUCTURA",
+      "source": "AUXILIAR!C50:G50"
+    },
+    {
+      "code": "205",
+      "name": "Elevación Alas del Estribo de Concreto Armado",
+      "unit": "m3",
+      "importanceFactor": 0.6,
+      "group": "SUBESTRUCTURA",
+      "source": "AUXILIAR!C51:G51"
+    },
+    {
+      "code": "206",
+      "name": "Elevación Alas del Estribo Madera",
+      "unit": "ft.2",
+      "importanceFactor": 0.6,
+      "group": "SUBESTRUCTURA",
+      "source": "AUXILIAR!C52:G52"
+    },
+    {
+      "code": "207",
+      "name": "Elevación Cuerpo del Estribo de Mampostería de Piedra",
+      "unit": "m3",
+      "importanceFactor": 1,
+      "group": "SUBESTRUCTURA",
+      "source": "AUXILIAR!C53:G53"
+    },
+    {
+      "code": "208",
+      "name": "Elevación Alas del Estribo Mampostería de Piedra",
+      "unit": "m3",
+      "importanceFactor": 0.6,
+      "group": "SUBESTRUCTURA",
+      "source": "AUXILIAR!C54:G54"
+    },
+    {
+      "code": "215",
+      "name": "Zapata de Concreto Simple",
+      "unit": "m3",
+      "importanceFactor": 1,
+      "group": "SUBESTRUCTURA",
+      "source": "AUXILIAR!C55:G55"
+    },
+    {
+      "code": "216",
+      "name": "Zapata de Concreto armado para Estribos",
+      "unit": "m3",
+      "importanceFactor": 1,
+      "group": "SUBESTRUCTURA",
+      "source": "AUXILIAR!C56:G56"
+    },
+    {
+      "code": "217",
+      "name": "Zapata de Mampostería de Piedra",
+      "unit": "m3",
+      "importanceFactor": 1,
+      "group": "SUBESTRUCTURA",
+      "source": "AUXILIAR!C57:G57"
+    },
+    {
+      "code": "220",
+      "name": "Caisson de Concreto Simple",
+      "unit": "m3",
+      "importanceFactor": 1,
+      "group": "SUBESTRUCTURA",
+      "source": "AUXILIAR!C58:G58"
+    },
+    {
+      "code": "221",
+      "name": "Caisson de Concreto Armado",
+      "unit": "m3",
+      "importanceFactor": 1,
+      "group": "SUBESTRUCTURA",
+      "source": "AUXILIAR!C59:G59"
+    },
+    {
+      "code": "230",
+      "name": "Pilotes de Concreto Armado",
+      "unit": "m3",
+      "importanceFactor": 1,
+      "group": "SUBESTRUCTURA",
+      "source": "AUXILIAR!C60:G60"
+    },
+    {
+      "code": "231",
+      "name": "Pilotes de Acero Estructural",
+      "unit": "kg",
+      "importanceFactor": 1,
+      "group": "SUBESTRUCTURA",
+      "source": "AUXILIAR!C61:G61"
+    },
+    {
+      "code": "232",
+      "name": "Pilotes de Madera",
+      "unit": "ft.2",
+      "importanceFactor": 1,
+      "group": "SUBESTRUCTURA",
+      "source": "AUXILIAR!C62:G62"
+    },
+    {
+      "code": "240",
+      "name": "Elevación de Pilares Concreto Simple",
+      "unit": "m3",
+      "importanceFactor": 1,
+      "group": "SUBESTRUCTURA",
+      "source": "AUXILIAR!C63:G63"
+    },
+    {
+      "code": "241",
+      "name": "Elevación de Pilares Concreto Armado",
+      "unit": "m3",
+      "importanceFactor": 1,
+      "group": "SUBESTRUCTURA",
+      "source": "AUXILIAR!C64:G64"
+    },
+    {
+      "code": "242",
+      "name": "Elevación de Pilares de Madera",
+      "unit": "ft.2",
+      "importanceFactor": 1,
+      "group": "SUBESTRUCTURA",
+      "source": "AUXILIAR!C65:G65"
+    },
+    {
+      "code": "243",
+      "name": "Elevación de Pilares de Manposteria de Piedra",
+      "unit": "m3",
+      "importanceFactor": 1,
+      "group": "SUBESTRUCTURA",
+      "source": "AUXILIAR!C66:G66"
+    },
+    {
+      "code": "301",
+      "name": "Capa Asfalto",
+      "unit": "m2",
+      "importanceFactor": 0.4,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C67:G67"
+    },
+    {
+      "code": "302",
+      "name": "Capa Concreto Pobre",
+      "unit": "m2",
+      "importanceFactor": 0.4,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C68:G68"
+    },
+    {
+      "code": "303",
+      "name": "Tablones de Madera",
+      "unit": "ft.2",
+      "importanceFactor": 0.4,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C69:G69"
+    },
+    {
+      "code": "311",
+      "name": "Vereda Concreto",
+      "unit": "m2",
+      "importanceFactor": 0.2,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C70:G70"
+    },
+    {
+      "code": "312",
+      "name": "Vereda Acero",
+      "unit": "kg",
+      "importanceFactor": 0.2,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C71:G71"
+    },
+    {
+      "code": "313",
+      "name": "Vereda de Madera",
+      "unit": "ft.2",
+      "importanceFactor": 0.2,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C72:G72"
+    },
+    {
+      "code": "321",
+      "name": "Apoyo fijo Neopreno",
+      "unit": "und.",
+      "importanceFactor": 0.4,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C73:G73"
+    },
+    {
+      "code": "322",
+      "name": "Apoyo deslizante de neopreno",
+      "unit": "und.",
+      "importanceFactor": 0.4,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C74:G74"
+    },
+    {
+      "code": "323",
+      "name": "Apoyo Deslizante Acero",
+      "unit": "und.",
+      "importanceFactor": 0.4,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C75:G75"
+    },
+    {
+      "code": "324",
+      "name": "Apoyo articulado de acero",
+      "unit": "und.",
+      "importanceFactor": 0.4,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C76:G76"
+    },
+    {
+      "code": "325",
+      "name": "Apoyo Roller Acero",
+      "unit": "und.",
+      "importanceFactor": 0.6,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C77:G77"
+    },
+    {
+      "code": "326",
+      "name": "Apoyo Rocker Acero",
+      "unit": "und.",
+      "importanceFactor": 0.6,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C78:G78"
+    },
+    {
+      "code": "327",
+      "name": "Apoyo articulado Concreto",
+      "unit": "und.",
+      "importanceFactor": 0.6,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C79:G79"
+    },
+    {
+      "code": "328",
+      "name": "Apoyo Rocker de Concreto",
+      "unit": "und.",
+      "importanceFactor": 0.6,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C80:G80"
+    },
+    {
+      "code": "329",
+      "name": "Apoyo Eslabón y Pin (Vigas Gerber)",
+      "unit": "und.",
+      "importanceFactor": 0.6,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C81:G81"
+    },
+    {
+      "code": "341",
+      "name": "Planchas Deslizantes",
+      "unit": "ml",
+      "importanceFactor": 0.4,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C82:G82"
+    },
+    {
+      "code": "342",
+      "name": "Tipo Peine",
+      "unit": "ml",
+      "importanceFactor": 0.4,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C83:G83"
+    },
+    {
+      "code": "343",
+      "name": "Tipo Compresible / Expandible Celular",
+      "unit": "ml",
+      "importanceFactor": 0.4,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C84:G84"
+    },
+    {
+      "code": "344",
+      "name": "Junta de Expansión, Tipo Compresible / Expandible Sólido",
+      "unit": "ml",
+      "importanceFactor": 0.4,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C85:G85"
+    },
+    {
+      "code": "351",
+      "name": "Barandas de Madera",
+      "unit": "ml",
+      "importanceFactor": 0.4,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C86:G86"
+    },
+    {
+      "code": "352",
+      "name": "Barandas de Concreto",
+      "unit": "ml",
+      "importanceFactor": 0.4,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C87:G87"
+    },
+    {
+      "code": "353",
+      "name": "Barandas de Acero",
+      "unit": "ml",
+      "importanceFactor": 0.4,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C88:G88"
+    },
+    {
+      "code": "354",
+      "name": "Parapeto de Concreto Armado",
+      "unit": "ml",
+      "importanceFactor": 0.4,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C89:G89"
+    },
+    {
+      "code": "355",
+      "name": "Guardavías",
+      "unit": "ml",
+      "importanceFactor": 0.4,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C90:G90"
+    },
+    {
+      "code": "371",
+      "name": "Tuberías Metálicas",
+      "unit": "und.",
+      "importanceFactor": 0.4,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C91:G91"
+    },
+    {
+      "code": "372",
+      "name": "Tuberías PVC",
+      "unit": "und.",
+      "importanceFactor": 0.4,
+      "group": "DETALLES",
+      "source": "AUXILIAR!C92:G92"
+    },
+    {
+      "code": "401",
+      "name": "Márgenes del río",
+      "unit": "ml",
+      "importanceFactor": 0.6,
+      "group": "CAUCE",
+      "source": "AUXILIAR!C93:G93"
+    },
+    {
+      "code": "402",
+      "name": "Lecho del río",
+      "unit": "ml",
+      "importanceFactor": 0.6,
+      "group": "CAUCE",
+      "source": "AUXILIAR!C94:G94"
+    },
+    {
+      "code": "403",
+      "name": "Barrajes",
+      "unit": "m2",
+      "importanceFactor": 0.6,
+      "group": "CAUCE",
+      "source": "AUXILIAR!C95:G95"
+    },
+    {
+      "code": "404",
+      "name": "Dique",
+      "unit": "ml",
+      "importanceFactor": 0.6,
+      "group": "CAUCE",
+      "source": "AUXILIAR!C96:G96"
+    },
+    {
+      "code": "405",
+      "name": "Proteccion contra socavacion",
+      "unit": "ml",
+      "importanceFactor": 0.6,
+      "group": "CAUCE",
+      "source": "AUXILIAR!C97:G97"
+    },
+    {
+      "code": "406",
+      "name": "Enrocado",
+      "unit": "ml",
+      "importanceFactor": 0.6,
+      "group": "CAUCE",
+      "source": "AUXILIAR!C98:G98"
+    },
+    {
+      "code": "407",
+      "name": "Gaviones",
+      "unit": "m3",
+      "importanceFactor": 0.6,
+      "group": "CAUCE",
+      "source": "AUXILIAR!C99:G99"
+    },
+    {
+      "code": "410",
+      "name": "Muro de Concreto Simple.",
+      "unit": "m3",
+      "importanceFactor": 0.2,
+      "group": "CAUCE",
+      "source": "AUXILIAR!C100:G100"
+    },
+    {
+      "code": "411",
+      "name": "Muro de Concreto Armado – Cauce",
+      "unit": "m3",
+      "importanceFactor": 0.2,
+      "group": "CAUCE",
+      "source": "AUXILIAR!C101:G101"
+    },
+    {
+      "code": "412",
+      "name": "Solado Concreto Simple",
+      "unit": "m3",
+      "importanceFactor": 0.2,
+      "group": "CAUCE",
+      "source": "AUXILIAR!C102:G102"
+    },
+    {
+      "code": "413",
+      "name": "Solado Concreto",
+      "unit": "m3",
+      "importanceFactor": 0.2,
+      "group": "CAUCE",
+      "source": "AUXILIAR!C103:G103"
+    },
+    {
+      "code": "501",
+      "name": "Señalización",
+      "unit": "und.",
+      "importanceFactor": 0.2,
+      "group": "ACCESOS",
+      "source": "AUXILIAR!C104:G104"
+    },
+    {
+      "code": "502",
+      "name": "Terraplen",
+      "unit": "m3",
+      "importanceFactor": 0.6,
+      "group": "ACCESOS",
+      "source": "AUXILIAR!C105:G105"
+    },
+    {
+      "code": "503",
+      "name": "Muro de Concreto Simple – Accesos",
+      "unit": "m3",
+      "importanceFactor": 0.6,
+      "group": "ACCESOS",
+      "source": "AUXILIAR!C106:G106"
+    },
+    {
+      "code": "504",
+      "name": "Muro de Concreto Armado en accesos",
+      "unit": "m3",
+      "importanceFactor": 0.6,
+      "group": "ACCESOS",
+      "source": "AUXILIAR!C107:G107"
+    },
+    {
+      "code": "505",
+      "name": "Zapata de Concreto Simple en muros de contención",
+      "unit": "m3",
+      "importanceFactor": 0.6,
+      "group": "ACCESOS",
+      "source": "AUXILIAR!C108:G108"
+    },
+    {
+      "code": "506",
+      "name": "Zapata de Concreto armado",
+      "unit": "m3",
+      "importanceFactor": 0.6,
+      "group": "ACCESOS",
+      "source": "AUXILIAR!C109:G109"
+    },
+    {
+      "code": "510",
+      "name": "Guardavías",
+      "unit": "ml",
+      "importanceFactor": 0.4,
+      "group": "ACCESOS",
+      "source": "AUXILIAR!C110:G110"
+    },
+    {
+      "code": "511",
+      "name": "Pavimento/Afirmado",
+      "unit": "m2",
+      "importanceFactor": 0.2,
+      "group": "ACCESOS",
+      "source": "AUXILIAR!C111:G111"
+    },
+    {
+      "code": "520",
+      "name": "Cunetas de Concreto",
+      "unit": "ml",
+      "importanceFactor": 0.2,
+      "group": "ACCESOS",
+      "source": "AUXILIAR!C112:G112"
+    },
+    {
+      "code": "521",
+      "name": "Cunetas de Tierra",
+      "unit": "ml",
+      "importanceFactor": 0.2,
+      "group": "ACCESOS",
+      "source": "AUXILIAR!C113:G113"
+    },
+    {
+      "code": "525",
+      "name": "Alcantarilla de concreto",
+      "unit": "ml",
+      "importanceFactor": 0.2,
+      "group": "ACCESOS",
+      "source": "AUXILIAR!C114:G114"
+    },
+    {
+      "code": "526",
+      "name": "Alcantarilla de Plancha Corrugada TMC",
+      "unit": "ml",
+      "importanceFactor": 0.2,
+      "group": "ACCESOS",
+      "source": "AUXILIAR!C115:G115"
+    },
+    {
+      "code": "530",
+      "name": "Visibilidad",
+      "unit": "ml",
+      "importanceFactor": 0.2,
+      "group": "ACCESOS",
+      "source": "AUXILIAR!C116:G116"
+    }
+  ]
+}

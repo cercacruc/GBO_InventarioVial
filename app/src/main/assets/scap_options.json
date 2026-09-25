@@ -1,0 +1,485 @@
+{
+  "sourceSha256": "1df9f651722d06d6cd886c9be3edf565df7aae8b6fca10097011f48b12430b13",
+  "catalogs": {
+    "routeType": {
+      "options": [
+        "Nacional",
+        "Departamental",
+        "Vecinal"
+      ],
+      "source": "A-D.- FICHA!R51:R53"
+    },
+    "over": {
+      "options": [
+        "Río",
+        "Quebrada Seca",
+        "Quebrada",
+        "Canal",
+        "Carretera",
+        "FFCC",
+        "Valle (Viaducto Elevado)",
+        "Zona Urbana (Viaducto elevado)"
+      ],
+      "source": "A-D.- FICHA!C49:C56"
+    },
+    "alignment": {
+      "options": [
+        "Recto",
+        "Curvo",
+        "Esviado"
+      ],
+      "source": "A-D.- FICHA!G49:G51"
+    },
+    "service": {
+      "options": [
+        "Irrestricto",
+        "Solo Automoviles",
+        "Solo Camiones",
+        "Camiones hasta Cierta Carga",
+        "Fuera de Servicio"
+      ],
+      "source": "A-D.- FICHA!J49:J53"
+    },
+    "environment": {
+      "options": [
+        "Severo",
+        "Moderado",
+        "Benigno"
+      ],
+      "source": "A-D.- FICHA!N49:N51"
+    },
+    "spans": {
+      "options": [
+        "Iguales",
+        "Desiguales"
+      ],
+      "source": "A-D.- FICHA!C133:C134"
+    },
+    "category": {
+      "options": [
+        "DEFINITIVO",
+        "PROVISIONALES",
+        "ALCANTARILLA",
+        "ARTESANALES"
+      ],
+      "source": "A-D.- FICHA!C136:C139"
+    },
+    "edge": {
+      "options": [
+        "Simp. Apoyado",
+        "Continuo",
+        "Gerber",
+        "Articulado",
+        "Empotrado",
+        "Sob. El terreno",
+        "Otros"
+      ],
+      "source": "A-D.- FICHA!C144:C150"
+    },
+    "predominant": {
+      "options": [
+        "Concreto armado",
+        "Concreto Pretensado",
+        "Acero Estructural",
+        "Cables de Acero",
+        "Planchas de Acero Corrugado",
+        "Madera",
+        "Otros"
+      ],
+      "source": "A-D.- FICHA!G144:G150"
+    },
+    "slabMaterial": {
+      "options": [
+        "Concreto Armado",
+        "Concreto Pretensado",
+        "Plancha Metálica corrugada",
+        "Madera",
+        "Otros"
+      ],
+      "source": "A-D.- FICHA!J144:J148"
+    },
+    "wearingSurface": {
+      "options": [
+        "Asfalto",
+        "Concreto (Vaciado con Losa)",
+        "Concreto Pobre",
+        "Madera",
+        "Metálica"
+      ],
+      "source": "A-D.- FICHA!N144:N148"
+    },
+    "beamType": {
+      "options": [
+        "No aplicable",
+        "Viga Longitudinal",
+        "Viga Transversal",
+        "Otros"
+      ],
+      "source": "A-D.- FICHA!E153:E156"
+    },
+    "beamMaterial": {
+      "options": [
+        "Concreto Armado",
+        "Concreto Pretensado",
+        "Metálico",
+        "Madera",
+        "Otros"
+      ],
+      "source": "A-D.- FICHA!H153:H157"
+    },
+    "beamShape": {
+      "options": [
+        "Rectangular",
+        "I",
+        "Cajón",
+        "Reticulada"
+      ],
+      "source": "A-D.- FICHA!L153:L156"
+    },
+    "abutmentElevation": {
+      "options": [
+        "Gravedad",
+        "Cantilever",
+        "Portico",
+        "Cajon",
+        "Otros",
+        "Sin datos"
+      ],
+      "source": "A-D.- FICHA!C161:C166"
+    },
+    "abutmentMaterial": {
+      "options": [
+        "Concreto Simple",
+        "Concreto Armado",
+        "Mampostería de Piedra",
+        "Madera"
+      ],
+      "source": "A-D.- FICHA!G161:G164"
+    },
+    "abutmentFoundation": {
+      "options": [
+        "Zapata",
+        "Caisson",
+        "Pilotes",
+        "Otros"
+      ],
+      "source": "A-D.- FICHA!J161:J164"
+    },
+    "foundationMaterial": {
+      "options": [
+        "Concreto Simple",
+        "Concreto Armado",
+        "Acero",
+        "Madera",
+        "Otros"
+      ],
+      "source": "A-D.- FICHA!N161:N165"
+    },
+    "pierElevation": {
+      "options": [
+        "Columna Capitel",
+        "Columna Tarjeta",
+        "Portico",
+        "Otros"
+      ],
+      "source": "A-D.- FICHA!C205:C208"
+    },
+    "pierMaterial": {
+      "options": [
+        "Concreto Simple",
+        "Concreto Armado",
+        "Acero",
+        "Madera",
+        "Otros"
+      ],
+      "source": "A-D.- FICHA!G205:G209"
+    },
+    "pierFoundation": {
+      "options": [
+        "Zapata",
+        "Caisson",
+        "Pilotes",
+        "Otros"
+      ],
+      "source": "A-D.- FICHA!L205:L208"
+    },
+    "pierFoundationMaterial": {
+      "options": [
+        "Concreto Simple",
+        "Concreto Armado",
+        "Acero",
+        "Madera"
+      ],
+      "source": "A-D.- FICHA!P205:P208"
+    },
+    "anchorElevation": {
+      "options": [
+        "Macizo",
+        "Hueco",
+        "Otros"
+      ],
+      "source": "A-D.- FICHA!C215:C217"
+    },
+    "anchorMaterial": {
+      "options": [
+        "Concreto Simple",
+        "Concreto Armado"
+      ],
+      "source": "A-D.- FICHA!G215:G216"
+    },
+    "anchorFoundation": {
+      "options": [
+        "Zapata",
+        "Otros"
+      ],
+      "source": "A-D.- FICHA!L215:L216"
+    },
+    "anchorFoundationMaterial": {
+      "options": [
+        "Concreto Simple",
+        "Concreto Armado"
+      ],
+      "source": "A-D.- FICHA!P215:P216"
+    },
+    "railingType": {
+      "options": [
+        "Postes y pasamanos",
+        "Parapeto",
+        "Guardavias",
+        "No hay"
+      ],
+      "source": "A-D.- FICHA!C282:C285"
+    },
+    "railingMaterial": {
+      "options": [
+        "Concreto",
+        "Acero",
+        "Madera",
+        "Mixto"
+      ],
+      "source": "A-D.- FICHA!G282:G285"
+    },
+    "railingSecondary": {
+      "options": [
+        "1 pasamano",
+        "2 pasamanos",
+        "3 pasamanos",
+        "New Jersey",
+        "Parapeto con 1 pasamano"
+      ],
+      "source": "A-D.- FICHA!U282:U287"
+    },
+    "sidewalkMaterial": {
+      "options": [
+        "Concreto",
+        "Acero",
+        "Madera"
+      ],
+      "source": "A-D.- FICHA!J282:J284"
+    },
+    "bearingType": {
+      "options": [
+        "Articulado Fijo",
+        "Deslizante",
+        "Roller",
+        "Rocker",
+        "Eslabon y pin",
+        "No hay"
+      ],
+      "source": "A-D.- FICHA!N282:N287"
+    },
+    "bearingMaterial": {
+      "options": [
+        "Acero",
+        "Elastomero",
+        "Concreto",
+        "Flexcel"
+      ],
+      "source": "A-D.- FICHA!R282:R285"
+    },
+    "jointType": {
+      "options": [
+        "Vacio",
+        "Planchas Deslizantes",
+        "Tipo Peine",
+        "Tipo Comprensible/Expansible"
+      ],
+      "source": "A-D.- FICHA!C290:C293"
+    },
+    "jointMaterial": {
+      "options": [
+        "Metálico",
+        "Jebe",
+        "Mastic Epoxico",
+        "Otros"
+      ],
+      "source": "A-D.- FICHA!F290:F293"
+    },
+    "drainType": {
+      "options": [
+        "Tubo",
+        "Canaleta",
+        "Otros",
+        "No tiene"
+      ],
+      "source": "A-D.- FICHA!I290:I293"
+    },
+    "drainMaterial": {
+      "options": [
+        "Acero",
+        "Concreto",
+        "PVC",
+        "Otros"
+      ],
+      "source": "A-D.- FICHA!M290:M293"
+    },
+    "accessAlignment": {
+      "options": [
+        "Paralelo",
+        "Perpendicular",
+        "Inclinado",
+        "Curva a"
+      ],
+      "source": "A-D.- FICHA!R290:R293"
+    },
+    "visibility": {
+      "options": [
+        "Buena",
+        "Regular",
+        "Mala"
+      ],
+      "source": "A-D.- FICHA!C296:C298"
+    },
+    "yesNo": {
+      "options": [
+        "Si",
+        "No"
+      ],
+      "source": "A-D.- FICHA!G296:G297"
+    },
+    "parallelPossibility": {
+      "options": [
+        "Si",
+        "No",
+        "Existe otro puente paralelo"
+      ],
+      "source": "A-D.- FICHA!N364:N366"
+    },
+    "informative": {
+      "options": [
+        "Cartel del Puente"
+      ],
+      "source": "A-D.- FICHA!G360:G360"
+    },
+    "preventive": {
+      "options": [
+        "Cartel Rombo Amarillo-Curvas",
+        "Cartel Rombo Amarillo-Intersecciones",
+        "Cartel Rombo Amarillo-Pendientes Altas"
+      ],
+      "source": "A-D.- FICHA!G362:G364"
+    },
+    "regulatory": {
+      "options": [
+        "Cartel rectangular negro-rojo (Ceda el paso)",
+        "Cartel rectangular negro-rojo (No adelantar)",
+        "Cartel rectangular negro-rojo (Velocidad Máxima)"
+      ],
+      "source": "A-D.- FICHA!G367:G369"
+    },
+    "horizontal": {
+      "options": [
+        "Marcas en la Calzada"
+      ],
+      "source": "A-D.- FICHA!G372:G372"
+    },
+    "parallelSubstructure": {
+      "options": [
+        "Similar al existente",
+        "Diferente"
+      ],
+      "source": "A-D.- FICHA!G375:G376"
+    },
+    "roadCondition": {
+      "options": [
+        "Buena",
+        "Regular",
+        "Mala",
+        "Muy mala"
+      ],
+      "source": "A-D.- FICHA!J375:J378"
+    },
+    "fordSoil": {
+      "options": [
+        "Roca",
+        "Conglomerado",
+        "Piedra",
+        "Arena",
+        "Arcilla",
+        "Otros"
+      ],
+      "source": "A-D.- FICHA!N375:N380"
+    },
+    "foundationSoil": {
+      "options": [
+        "Roca",
+        "Conglomerado",
+        "Piedra",
+        "Arena",
+        "Arcilla",
+        "Aluvional",
+        "Otros"
+      ],
+      "source": "A-D.- FICHA!H434:H440"
+    },
+    "loadSignage": {
+      "options": [
+        "Si tiene"
+      ],
+      "source": "A-D.- FICHA!E326 (observed value; full list unresolved)",
+      "allowOtherText": true
+    }
+  },
+  "typesByCategory": {
+    "DEFINITIVO": {
+      "options": [
+        "Losa",
+        "Losa con Vigas",
+        "Portico",
+        "Arco",
+        "Reticulado",
+        "Colgante",
+        "Atirantado"
+      ],
+      "source": "A-D.- FICHA!E134:E140"
+    },
+    "PROVISIONALES": {
+      "options": [
+        "Modular",
+        "Tipo Yawata",
+        "Otros"
+      ],
+      "source": "A-D.- FICHA!H134:H136"
+    },
+    "ALCANTARILLA": {
+      "options": [
+        "Marco",
+        "Circular/Ovalada",
+        "Arco",
+        "Portico",
+        "Otros"
+      ],
+      "source": "A-D.- FICHA!L134:L138"
+    },
+    "ARTESANALES": {
+      "options": [
+        "Vigas de Troncos de Arboles",
+        "Arcos/Porticos de Mamposteria de piedra",
+        "Arco de Concreto Simple",
+        "Losa de Concreto Reforzado con rieles de FFCC",
+        "Otros"
+      ],
+      "source": "A-D.- FICHA!P134:P138"
+    }
+  }
+}

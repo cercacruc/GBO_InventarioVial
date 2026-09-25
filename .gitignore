@@ -11,3 +11,14 @@
 /tmp/*integration*.log
 /tmp/gradle-failure.log
 /tmp/refine_integration.py
+
+# SCAP y entregables locales
+.gradle/
+.kotlin/
+.idea/
+local.properties
+drive.local.properties
+server.local.properties
+tmp/
+output/
+/GBO_InventarioVial_campo.zip

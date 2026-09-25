@@ -53,5 +53,8 @@ data class PhotoEntity(
 
     val createdAt: Long,
     @androidx.room.ColumnInfo(defaultValue = "''") val originalPath: String = localPath,
-    val stampedPath: String? = null
+    val stampedPath: String? = null,
+    val scapInspectionId: String? = null,
+    val scapElementCode: String? = null,
+    val photoCategory: String? = null
 )

@@ -68,12 +68,12 @@ enum class SicExportFormat(val code: String, val title: String) {
                 d.structuralConditionCode, d.functionalConditionCode, date, d.serviceTypeCode,
                 d.singularityCode, d.singularityName, d.dimension3UpperHeightM) }
             SIC18 -> detail(item.sic18).let { d -> listOf(cls(d.classCode), d.typeCode, d.spans,
-                d.crossSectionCode, d.dimension1M, d.dimension2M, d.structuralConditionCode, d.functionalConditionCode, date) }
+                d.crossSectionCode, d.dimension1M, if(d.crossSectionCode=="2" && d.sectionShape=="CIRCULAR") null else d.dimension2M, d.structuralConditionCode, d.functionalConditionCode, date) }
             SIC19 -> detail(item.sic19).let { d -> listOf(cls(d.classCode), d.typeCode, d.crossSectionCode,
                 d.structuralConditionCode, d.functionalConditionCode, date) }
             SIC20 -> detail(item.sic20).let { d -> listOf(cls(d.classCode), d.typeCode, d.dimension1M,
                 if (d.classCode == "14") null else d.dimension2M, d.structuralConditionCode, d.functionalConditionCode, date) }
-            SIC21 -> detail(item.sic21).let { d -> listOf(cls(d.classCode), d.typeCode, d.materialCode, d.conditionCode, date) }
+            SIC21 -> detail(item.sic21).let { d -> listOf(cls(d.classCode), d.typeCode, if(d.classCode in setOf("18","20")) null else d.materialCode, d.conditionCode, date) }
             SIC22 -> detail(item.sic22).let { d -> listOf(cls(d.classCode), d.typeCode, d.materialCode,
                 if (d.typeCode in listOf("1", "2", "3")) d.signalCode else null,
                 if (d.typeCode == "4") d.kilometerPostNumber else null, d.conditionCode, date) }

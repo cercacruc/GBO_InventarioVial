@@ -24,7 +24,7 @@ class DriveUploadWorker(
 
     context: Context,
 
-    workerParams: WorkerParameters
+    workerParams: WorkerParameters,
 
 ) : Worker(
     context,
@@ -93,8 +93,8 @@ class DriveUploadWorker(
 
         // Si se indicó ID pero ya no existe.
         if (
-            photoId != null &&
-            photo == null
+            (photoId != null &&
+            photo == null)
         ) {
 
             return Result.failure()
@@ -123,18 +123,12 @@ class DriveUploadWorker(
         }
 
 
-        // Token no configurado.
-        if (
-            DriveConfig.API_TOKEN
-                .isBlank()
-        ) {
-
-            Log.e(
-                TAG,
-                "API_TOKEN vacío"
-            )
-
-            return Result.failure()
+        // SCAP is local, including stale jobs created by an earlier installation.
+        if (inputData.getString("sicCode") == "SCAP" || photo?.scapInspectionId != null ||
+            (photo != null && inventoryDao.recordSicCode(photo.recordId) == "SCAP")) return Result.success()
+        DriveUploadPolicy.configurationError()?.let { message ->
+            photo?.let { inventoryDao.setPhotoSyncStatus(it.id, "ERROR") }
+            return Result.failure(androidx.work.Data.Builder().putString("error", message).build())
         }
 
 
@@ -154,7 +148,8 @@ class DriveUploadWorker(
         // 1. DATOS DE WORKMANAGER
         // =====================================================
 
-        val photoPath =
+        // Room identity stays on localPath even when the stamped file is uploaded.
+        val photoPath = photo?.localPath ?:
             inputData.getString(
                 "photoPath"
             )
@@ -350,14 +345,11 @@ class DriveUploadWorker(
         // 4. COMPROBAR ARCHIVO LOCAL
         // =====================================================
 
-        val file =
-            File(
-                photoPath
-            )
+        val file = File(photo?.let { DriveUploadPolicy.uploadPath(it) } ?: photoPath)
 
 
         if (
-            !file.exists()
+            !file.isFile || !file.canRead() || file.length() == 0L
         ) {
 
             Log.e(
@@ -433,7 +425,7 @@ class DriveUploadWorker(
 
             Log.e(
                 TAG,
-                "EXCEPCIÓN durante la sincronización",
+                "EXCEPCIÓN durante la sincronización; la foto queda pendiente de reintento.",
                 error
             )
 
@@ -445,7 +437,7 @@ class DriveUploadWorker(
                         photoPath,
 
                     status =
-                        "PENDING"
+                        "ERROR"
                 )
 
 
@@ -736,7 +728,7 @@ class DriveUploadWorker(
 
                 Log.d(
                     TAG,
-                    "Respuesta del servidor: $responseText"
+                    "Respuesta del servidor recibida (${responseText.length} caracteres)"
                 )
 
 
@@ -761,7 +753,7 @@ class DriveUploadWorker(
                                 photoPath,
 
                             status =
-                                "PENDING"
+                                "ERROR"
                         )
 
 
@@ -790,7 +782,7 @@ class DriveUploadWorker(
                                 photoPath,
 
                             status =
-                                "PENDING"
+                                "ERROR"
                         )
 
 
@@ -815,8 +807,7 @@ class DriveUploadWorker(
 
                         Log.e(
                             TAG,
-                            "ERROR: La respuesta no es JSON válido",
-                            error
+                            "ERROR: La respuesta no es JSON válido"
                         )
 
 
@@ -827,7 +818,7 @@ class DriveUploadWorker(
                                     photoPath,
 
                                 status =
-                                    "PENDING"
+                                    "ERROR"
                             )
 
 
@@ -955,7 +946,7 @@ class DriveUploadWorker(
 
                 Log.e(
                     TAG,
-                    "Apps Script devolvió error: $serverError"
+                    "Apps Script devolvió un error; no se registra el contenido de la respuesta."
                 )
 
 
@@ -1003,7 +994,7 @@ class DriveUploadWorker(
                             photoPath,
 
                         status =
-                            "PENDING"
+                            "ERROR"
                     )
 
 

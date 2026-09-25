@@ -36,7 +36,7 @@ class SurveyStorageTest {
             old.execSQL("INSERT INTO sic18_details VALUES ('old','06','1',1,'2',1.2,0.8,'2','1')")
             old.version=4
         }
-        val db=Room.databaseBuilder(context,InventoryDatabase::class.java,name).addMigrations(InventoryDatabase.MIGRATION_4_5).build()
+        val db=Room.databaseBuilder(context,InventoryDatabase::class.java,name).addMigrations(InventoryDatabase.MIGRATION_4_5,InventoryDatabase.MIGRATION_5_6).build()
         try {
             val snapshot=db.inventoryDao().snapshot("old")!!
             assertEquals(0.8,snapshot.sic18!!.dimension2M!!,0.0)

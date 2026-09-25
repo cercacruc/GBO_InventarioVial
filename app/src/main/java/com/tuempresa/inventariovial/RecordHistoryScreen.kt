@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import com.tuempresa.inventariovial.data.entity.InventoryRecordWithPhotos
 import com.tuempresa.inventariovial.location.GeoLocation
 import com.tuempresa.inventariovial.location.TabletLocationProvider
 import com.tuempresa.inventariovial.viewmodel.InventoryViewModel
@@ -27,14 +26,15 @@ import com.tuempresa.inventariovial.data.entity.InventoryRecordEntity
 fun FinalLocationCapture(location: GeoLocation?, onLocation: (GeoLocation) -> Unit) {
     val context = LocalContext.current
     val provider = remember(context) { TabletLocationProvider(context) }
-    var locating by remember { mutableStateOf(false) }
+    var locating by remember { mutableStateOf(value = false) }
     var error by remember { mutableStateOf<String?>(null) }
     fun capture() {
         locating = true
         error = null
         provider.getCurrentLocation(
             onSuccess = { locating = false; onLocation(it) },
-            onError = { locating = false; error = it })
+            onError = { locating = false; error = it },
+        )
     }
     val permissions = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -43,11 +43,16 @@ fun FinalLocationCapture(location: GeoLocation?, onLocation: (GeoLocation) -> Un
         else error = "Debes permitir el acceso a la ubicación."
     }
     OutlinedButton(enabled = !locating, onClick = {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
-            PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) ==
-            PackageManager.PERMISSION_GRANTED) capture()
-        else permissions.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+        if (
+            (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED) ||
+            (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED)
+        ) {
+            capture()
+        } else {
+            permissions.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+        }
     }) { Text(if (locating) "Obteniendo GPS final…" else "Capturar GPS final") }
     if (location == null) Text("GPS final: pendiente (opcional)")
     else Text("GPS final: ${location.latitude}, ${location.longitude} · ± ${location.accuracyHorizontal} m")
@@ -55,10 +60,10 @@ fun FinalLocationCapture(location: GeoLocation?, onLocation: (GeoLocation) -> Un
 }
 
 @Composable
-fun RecordHistoryScreen(viewModel: InventoryViewModel, onBack: () -> Unit) {
+fun RecordHistoryScreen(viewModel: InventoryViewModel, onScap: (() -> Unit)? = null, onBack: () -> Unit) {
     val ordered by viewModel.sequencedHistory.collectAsState()
     var showAnnulled by remember { mutableStateOf(false) }
-    val records = ordered.filter { showAnnulled || it.item.record.status == "ACTIVE" }
+    val records = ordered.filter { it.item.record.sicCode != "SCAP" && (showAnnulled || it.item.record.status == "ACTIVE") }
     var complementary by remember { mutableStateOf<Pair<InventoryRecordEntity, SupplementaryFormat>?>(null) }
     complementary?.let { (record,format) ->
         SupplementaryScreen(viewModel,record,format) { complementary=null }
@@ -74,6 +79,7 @@ fun RecordHistoryScreen(viewModel: InventoryViewModel, onBack: () -> Unit) {
         item {
             OutlinedButton(onClick = onBack) { Text("Volver") }
             Text("Registros locales", style = MaterialTheme.typography.headlineMedium)
+            onScap?.let { open -> OutlinedButton(onClick = open) { Text("Inspecciones SCAP de puentes") } }
             Text("Ordenados por ruta, calzada y progresiva")
             Row { Checkbox(showAnnulled,{showAnnulled=it});Text("Mostrar también anulados") }
             error?.let { ErrorText(it) }
@@ -124,17 +130,21 @@ private fun HistoryRecordCard(
             item.sic18?.let { detail ->
                 if(detail.crossSectionCode=="2") Text("Forma: ${when(detail.sectionShape) { "CIRCULAR" -> "Circular"; "OVAL" -> "Ovalada"; else -> "Circular / ovalada (registro anterior)" }}")
                 Text("Dimensión 1: ${detail.dimension1M ?: "Sin dato"} m · Dimensión 2: ${detail.dimension2M?.let { "$it m" } ?: "No aplica / sin dato"}")
-                Text("Daño estructural: ${detail.structuralDamagePercent?.let { "$it %" } ?: "Sin dato"}")
-                Text("Obstrucción: ${detail.functionalObstructionPercent?.let { "$it %" } ?: "Sin dato"}")
             }
             Text("Fotos: ${item.photos.size} · Pendientes: ${item.photos.count { it.syncStatus != "SYNCED" }}")
+            DriveUploadPolicy.configurationError()?.let { Text("Drive · SIN CONFIGURAR: $it") }
+            item.photos.sortedBy { it.photoIndex }.forEach { photo ->
+                Text("Foto ${photo.photoIndex} · ${DriveUploadPolicy.statusLabel(photo.syncStatus)}")
+            }
             Text(if (record.status == "ACTIVE") "Estado: activo" else "Estado: anulado")
             if(com.tuempresa.inventariovial.server.ServerConfiguration.enabled) {
                 Text(if(com.tuempresa.inventariovial.server.ServerConfiguration.enabled) "Servidor: ${record.serverSyncStatus}" else "Servidor: sin configurar · datos guardados localmente")
                 record.serverSyncError?.let { ErrorText(it) }
             }
             Text("GPS inicial: ${record.latitude}, ${record.longitude}")
-            record.endLatitude?.let { Text("GPS final: $it, ${record.endLongitude}") }
+            if(com.tuempresa.inventariovial.validation.requiresEndLocation(record.sicCode,record.assetType,item.sic20?.classCode,item.sic23?.classCode)) {
+                record.endLatitude?.let { Text("GPS final: $it, ${record.endLongitude}") }
+            }
             item.sic23?.let { detail ->
                 Text("Clase: ${detail.classCode} · Tipo: ${detail.typeCode ?: "Sin objeto"}")
                 Text("Ancho: ${detail.widthM?.let { String.format(java.util.Locale.US, "%.2f m", it) } ?: "Sin objeto"}")

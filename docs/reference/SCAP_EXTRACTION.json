@@ -1,0 +1,250 @@
+{
+  "sourceSha256": "1df9f651722d06d6cd886c9be3edf565df7aae8b6fca10097011f48b12430b13",
+  "elementCount": 112,
+  "brokenNames": {
+    "Alineamiento": "#REF!",
+    "CatTipo": "#REF!",
+    "Cond.Borde": "#REF!",
+    "Cond.Carretera": "#REF!",
+    "CondAmb": "#REF!",
+    "FormaViga": "#REF!",
+    "luisa": "#REF!",
+    "MarcasdeCalzada": "#REF!",
+    "Mat": "#REF!",
+    "Mat.Predo": "#REF!",
+    "MatBaranda": "#REF!",
+    "MatDrenaje": "#REF!",
+    "MaterialCimenta": "#REF!",
+    "MaterialEleva": "#REF!",
+    "Materiallosa": "#REF!",
+    "MatJuntas": "#REF!",
+    "MatVeredas": "#REF!",
+    "MatVigas": "#REF!",
+    "Nat.Suelo": "#REF!",
+    "pendiente": "#REF!",
+    "SeñaCarga": "#REF!",
+    "SeñalInformativa": "#REF!",
+    "Señalpreventiva": "#REF!",
+    "SeñalReglamentaria": "#REF!",
+    "Sobre": "#REF!",
+    "Subestructura": "#REF!",
+    "SuperDesgaste": "#REF!",
+    "TipoApoyos": "#REF!",
+    "TipoBarandas": "#REF!",
+    "TipoCimentación": "#REF!",
+    "TipoDrenaje": "#REF!",
+    "TipoElevación": "#REF!",
+    "Tiposerv": "#REF!",
+    "TipoVigas": "#REF!",
+    "Tramos": "#REF!",
+    "Visibilidad": "#REF!"
+  },
+  "validations": [
+    {
+      "range": "E392 G392 J392 L392 N392 Q392",
+      "formula": "$H$434:$H$440"
+    },
+    {
+      "range": "L343",
+      "formula": "Subestructura"
+    },
+    {
+      "range": "E347:E349 G307 G309 G311 G313 L307 L309 L311 L313 L348:L349",
+      "formula": "$U$303:$U$305"
+    },
+    {
+      "range": "E345",
+      "formula": "Nat.Suelo"
+    },
+    {
+      "range": "E229",
+      "formula": "TipoBarandas"
+    },
+    {
+      "range": "E231",
+      "formula": "MatBaranda"
+    },
+    {
+      "range": "Q249",
+      "formula": "$C$290:$C$293"
+    },
+    {
+      "range": "H251:H254 H258 J251:J253 L252:L253 Q251:Q253",
+      "formula": "MatJuntas"
+    },
+    {
+      "range": "H239 J239 Q239",
+      "formula": "TipoApoyos"
+    },
+    {
+      "range": "H241 J241 Q241",
+      "formula": "$R$282:$R$285"
+    },
+    {
+      "range": "E78 N78",
+      "formula": "$U$74:$U$97"
+    },
+    {
+      "range": "G175 J175:K175 N175:O175",
+      "formula": "$C$205:$C$208"
+    },
+    {
+      "range": "G177 J177:K177 N177:O177",
+      "formula": "$G$205:$G$209"
+    },
+    {
+      "range": "G181 J181:K181 N181:O181",
+      "formula": "$L$205:$L$208"
+    },
+    {
+      "range": "G183 J183:K183 N183:O183",
+      "formula": "$P$205:$P$208"
+    },
+    {
+      "range": "G191 L191",
+      "formula": "$C$215:$C$217"
+    },
+    {
+      "range": "G193 L193",
+      "formula": "$G$215:$G$216"
+    },
+    {
+      "range": "G197 L197",
+      "formula": "$L$215:$L$216"
+    },
+    {
+      "range": "G199 L199",
+      "formula": "$P$215:$P$216"
+    },
+    {
+      "range": "N233:O235",
+      "formula": "MatVeredas"
+    },
+    {
+      "range": "H255",
+      "formula": "$I$290:$I$293"
+    },
+    {
+      "range": "G270 N270",
+      "formula": "$R$290:$R$293"
+    },
+    {
+      "range": "G278 N278",
+      "formula": "Visibilidad"
+    },
+    {
+      "range": "E309 H309 N309",
+      "formula": "Señalpreventiva"
+    },
+    {
+      "range": "L357",
+      "formula": "$J$375:$J$378"
+    },
+    {
+      "range": "H311 N311",
+      "formula": "SeñalReglamentaria"
+    },
+    {
+      "range": "H257 P257:Q258",
+      "formula": "MatDrenaje"
+    },
+    {
+      "range": "E424 E426 E428 E430",
+      "formula": "$C$434:$C$435"
+    },
+    {
+      "range": "G477",
+      "formula": "$P$482:$P$483"
+    },
+    {
+      "range": "G276 N276",
+      "formula": "$G$296:$G$297"
+    },
+    {
+      "range": "N339 Q339",
+      "formula": "$N$364:$N$366"
+    },
+    {
+      "range": "J98",
+      "formula": "TipoVigas"
+    },
+    {
+      "range": "J102",
+      "formula": "MatVigas"
+    },
+    {
+      "range": "J104",
+      "formula": "FormaViga"
+    },
+    {
+      "range": "E82 N82",
+      "formula": "Cond.Borde"
+    },
+    {
+      "range": "E84 N84",
+      "formula": "Mat.Predo"
+    },
+    {
+      "range": "E76 N76",
+      "formula": "$C$136:$C$139"
+    },
+    {
+      "range": "N43",
+      "formula": "$G$49:$G$53"
+    },
+    {
+      "range": "N45:O45",
+      "formula": "CondAmb"
+    },
+    {
+      "range": "P19",
+      "formula": "$R$51:$R$53"
+    },
+    {
+      "range": "J120:K120 L345 N120:O120",
+      "formula": "TipoElevación"
+    },
+    {
+      "range": "J122:K122 N122:O122",
+      "formula": "MaterialEleva"
+    },
+    {
+      "range": "J124:K124 N124:O124",
+      "formula": "TipoCimentación"
+    },
+    {
+      "range": "J126:K128 N126:O128",
+      "formula": "MaterialCimenta"
+    },
+    {
+      "range": "G49:H49",
+      "formula": "$G$49"
+    },
+    {
+      "range": "E27",
+      "formula": "$C$49:$C$56"
+    },
+    {
+      "range": "N35",
+      "formula": "$J$49:$J$53"
+    },
+    {
+      "range": "E64",
+      "formula": "$C$133:$C$135"
+    },
+    {
+      "range": "E98",
+      "formula": "Materiallosa"
+    },
+    {
+      "range": "E102",
+      "formula": "SuperDesgaste"
+    }
+  ],
+  "notes": [
+    "Whitespace trimmed; identical duplicate labels deduplicated, codes and factors unchanged.",
+    "Lists recovered from visible source tables when defined names are #REF!.",
+    "Category labels are PROVISIONALES and ARTESANALES, exactly as the workbook.",
+    "Reference observations are not defaults for new bridges."
+  ]
+}

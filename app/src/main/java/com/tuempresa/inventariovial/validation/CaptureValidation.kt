@@ -11,6 +11,10 @@ data class PhotoDimensions(val width: Int,val height: Int)
 
 object CaptureValidation {
     fun errors(request: InventorySaveRequest): List<ValidationError> = buildList {
+        (request.detail as? SicFormDetail.Sic22)?.let {
+            if(it.state.typeCode !in com.tuempresa.inventariovial.catalog.SicCatalogRepository.newSic22Types)
+                add(ValidationError("typeCode","Nueva señal SIC-22: selecciona Reglamento, Preventiva o Informativa. El hito kilométrico es Informativa."))
+        }
         if(request.routeCode.isBlank()) add(ValidationError("routeCode","Ruta obligatoria."))
         if(request.roadbedCode.isBlank()) add(ValidationError("roadbedCode","Calzada obligatoria."))
         if(!request.startPrCode.trim().matches(Regex("[0-9]{1,4}"))) add(ValidationError("startPrCode","PR inicial: de 1 a 4 dígitos."))
@@ -26,10 +30,6 @@ object CaptureValidation {
             if(!positive(dimension1M)) add(ValidationError("dimension1M","Ancho o diámetro debe ser mayor que cero."))
             if(usesDimension2 && !positive(dimension2M)) add(ValidationError("dimension2M","Altura debe ser mayor que cero."))
             if(spans.toIntOrNull()?.let {it>0} != true) add(ValidationError("spans","Ingresa al menos un ojo / vano."))
-            for((field,value) in listOf("Daño estructural" to structuralDamagePercent,"Obstrucción" to functionalObstructionPercent)) {
-                if(value.isNotBlank() && value.replace(',','.').toDoubleOrNull()?.let {it.isFinite() && it in 0.0..100.0} != true)
-                    add(ValidationError(field,"$field: ingresa un porcentaje entre 0 y 100."))
-            }
         }
     }
     fun warnings(request: InventorySaveRequest, data: RoadReferenceData, now: Long,
@@ -39,10 +39,7 @@ object CaptureValidation {
             add(ValidationWarning("GPS_ACCURACY","Precisión GNSS insuficiente o desconocida; umbral ${quality.maxAccuracyM} m."))
         val timestamp=request.location?.timestamp
         if(timestamp==null || now-timestamp !in 0..quality.maxAgeMs) add(ValidationWarning("GPS_STALE","La posición GNSS es antigua o no tiene hora válida."))
-        val linear=request.sicCode in setOf("SIC-19","SIC-21") || request.assetType in setOf("MURO","TUNEL") ||
-            (request.detail as? SicFormDetail.Sic20)?.state?.classCode in setOf("13","14") ||
-            (request.sicCode=="SIC-23" && (request.detail as? SicFormDetail.Sic23)?.state?.classCode !in setOf("23","24"))
-        if(linear && (request.endLatitude==null || request.endLongitude==null)) add(ValidationWarning("MISSING_END_GPS","Falta GPS final del elemento lineal."))
+        if(requiresEndLocation(request) && (request.endLatitude==null || request.endLongitude==null)) add(ValidationWarning("MISSING_END_GPS","Falta GPS final del elemento lineal."))
         if(request.photoPaths.isEmpty()) add(ValidationWarning("MISSING_PHOTO","El registro no tiene fotografías."))
         if(photos.any { minOf(it.width,it.height)<quality.minPhotoEdgePx }) add(ValidationWarning("SMALL_PHOTO","Una fotografía tiene resolución pequeña o no puede leerse."))
         // New captures explicitly use kilometre + offset; legacy requests can still use official PR identifiers.

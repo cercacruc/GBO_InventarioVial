@@ -43,10 +43,12 @@ object SurveyOrder {
 
 class SurveyPreferences(context: Context) {
     private val prefs = context.getSharedPreferences("survey_context", Context.MODE_PRIVATE)
-    fun routes(segment: String): List<String> = runCatching {
+    fun configuredRoutes(segment: String): List<String> = runCatching {
         val array = JSONArray(prefs.getString("routes_$segment", "[]"))
         List(array.length()) { array.getString(it) }
     }.getOrDefault(emptyList())
+    fun hasConfiguredCatalog(segment:String)=prefs.contains("routes_$segment")
+    fun routes(segment:String)=if(hasConfiguredCatalog(segment)) configuredRoutes(segment) else initialRoutes
 
     fun saveRoutes(segment: String, routes: List<String>) {
         require(segment in segments)
@@ -68,7 +70,7 @@ class SurveyPreferences(context: Context) {
     fun validate(request: InventorySaveRequest): String? {
         if (request.segment !in segments) return "Selecciona uno de los tres tramos."
         if (request.direction !in listOf("INCREASING", "DECREASING")) return "Selecciona el sentido del recorrido."
-        val routes = routes(request.segment)
+        val routes = configuredRoutes(request.segment)
         if (routes.isNotEmpty() && request.routeCode.trim().uppercase() !in routes) return "La ruta no pertenece al catálogo del tramo."
         val start = SurveyOrder.chainage(request.startPrCode, request.startDistanceM)
             ?: return "Progresiva inicial: kilómetro entero de hasta cuatro dígitos y metros desde 0 hasta menos de 1000."
@@ -90,5 +92,8 @@ class SurveyPreferences(context: Context) {
             .put("sessionId",p.sessionId.orEmpty()).toString()).apply()
     }
 
-    companion object { val segments = listOf("Tramo 1", "Tramo 2", "Tramo 3") }
+    companion object {
+        val segments = listOf("Tramo 1", "Tramo 2", "Tramo 3")
+        val initialRoutes = listOf("PE-3N", "PE-22A", "PE-28C", "PE-12A", "PE-3NG", "PE-28H")
+    }
 }

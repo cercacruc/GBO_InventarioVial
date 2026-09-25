@@ -42,11 +42,12 @@ class SurveyCorrectionsTest {
         assertTrue(CaptureValidation.errors(request(SicFormDetail.Sic18(oval.copy(dimension2M="0.9")))).isEmpty())
         assertTrue(circular.copy(crossSectionCode="1").usesDimension2)
     }
-    @Test fun percentagesAcceptBoundariesWithoutInventingAutomaticConditionCodes() {
+    @Test fun historicalAuxiliaryPercentagesDoNotControlNewCulvertValidation() {
         val valid=Sic18FormState(dimension1M="1",structuralDamagePercent="0",functionalObstructionPercent="100")
         assertTrue(CaptureValidation.errors(request(SicFormDetail.Sic18(valid))).isEmpty())
-        assertTrue(CaptureValidation.errors(request(SicFormDetail.Sic18(valid.copy(structuralDamagePercent="101")))).isNotEmpty())
-        assertTrue(CaptureValidation.errors(request(SicFormDetail.Sic18(valid.copy(functionalObstructionPercent="NaN")))).isNotEmpty())
+        assertTrue(CaptureValidation.errors(request(SicFormDetail.Sic18(valid.copy(structuralDamagePercent="101")))).isEmpty())
+        assertTrue(CaptureValidation.errors(request(SicFormDetail.Sic18(valid.copy(functionalObstructionPercent="NaN")))).isEmpty())
+        assertTrue(CaptureValidation.errors(request(SicFormDetail.Sic18(valid.copy(structuralDamagePercent="",functionalObstructionPercent="")))).isEmpty())
     }
     @Test fun reviewHasDescriptionsAndOmitsRemovedFields() {
         val vertical=captureSummary(request(SicFormDetail.Sic22(Sic22FormState(signalCode="P-2B")))).toMap()

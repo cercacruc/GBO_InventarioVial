@@ -87,8 +87,14 @@ interface InventoryDao {
     @Query("SELECT * FROM inventory_records ORDER BY routeCode, roadbedCode, CAST(startPrCode AS REAL) * 1000 + startDistanceM, createdAt")
     fun observeHistory(): Flow<List<com.tuempresa.inventariovial.data.entity.InventoryRecordWithPhotos>>
 
-    @Query("SELECT photos.* FROM photos INNER JOIN inventory_records ON photos.recordId = inventory_records.id WHERE photos.syncStatus != 'SYNCED' AND inventory_records.status = 'ACTIVE'")
+    @Query("SELECT photos.* FROM photos INNER JOIN inventory_records ON photos.recordId = inventory_records.id WHERE photos.syncStatus != 'SYNCED' AND inventory_records.status = 'ACTIVE' AND inventory_records.sicCode != 'SCAP' AND photos.scapInspectionId IS NULL")
     suspend fun pendingPhotos(): List<PhotoEntity>
+
+    @Query("UPDATE photos SET syncStatus = :status WHERE id = :id")
+    fun setPhotoSyncStatus(id: String, status: String)
+
+    @Query("SELECT sicCode FROM inventory_records WHERE id = :id")
+    fun recordSicCode(id: String): String?
 
     @Query("SELECT * FROM photos WHERE id = :id LIMIT 1")
     fun photoById(id: String): PhotoEntity?
@@ -240,6 +246,7 @@ interface InventoryDao {
         SELECT COUNT(*)
         FROM photos INNER JOIN inventory_records ON photos.recordId = inventory_records.id
         WHERE photos.syncStatus != 'SYNCED' AND inventory_records.status = 'ACTIVE'
+          AND inventory_records.sicCode != 'SCAP' AND photos.scapInspectionId IS NULL
         """
     )
     fun observePendingPhotoCount():

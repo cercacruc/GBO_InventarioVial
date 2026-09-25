@@ -17,6 +17,31 @@ object SicExcelWriter {
     private const val PACKAGE_REL = "http://schemas.openxmlformats.org/package/2006/relationships"
     private const val XML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 
+    /** Single reviewed bridge projection. Reuses SIC cell encoding/styles without scheduling uploads. */
+    fun writeMappedRow(output:OutputStream, format:String, route:String, columns:List<SicColumn>, values:List<Any?>) {
+        require(columns.size==values.size && columns.isNotEmpty())
+        ZipOutputStream(output).use {zip->
+            fun entry(path:String,body:String) {
+                zip.putNextEntry(ZipEntry(path));zip.write((XML+body).toByteArray(Charsets.UTF_8));zip.closeEntry()
+            }
+            entry("[Content_Types].xml","<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\"><Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/><Default Extension=\"xml\" ContentType=\"application/xml\"/><Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/><Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/><Override PartName=\"/xl/worksheets/sheet1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/></Types>")
+            entry("_rels/.rels","<Relationships xmlns=\"$PACKAGE_REL\"><Relationship Id=\"rId1\" Type=\"$REL/officeDocument\" Target=\"xl/workbook.xml\"/></Relationships>")
+            entry("xl/workbook.xml","<workbook xmlns=\"$MAIN\" xmlns:r=\"$REL\"><sheets><sheet name=\"${xml(format)}\" sheetId=\"1\" r:id=\"rId1\"/></sheets></workbook>")
+            entry("xl/_rels/workbook.xml.rels","<Relationships xmlns=\"$PACKAGE_REL\"><Relationship Id=\"rId1\" Type=\"$REL/worksheet\" Target=\"worksheets/sheet1.xml\"/><Relationship Id=\"styles\" Type=\"$REL/styles\" Target=\"styles.xml\"/></Relationships>")
+            entry("xl/styles.xml",styles())
+            entry("xl/worksheets/sheet1.xml",buildString {
+                append("<worksheet xmlns=\"$MAIN\"><sheetViews><sheetView workbookViewId=\"0\" showGridLines=\"0\"/></sheetViews><cols>")
+                columns.forEachIndexed{i,c->append("<col min=\"${i+1}\" max=\"${i+1}\" width=\"${c.width}\" customWidth=\"1\"/>")}
+                append("</cols><sheetData><row r=\"1\" ht=\"28\" customHeight=\"1\">${cell("A1",format,1)}</row>")
+                append("<row r=\"2\" ht=\"28\" customHeight=\"1\">${cell("A2","Ruta: $route",1)}</row>")
+                append("<row r=\"3\" ht=\"70\" customHeight=\"1\">")
+                columns.forEachIndexed{i,c->append(cell("${col(i+1)}3",c.label,2))};append("</row><row r=\"4\" ht=\"60\" customHeight=\"1\">")
+                values.forEachIndexed{i,v->append(cell("${col(i+1)}4",v,when(columns[i].kind){CellKind.TEXT->3;CellKind.DECIMAL->4;CellKind.INTEGER->5;CellKind.DATE->6}))}
+                append("</row></sheetData><mergeCells count=\"2\"><mergeCell ref=\"A1:${col(columns.size)}1\"/><mergeCell ref=\"A2:${col(columns.size)}2\"/></mergeCells></worksheet>")
+            })
+        }
+    }
+
     fun write(output: OutputStream, records: List<InventoryRecordForExport>,
               format: SicExportFormat?, heading: ExportHeading) {
         val active = records.filter { it.record.status == "ACTIVE" &&

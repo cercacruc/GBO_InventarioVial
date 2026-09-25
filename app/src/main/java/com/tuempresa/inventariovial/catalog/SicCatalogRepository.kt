@@ -2,6 +2,12 @@ package com.tuempresa.inventariovial.catalog
 
 /** Existing SIC-17..22 labels/codes preserved verbatim. One editable source for all Compose catalogs. */
 object SicCatalogRepository {
+    val newSic22Types = setOf("1", "2", "3")
+    const val kilometerMarkerType = "3"
+    val sic18StructuralDescriptions = mapOf(
+        "1" to "No tiene problema.",
+        "2" to "Quebrado o en menos del 30% de la longitud o con ligera 20% deformación.",
+        "3" to "Quebrado o en más del 30% de la longitud o con deformación muy notoria.")
     fun options(key: String): List<String> = catalogs.getValue(key)
     private val catalogs = mapOf(
         "sic17.class.0" to listOf("01 - Puente Definitivo","02 - Puente Provisional","03 - Estructura Artesanal","04 - Puente Histórico"),
@@ -19,8 +25,8 @@ object SicCatalogRepository {
         "sic18.type.0" to listOf("1 - Concreto","2 - Mampostería","3 - Acero","4 - Polietileno HDPE","5 - Otro"),
         "sic18.type.1" to listOf("1 - Concreto","2 - Mampostería","3 - Piedra","4 - Otro"),
         "sic18.section.0" to listOf("1 - Marco","2 - Circular / Ovalada","3 - Arco","4 - Pórtico","5 - Otro"),
-        "sic18.structural.0" to listOf("1 - Buena · sin daño","2 - Regular · daño longitudinal menor al 30% o deformación ligera","3 - Mala · daño longitudinal mayor al 30% o deformación notoria"),
-        "sic18.functional.0" to listOf("1 - Buena · limpia","2 - Regular · parcialmente obstruida","3 - Mala · totalmente obstruida"),
+        "sic18.structural.0" to listOf("1 - Bueno","2 - Regular","3 - Malo"),
+        "sic18.functional.0" to listOf("1 - Buena (limpia)","2 - Regular (parcialmente obstruida)","3 - Mala (totalmente obstruida)"),
         "sic19.class.0" to listOf("08 - Cuneta","09 - Canal","10 - Bajada de Agua","11 - Zanja de Drenaje","12 - Zanja de Coronación","13 - Cuneta de Banqueta"),
         "sic19.type.0" to listOf("1 - Tierra","2 - Concreto","3 - Mampostería","4 - Otro"),
         "sic19.section.0" to listOf("1 - Triangular","2 - Trapezoidal","3 - Rectangular","4 - Otro"),

@@ -2,8 +2,7 @@ package com.tuempresa.inventariovial
 
 object DriveConfig {
 
-    const val WEB_APP_URL =
-        "https://script.google.com/macros/s/AKfycbwvgPM_4miTcc8ZFMbT8HolKE94e_N6UptbLwjLnwHYZLtRpO8aUgtet3VuBHu2sQe5/exec"
+    val WEB_APP_URL: String = BuildConfig.DRIVE_WEB_APP_URL
 
     val API_TOKEN: String = BuildConfig.DRIVE_API_TOKEN
 }
