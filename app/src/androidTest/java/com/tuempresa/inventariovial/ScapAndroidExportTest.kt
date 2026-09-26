@@ -38,6 +38,8 @@ class ScapAndroidExportTest {
         exporter.write(output,s) {image}
         val workbook=TemplateWorkbook(output.toByteArray().inputStream())
         assertTrue(workbook.parts.containsKey("xl/workbook.xml"))
+        assertEquals(10,workbook.document("xl/workbook.xml").nodes("sheet").size)
+        for (index in 1..10) assertEquals("worksheet",workbook.sheet(index).documentElement.localName)
         assertTrue(workbook.sheet(1).documentElement.textContent.contains("Puente de prueba Ñ"))
         assertEquals(5,workbook.parts.keys.count {it.startsWith("xl/media/scap_")})
         assertEquals("2",workbook.cell(5,"H1").textContent)
@@ -62,9 +64,13 @@ class ScapAndroidExportTest {
     }
 
     @Test fun rejectsInternalAndExternalDtdInUtf8AndUtf16() {
-        for(encoding in listOf("UTF-8","UTF-16")) {
+        for(encoding in listOf("UTF-8","UTF-16","UTF-16LE","UTF-16BE")) {
             for(dtd in listOf("<!DOCTYPE root SYSTEM 'file:///never-read.dtd'>",
-                "<!DOCTYPE root [<!ENTITY example 'not allowed'>]>")) {
+                "<!DOCTYPE root PUBLIC '-//TEST//DTD Test//EN' 'https://example.invalid/test.dtd'>",
+                "<!DOCTYPE root [<!ENTITY example 'not allowed'>]>",
+                "<!DOCTYPE root [<!ENTITY example SYSTEM 'file:///never-read.txt'>]>",
+                "<!DOCTYPE root [<!ENTITY % external SYSTEM 'https://example.invalid/test.dtd'>%external;]>",
+                "<!ENTITY example 'not allowed'>")) {
                 val result=runCatching {xmlWorkbook("<?xml version='1.0' encoding='$encoding'?>$dtd<root/>",encoding).document("test.xml")}
                 assertTrue("DTD must be rejected in $encoding",result.exceptionOrNull() is IllegalArgumentException)
             }
@@ -72,8 +78,10 @@ class ScapAndroidExportTest {
     }
 
     @Test fun preservesNamespacesUnicodeAndEscapedText() {
-        val doc=xmlWorkbook("<s:root xmlns:s='urn:test'><s:value>Vía &amp; río</s:value></s:root>").document("test.xml")
+        for (encoding in listOf("UTF-8","UTF-16","UTF-16LE","UTF-16BE")) {
+        val doc=xmlWorkbook("<?xml version='1.0' encoding='$encoding'?><s:root xmlns:s='urn:test'><s:value>Vía &amp; río 水 🌉 &lt;texto&gt;</s:value></s:root>",encoding).document("test.xml")
         assertEquals("urn:test",doc.documentElement.namespaceURI)
-        assertEquals("Vía & río",doc.documentElement.textContent)
+        assertEquals("Vía & río 水 🌉 <texto>",doc.documentElement.textContent)
+        }
     }
 }

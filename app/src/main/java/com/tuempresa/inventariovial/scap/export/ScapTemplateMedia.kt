@@ -55,7 +55,9 @@ internal object ScapTemplateMedia {
                 props.setAttribute("name",name);props.setAttribute("descr",picture.description)
                 // Source photos have crop metadata specific to their pixels.
                 val crops=anchor.getElementsByTagNameNS("*","srcRect")
-                while(crops.length>0) crops.item(0).parentNode.removeChild(crops.item(0))
+                // Android returns a snapshot here; desktop DOM may return a live list.
+                val cropNodes=List(crops.length) { crops.item(it) }
+                cropNodes.forEach { it.parentNode.removeChild(it) }
                 rels.documentElement.appendChild(rels.createElementNS("http://schemas.openxmlformats.org/package/2006/relationships","Relationship").apply{
                     setAttribute("Id",rid);setAttribute("Type","$REL/image");setAttribute("Target","../media/$name")
                 })
