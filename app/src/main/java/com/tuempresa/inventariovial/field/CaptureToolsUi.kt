@@ -32,45 +32,6 @@ import java.io.File
 import java.util.Locale
 
 @Composable
-fun RoadSuggestionPanel(viewModel: InventoryViewModel,location: GeoLocation?,
-    onAccept: (RoadMatchResult)->Unit,onManual: ()->Unit,onSide: ((String,String)->Unit)? = null) {
-    val reference by viewModel.field.reference.collectAsState()
-    val settings by viewModel.field.settings.collectAsState()
-    val match by produceState<RoadMatchResult?>(null,location,reference,settings) {
-        value=withContext(Dispatchers.Default) { location?.takeIf { System.currentTimeMillis()-it.timestamp in 0..30_000 }?.let {
-            LinearReferenceEngine(reference,settings.matchConfig()).locate(it.latitude,it.longitude,it.horizontalAccuracy.toDouble())
-        } }
-    }
-    var dismissed by remember(location,reference) { mutableStateOf(false) }
-    if(dismissed) return
-    Card(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) {
-            val suggestion=match
-            if(suggestion==null) {
-                Text(if(reference.segments.isEmpty()) "Sin cartografía disponible: selecciona ruta, calzada y PR manualmente."
-                    else "Sin coincidencia GNSS confiable: revisa precisión y selecciona la ubicación vial manualmente.")
-            } else {
-                Text("Ruta sugerida: ${suggestion.routeCode}")
-                Text("Calzada sugerida: ${suggestion.roadbedCode.ifEmpty { "No diferenciada" }}")
-                Text("Progresiva sugerida sobre el eje: ${String.format(Locale.US,"%.2f m",suggestion.chainageM)}")
-                Text("Distancia al eje: ${String.format(Locale.US,"%.1f m",suggestion.distanceToRoadAxisM)}")
-                Row {
-                    TextButton(enabled=suggestion.chainageM in 0.0..<9_999_999.99 && suggestion.roadbedCode.isNotBlank(),onClick={onAccept(suggestion)}) {Text("ACEPTAR")}
-                    TextButton(onClick={onManual();dismissed=true}) {Text("EDITAR")}
-                }
-                if(onSide!=null && suggestion.suggestedSide!=null) {
-                    Text("Lado sugerido: ${if(suggestion.suggestedSide=="D") "DERECHO" else "IZQUIERDO"}")
-                    TextButton(onClick={onSide(suggestion.suggestedSide,"GNSS_MAP_MATCH")}) {Text("CONFIRMAR LADO")}
-                    Row { listOf("D" to "DERECHO","I" to "IZQUIERDO","S" to "SIN OBJETO").forEach { (code,label) ->
-                        TextButton(onClick={onSide(code,"MANUAL")}) {Text(label)}
-                    } }
-                }
-            }
-        }
-    }
-}
-
-@Composable
 fun TrackCapturePanel(viewModel: InventoryViewModel,recordId: String?,sicCode: String,asset: String,route: String,
     roadbed: String,pr: String,distance: String,side: String?,location: GeoLocation?,
     onRecordId: (String)->Unit,onEndLocation: (GeoLocation)->Unit,segment: String="",direction: String="INCREASING") {

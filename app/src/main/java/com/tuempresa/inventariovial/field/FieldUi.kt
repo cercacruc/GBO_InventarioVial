@@ -59,8 +59,6 @@ fun FieldHomePanel(viewModel: InventoryViewModel,onResumeDraft: (InventoryRecord
     val session by field.session.collectAsState()
     val allDrafts by field.drafts.collectAsState()
     val drafts = allDrafts.filter { it.sicCode != "SCAP" }
-    val reference by field.reference.collectAsState()
-    val referenceError by field.referenceError.collectAsState()
     var showSession by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<String?>(null) }
@@ -73,9 +71,6 @@ fun FieldHomePanel(viewModel: InventoryViewModel,onResumeDraft: (InventoryRecord
                 Text("Sentido: ${if(it.direction=="DECREASING") "Decreciente" else "Creciente"}")
                 OutlinedButton(onClick={ field.endSession { message=it } }) { Text("Finalizar sesión") }
             } ?: OutlinedButton(onClick={ showSession=true }) { Text("Iniciar sesión de campo") }
-            Text("Ejes: ${reference.segments.size} · PR oficiales: ${reference.prs.size}")
-            if(reference.segments.isEmpty()) Text("Sin cartografía: ingresa la ubicación vial manualmente.")
-            referenceError?.let { ErrorText(it) }
             OutlinedButton(onClick={ showSettings=true }) { Text("Ajustar umbrales GNSS") }
             KmlControls(viewModel)
             ObservationReportButton(viewModel)

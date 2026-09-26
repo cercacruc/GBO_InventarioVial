@@ -998,14 +998,6 @@ fun SignalizationFormScreen(
                 onRoadbed={ roadbed=it; locationSource="MANUAL" }, onDirection={ direction=it })
         }
         item {
-            RoadSuggestionPanel(inventoryViewModel,location,
-                onAccept = { match ->
-                    route = match.routeCode; roadbed = match.roadbedCode
-                    val station = SurveyOrder.kilometreAndOffset(match.chainageM); startPr = station.first
-                    startDistance = station.second
-                    locationSource = "GNSS_MAP_MATCH"
-                }, onManual = { locationSource = "MANUAL" },
-                onSide = { code, source -> side = when(code) { "D" -> "D - Derecho"; "I" -> "I - Izquierdo"; else -> "S - Sin objeto" }; sideSource = source })
             OutlinedButton(enabled = !locating, onClick = { if(hasLocationPermission()) captureLocation() else locationPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION)) }) { Text("Actualizar GPS inicial") }
         }
 
@@ -2632,14 +2624,6 @@ fun AssetFormScreen(
                 onRoadbed={ roadbed=it; locationSource="MANUAL" }, onDirection={ direction=it })
         }
         item {
-            RoadSuggestionPanel(inventoryViewModel,location,
-                onAccept = { match ->
-                    route = match.routeCode; roadbed = match.roadbedCode
-                    val station = SurveyOrder.kilometreAndOffset(match.chainageM); startPr = station.first
-                    startDistance = station.second
-                    locationSource = "GNSS_MAP_MATCH"
-                }, onManual = { locationSource = "MANUAL" },
-                onSide = { code, source -> side = when(code) { "D" -> "D - Derecho"; "I" -> "I - Izquierdo"; else -> "S - Sin objeto" }; sideSource = source })
             OutlinedButton(enabled = !locating, onClick = { if(hasLocationPermission()) captureLocation() else locationPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION)) }) { Text("Actualizar GPS inicial") }
         }
 
