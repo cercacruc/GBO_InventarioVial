@@ -2,6 +2,10 @@ package com.tuempresa.inventariovial.scap.export
 
 import org.w3c.dom.Document
 import org.w3c.dom.Element
+import android.util.Xml
+import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserException
+import org.xml.sax.SAXException
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.zip.ZipEntry
@@ -22,12 +26,30 @@ internal class TemplateWorkbook(input: InputStream) {
         }
     }
     fun document(path:String):Document=documents.getOrPut(path) {
+        val bytes=parts.getValue(path)
+        // nextToken exposes DOCDECL without processing the DTD. Passing no encoding
+        // lets the Android reader detect UTF-8/UTF-16 from the BOM/XML declaration.
+        // Validate the entire part before handing the original bytes to DOM.
+        bytes.inputStream().use { input ->
+            val reader=Xml.newPullParser()
+            try {
+                reader.setInput(input,null)
+                while (reader.nextToken()!=XmlPullParser.END_DOCUMENT) {
+                    require(reader.eventType!=XmlPullParser.DOCDECL) {
+                        "DTD/DOCTYPE no permitido en $path"
+                    }
+                }
+            } catch (e:XmlPullParserException) {
+                // Malformed declarations (including a standalone ENTITY) fail closed.
+                throw IllegalArgumentException("XML no permitido o inválido en $path",e)
+            }
+        }
         val factory=DocumentBuilderFactory.newInstance().apply {
             isNamespaceAware=true
-            setFeature("http://xml.org/sax/features/external-general-entities",false)
-            setFeature("http://xml.org/sax/features/external-parameter-entities",false)
         }
-        factory.newDocumentBuilder().parse(parts.getValue(path).inputStream())
+        val builder=factory.newDocumentBuilder()
+        builder.setEntityResolver { _, _ -> throw SAXException("Entidad externa no permitida en $path") }
+        bytes.inputStream().use { builder.parse(it) }
     }
     fun sheet(index:Int)=document("xl/worksheets/sheet$index.xml")
     fun cell(sheet:Int,ref:String):Element {
