@@ -26,6 +26,41 @@ class CorporateWatermarkTest {
     private val context get()=ApplicationProvider.getApplicationContext<Context>()
     private val service get()=PhotoStampService(context)
     private val data=PhotoStampData("PE-3N","UC","30+123",null,1_750_000_000_000,"Inspector","Puente")
+    @Test fun requiredLogoIsAutomaticReusableAndKeepsOriginalUntouched()=runBlocking {
+        val original=source(1200,800)
+        val bytes=original.readBytes()
+        val marked=RequiredWatermark.prepare(context,original.path,directory=temp.root)
+        assertNotEquals(original.path,marked.path)
+        assertEquals(RequiredWatermark.MARKER,ExifInterface(marked.path).getAttribute(ExifInterface.TAG_USER_COMMENT))
+        val bitmap=BitmapFactory.decodeFile(marked.path)
+        var changed=0
+        for(y in 30..180 step 3) for(x in 960..1150 step 3) {
+            val pixel=bitmap.getPixel(x,y)
+            if(abs(Color.red(pixel)-Color.red(Color.LTGRAY))>25 ||
+                abs(Color.green(pixel)-Color.green(Color.LTGRAY))>25 ||
+                abs(Color.blue(pixel)-Color.blue(Color.LTGRAY))>25) changed++
+        }
+        assertTrue("The delivery copy must contain visible logo pixels",changed>100)
+        bitmap.recycle()
+        assertEquals(marked.path,RequiredWatermark.prepare(context,original.path,marked.path,temp.root).path)
+        assertArrayEquals(bytes,original.readBytes())
+    }
+    @Test fun missingCopyIsRegeneratedButMissingSourceFailsClosed()=runBlocking {
+        val original=source(1200,800)
+        val missing=File(temp.root,"missing.jpg").path
+        val marked=RequiredWatermark.prepare(context,original.path,missing,temp.root)
+        assertTrue(marked.isFile)
+        assertTrue(runCatching {RequiredWatermark.prepare(context,missing,null,temp.root)}.isFailure)
+    }
+    @Test fun optionalTextCopyKeepsLogoWhenPreparedForDelivery()=runBlocking {
+        val original=source(1200,800)
+        val textCopy=service.process(original,temp.root,data)
+        assertEquals(textCopy.path,RequiredWatermark.prepare(context,original.path,textCopy.path,temp.root).path)
+        val disabled=service.process(original,temp.root,data,PhotoStampConfig(showCorporateLogo=false))
+        val repaired=RequiredWatermark.prepare(context,original.path,disabled.path,temp.root)
+        assertNotEquals(disabled.path,repaired.path)
+        assertEquals(RequiredWatermark.MARKER,ExifInterface(repaired.path).getAttribute(ExifInterface.TAG_USER_COMMENT))
+    }
     private fun source(width:Int,height:Int,marker:Boolean=false):File {
         val file=temp.newFile("source-${System.nanoTime()}.jpg")
         val bitmap=Bitmap.createBitmap(width,height,Bitmap.Config.ARGB_8888).apply {eraseColor(Color.LTGRAY)}

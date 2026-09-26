@@ -395,12 +395,18 @@ class DriveUploadWorker(
         // 5. SUBIR
         // =====================================================
 
+        var deliveryFile: File? = null
         return try {
-
+            val marked = kotlinx.coroutines.runBlocking { com.tuempresa.inventariovial.camera.RequiredWatermark.prepare(
+                applicationContext, photoPath, photo?.stampedPath,
+                File(applicationContext.cacheDir, "watermark-delivery")) }
+            if (marked.parentFile?.canonicalPath == File(applicationContext.cacheDir, "watermark-delivery").canonicalPath) {
+                deliveryFile = marked
+            }
             uploadFile(
 
                 file =
-                    file,
+                    marked,
 
                 photoPath =
                     photoPath,
@@ -442,6 +448,8 @@ class DriveUploadWorker(
 
 
             Result.retry()
+        } finally {
+            deliveryFile?.delete()
         }
     }
 

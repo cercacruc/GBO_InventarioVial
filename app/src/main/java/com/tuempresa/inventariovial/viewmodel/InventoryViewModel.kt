@@ -576,7 +576,8 @@ class InventoryViewModel(
 
                 val photos = request.photoPaths.distinct().mapIndexed { index, path ->
                     photo.copy(id = UUID.randomUUID().toString(), localPath = path,
-                        originalPath = path, stampedPath = request.stampedPaths[path], photoCategory = request.photoCategories[path],
+                        originalPath = path, stampedPath = com.tuempresa.inventariovial.camera.RequiredWatermark.prepare(
+                            getApplication(), path, request.stampedPaths[path]).absolutePath, photoCategory = request.photoCategories[path],
                         photoIndex = index + 1, isPrimary = index == 0,
                         generatedFileName = buildDriveFileName(request, index + 1))
                 }
