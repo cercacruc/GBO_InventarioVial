@@ -34,8 +34,8 @@ fun SurveyHeader(preferences: SurveyPreferences, segment: String, route: String,
         }
         OutlinedButton(enabled=segment.isNotBlank(),onClick={editCatalog=true}) {Text("Configurar rutas de este tramo")}
         Text("Calzada",style=MaterialTheme.typography.titleMedium)
-        ChoiceSelector(listOf("UC", "UD", "CD", "A1", "A2", "Otro"),roadbed) {onRoadbed(if(it=="Otro") "" else it)}
-        if(roadbed !in listOf("UC","UD","CD","A1","A2")) OutlinedTextField(roadbed,{onRoadbed(it.uppercase())},label={Text("Código de calzada")},modifier=Modifier.fillMaxWidth())
+        ChoiceSelector(com.tuempresa.inventariovial.catalog.SicCatalogRepository.roadbedCodes + "Otro",roadbed) {onRoadbed(if(it=="Otro") "" else it)}
+        if(roadbed !in com.tuempresa.inventariovial.catalog.SicCatalogRepository.roadbedCodes) OutlinedTextField(roadbed,{onRoadbed(it.uppercase())},label={Text("Código de calzada")},modifier=Modifier.fillMaxWidth())
         Text("Sentido de las progresivas")
         ChoiceSelector(listOf("Creciente", "Decreciente"),if(direction=="DECREASING") "Decreciente" else "Creciente") {
             onDirection(if(it=="Decreciente") "DECREASING" else "INCREASING")

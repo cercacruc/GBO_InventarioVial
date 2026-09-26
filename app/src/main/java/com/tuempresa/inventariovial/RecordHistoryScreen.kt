@@ -155,6 +155,12 @@ private fun HistoryRecordCard(
                 Text("Fin: PR ${record.endPrCode} + ${record.endDistanceM} · Lado: ${record.sideCode}")
             }
             item.sic18?.let {d->
+                val state = com.tuempresa.inventariovial.supplementary.Sic18AStatus.label(d,item.sic18a)
+                Text("SIC-18A: $state",style=MaterialTheme.typography.titleMedium,
+                    color=if(state=="Pendiente") MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
+                if(item.sic18a!=null) com.tuempresa.inventariovial.field.Sic18AExportButton(record,
+                    com.tuempresa.inventariovial.supplementary.SupplementaryFormState(SupplementaryFormat.SIC18A,
+                        com.tuempresa.inventariovial.supplementary.Sic18AStatus.inherited(d,item.sic18a)))
                 Text("Estructural: ${d.structuralConditionCode} · Funcional: ${d.functionalConditionCode}")
                 if(com.tuempresa.inventariovial.catalog.EngineeringConditions.badCulvert(d.structuralConditionCode,d.functionalConditionCode)) Text("! Condición mala detectada",color=MaterialTheme.colorScheme.error)
                 com.tuempresa.inventariovial.catalog.EngineeringConditions.culvertPhotos.forEach {(key,label)->Text("$label: ${item.photos.count {it.photoCategory==key}}")}
@@ -178,7 +184,7 @@ private fun HistoryRecordCard(
             if (!editing) {
                 if(record.status=="ACTIVE") SupplementaryFormat.entries.filter { it.enabled &&
                     if(record.sicCode=="SIC-17") it!=SupplementaryFormat.SIC18A else record.sicCode=="SIC-18" && it==SupplementaryFormat.SIC18A
-                }.forEach { format -> OutlinedButton(onClick={onSupplementary(format)}) {Text("Completar ${format.title}")} }
+                }.forEach { format -> OutlinedButton(onClick={onSupplementary(format)}) {Text(if(format==SupplementaryFormat.SIC18A && item.sic18a!=null) "Editar SIC-18A" else "Completar ${format.title}")} }
                 record.observations?.let { Text(it) }
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     OutlinedButton(onClick = { editing = true; editError = null }) { Text("Editar") }

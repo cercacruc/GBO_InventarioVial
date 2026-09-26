@@ -89,7 +89,7 @@ class EngineeringUxTest {
             repo.setField(id,"inspection","railingType","Parapeto");assertEquals("Acero",repo.dao.snapshot(id)!!.values()["railingMaterial"])
         } finally {database.close();context.deleteDatabase(name)}
     }
-    @Test fun multipleJointsAndSupportsPersistAndOnlyExportCapacityIsBlocked()=runBlocking {
+    @Test fun multipleJointsAndSupportsPersistAndExportExpands()=runBlocking {
         val database=db()
         try {
             val r=ScapRepository(database,testScapCatalog());val id=r.create("I","D",null)
@@ -97,8 +97,8 @@ class EngineeringUxTest {
             var s=r.dao.snapshot(id)!!;assertEquals(3,s.supports.size);assertEquals(3,s.joints.size)
             r.setField(id,s.joints.first().id,"jointType","Vacio");r.setField(id,s.joints.first().id,"jointMaterial","Jebe")
             s=r.dao.snapshot(id)!!;assertEquals("Vacio",s.joints.first().type)
-            assertTrue(exporter().review(s).errors.any {it.contains("junta")})
-            assertTrue(exporter().review(s).errors.any {it.contains("apoyos")})
+            assertTrue(exporter().review(s).errors.isEmpty())
+            val out=ByteArrayOutputStream();exporter().write(out,s){error("media")};assertTrue(out.size()>1000)
             r.removeRow(id,s.joints.last().id);assertEquals(2,r.dao.snapshot(id)!!.joints.size)
         } finally {database.close()}
     }

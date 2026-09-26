@@ -145,7 +145,7 @@ fun PhotoStampPanel(paths: List<String>,data: PhotoStampData,stampedPaths: Map<S
             busy=true;error=null
             try {
                 val original=paths[index]
-                val file=PhotoStampService().process(File(original),File(context.filesDir,"stamped"),data,PhotoStampConfig(fields=fields))
+                val file=PhotoStampService(context).process(File(original),File(context.filesDir,"stamped"),data,PhotoStampConfig(fields=fields))
                 previewOriginal=original;preview=file.absolutePath
             } catch(e:Exception) {error=e.message} finally {busy=false}
         }}) {Text(if(busy) "Procesando…" else "Vista previa del sello")}

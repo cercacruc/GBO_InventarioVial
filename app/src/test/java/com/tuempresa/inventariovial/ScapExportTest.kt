@@ -68,7 +68,7 @@ class ScapExportTest {
         exporter().write(out,s.copy(photos=listOf(p),sketches=listOf(ScapSketchEntity("sk",s.inspection.id,"PLAN","sketch")))){image}
         val w=TemplateWorkbook(out.toByteArray().inputStream())
         assertArrayEquals(image,w.parts["xl/media/scap_5_1.png"]);assertArrayEquals(image,w.parts["xl/media/scap_2_2.png"])
-        assertEquals("GENERAL",w.cell(5,"D13").textContent)
+        assertEquals("Vista general",w.cell(5,"D13").textContent)
         assertEquals("1",w.cell(5,"H1").textContent)
     }
     @Test fun templateCapacityIsCheckedWithoutModifyingOrTruncatingSavedInspection() {
@@ -80,10 +80,14 @@ class ScapExportTest {
         val s=snapshot();val spans=(1..2).map{ScapSpanEntity("span$it",s.inspection.id,it,10.0*it,"DEFINITIVO","Losa","","","")}
         val rows=spans.flatMap{e->listOf("category" to e.category,"type" to e.type,"slabMaterial" to "Concreto armado").map{ScapFieldValueEntity(s.inspection.id,e.id,it.first,it.second,"MANUAL")}}
         val multiple=s.copy(spans=spans,values=s.values+rows)
-        assertTrue(exporter().review(multiple).warnings.any{it.contains("principal")})
+        assertTrue(exporter().review(multiple).errors.isEmpty())
         val w=TemplateWorkbook(workbook(multiple).inputStream())
         assertEquals("10.0",w.cell(1,"J62").textContent);assertEquals("20.0",w.cell(1,"J64").textContent)
-        for(ref in listOf("E76","L76","E98")) assertEquals("",w.cell(1,ref).textContent)
+        assertEquals("DEFINITIVO",w.cell(1,"E76").textContent)
+        assertEquals("DEFINITIVO",w.cell(1,"N76").textContent)
+        assertEquals("Concreto armado",w.cell(1,"E98").textContent)
+        assertEquals("C.2 · TRAMO 1",w.cell(1,"C72").textContent)
+        assertEquals("Concreto armado",w.cell(1,"E546").textContent)
     }
     @Test fun pendingMappingsNeverLeakIntoSicAndOnlyAffectedExportIsBlocked() {
         val s=snapshot();val previews=ScapSicExporter.previews(s)

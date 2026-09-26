@@ -4,7 +4,7 @@
 
 Desde **Puentes** se abre el listado SCAP. «Nueva inspección» crea una ficha vacía con UUID; «Historial → Inspecciones SCAP de puentes» abre el mismo listado. Elegir una ficha permite continuar su captura o consultar una completa. El historial anterior conserva SIC-17 y sus complementarios, edición y anulación.
 
-El encabezado permanece visible con nombre, ruta, progresiva, sección, estado y guardado. La navegación principal es A–G; C, D y F tienen subsecciones. Solo se presenta el formulario de la sección y del tramo/elemento seleccionado. No se precargan valores del puente Agua Blanca.
+El encabezado permanece visible con nombre, ruta, progresiva, sección, estado y guardado. La navegación principal es A–G; C, D y F tienen subsecciones. La sección activa muestra tarjetas de todos sus tramos/elementos; no usa un selector de navegación para ocultarlos. No se precargan valores del puente Agua Blanca.
 
 | Sección | Captura |
 |---|---|
@@ -20,10 +20,8 @@ El encabezado permanece visible con nombre, ruta, progresiva, sección, estado y
 | D1–D3 | Suelos por subestructura, niveles de agua, gálibos y datos hidráulicos manuales. |
 | D4 | Perfil longitudinal y N puntos, presente en el workbook aunque omitido en el listado del prompt. |
 | E | Múltiples imágenes de elevación, planta y sección transversal por cámara/importación. |
-| F1 | Búsqueda de los 112 elementos por nombre/código; selección de presentes, metrado y porcentajes 0–5. |
-| F2 | Condición Global del Puente (hoja física `sec F`): grupos I–V, código, elemento y descripción. |
+| F2 | 14 recordatorios en grupos I–V; búsqueda de 112 elementos, presencia, metrado, seis porcentajes, múltiples defectos con descripción/ubicación y fotos. F1/F3 se integran aquí. |
 | Panel fotográfico | Hoja física `F.2.-PANEL FOTOGRAFICO`; fotos, fecha, descripción, categoría, elemento, reordenación y eliminación. |
-| F3 | N defectos por elemento, descripción, ubicación, foto opcional y validación de sugerencias. |
 | G | Identificación, datos generales, tramos, elementos, defectos, conteos de fotos/croquis, errores, pendientes y cálculo global cuando está definido. |
 
 No se calculan capacidad resistente, cargas, metrados, dimensiones, hidráulica ni coordenadas UTM a partir de fotos o GNSS.
@@ -38,7 +36,7 @@ Paquete independiente `com.tuempresa.inventariovial.scap`:
 - `calculator`: función pura documentada en `SCAP_CALCULATION.md`.
 - `ui`: controlador retenido por InventoryViewModel, cola de guardado y pantallas Compose.
 
-La integración inicial pasó de 5 a 6. La revisión de ingeniería actual usa **Room 7**, con `MIGRATION_6_7` explícita y cadena 1→2→3→4→5→6→7, sin migración destructiva. Esquema actual: `app/schemas/com.tuempresa.inventariovial.data.database.InventoryDatabase/7.json`. Ver `REVISION_INGENIERIA_UX.md`.
+La integración inicial pasó de 5 a 6. La revisión de ingeniería actual usa **Room 7**, con `MIGRATION_6_7` explícita y cadena 1→2→3→4→5→6→7, sin migración destructiva. Esquema actual: `app/schemas/com.tuempresa.inventariovial.data.database.InventoryDatabase/7.json`. La revisión 2 conserva Room 7 sin nueva migración. Ver [Revisión de ingeniería de puentes 2](REVISION_INGENIERIA_PUENTES_2.md).
 
 ## Persistencia
 

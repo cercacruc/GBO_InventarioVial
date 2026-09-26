@@ -2301,21 +2301,302 @@ fun AssetFormScreen(
         }
 
 
+    val saveAsset = fun() {
+
+                    when {
+
+                        latitude == null ||
+                                longitude == null -> {
+                            formError =
+                                "Debes obtener la ubicación GPS."
+                        }
+
+                        route.trim().isEmpty() -> {
+                            formError =
+                                "Debes ingresar el código de ruta."
+                        }
+
+                        roadbed.trim().isEmpty() -> {
+                            formError =
+                                "Debes ingresar el código de calzada."
+                        }
+
+                        startPr.trim().isEmpty() -> {
+                            formError =
+                                "Debes ingresar el PR de inicio."
+                        }
+
+                        startDistance.trim().isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar la distancia desde el PR de inicio."
+                        }
+
+
+                        needsEndLocation &&
+                                endPr.trim().isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar el PR de fin."
+                        }
+
+
+                        needsEndLocation &&
+                                endDistance.trim().isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar la distancia desde el PR de fin."
+                        }
+
+
+                        // =========================================================
+                        // VALIDACIÓN SIC-17
+                        // =========================================================
+
+                        assetType == RoadAssetType.BRIDGE &&
+                                sic17State.dimension1LengthM
+                                    .trim()
+                                    .isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar la longitud del puente."
+                        }
+
+
+                        assetType == RoadAssetType.BRIDGE &&
+                                sic17State.dimension2LowerHeightM
+                                    .trim()
+                                    .isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar la altura libre inferior."
+                        }
+
+
+                        assetType == RoadAssetType.BRIDGE &&
+                                sic17State.dimension3UpperHeightM
+                                    .trim()
+                                    .isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar la altura libre superior. Si no existe limitación, usa 00.00."
+                        }
+
+
+                        // =========================================================
+                        // VALIDACIÓN SIC-18
+                        // =========================================================
+
+                        assetType == RoadAssetType.CULVERT &&
+                                sic18State.spans
+                                    .trim()
+                                    .isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar el número de ojos / vanos."
+                        }
+
+
+                        assetType == RoadAssetType.CULVERT &&
+                                sic18State.dimension1M
+                                    .trim()
+                                    .isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar la Dimensión 1."
+                        }
+
+
+                        assetType == RoadAssetType.CULVERT && sic18State.usesDimension2 &&
+                                sic18State.dimension2M
+                                    .trim()
+                                    .isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar la Dimensión 2."
+                        }
+
+
+                        // =========================================================
+                        // VALIDACIÓN SIC-20
+                        // =========================================================
+
+                        assetType in setOf(RoadAssetType.FORD, RoadAssetType.TUNNEL, RoadAssetType.WALL) &&
+                                sic20State.dimension1M
+                                    .trim()
+                                    .isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar la Dimensión 1."
+                        }
+
+
+                        assetType in setOf(RoadAssetType.FORD, RoadAssetType.TUNNEL, RoadAssetType.WALL) &&
+                                sic20State.usesDimension2 &&
+                                sic20State.dimension2M
+                                    .trim()
+                                    .isEmpty() -> {
+
+                            formError =
+                                "Debes ingresar la Dimensión 2."
+                        }
+
+                        else -> {
+                            formError = null
+
+                            run {
+
+                                val detail =
+                                    when (assetType) {
+
+                                        RoadAssetType.RIGHT_OF_WAY -> SicFormDetail.Sic23(sic23State)
+
+                                        RoadAssetType.BRIDGE ->
+                                            SicFormDetail.Sic17(
+                                                sic17State
+                                            )
+
+                                        RoadAssetType.CULVERT ->
+                                            SicFormDetail.Sic18(
+                                                sic18State
+                                            )
+
+                                        RoadAssetType.DITCH ->
+                                            SicFormDetail.Sic19(
+                                                sic19State
+                                            )
+
+                                        RoadAssetType.FORD, RoadAssetType.TUNNEL, RoadAssetType.WALL ->
+                                            SicFormDetail.Sic20(
+                                                sic20State
+                                            )
+
+                                        RoadAssetType.SIGNALIZATION -> {
+                                            formError =
+                                                "Utilice el módulo de señalización."
+                                            return
+                                        }
+                                    }
+
+                                val actualAssetType =
+                                    when (assetType) {
+
+                                        RoadAssetType.RIGHT_OF_WAY -> sic23State.assetName
+
+                                        RoadAssetType.BRIDGE ->
+                                            "PUENTE"
+
+                                        RoadAssetType.CULVERT ->
+                                            "ALCANTARILLA"
+
+                                        RoadAssetType.DITCH ->
+                                            "DRENAJE"
+
+                                        RoadAssetType.FORD, RoadAssetType.TUNNEL, RoadAssetType.WALL ->
+                                            when (
+                                                sic20State.classCode
+                                            ) {
+                                                "12" -> "BADEN"
+                                                "13" -> "TUNEL"
+                                                "14" -> "MURO"
+                                                else -> "SIC20"
+                                            }
+
+                                        else ->
+                                            "SENALIZACION"
+                                    }
+
+                                inventoryViewModel.saveRecord(
+
+                                    request =
+                                        InventorySaveRequest(
+
+                                            sicCode =
+                                                assetType.sicCode,
+
+                                            assetType =
+                                                actualAssetType,
+
+                                            routeCode = route,
+
+                                            roadbedCode = roadbed,
+
+                                            startPrCode = startPr,
+
+                                            startDistanceM =
+                                                startDistance,
+
+                                            endPrCode =
+                                                if (needsEndLocation) {
+                                                    endPr
+                                                } else {
+                                                    null
+                                                },
+
+                                            endDistanceM =
+                                                if (needsEndLocation) {
+                                                    endDistance
+                                                } else {
+                                                    null
+                                                },
+
+                                            sideCode =
+                                                if (needsSide) {
+                                                    codeFromOption(
+                                                        side
+                                                    )
+                                                } else {
+                                                    null
+                                                },
+
+                                            latitude = latitude!!,
+
+                                            longitude = longitude!!,
+
+                                            gpsAccuracyM =
+                                                gpsAccuracy,
+
+                                            surveyDate =
+                                                registrationDate,
+
+                                            observations =
+                                                observations,
+
+                                            photoPath = capturedPhotos.firstOrNull().orEmpty(),
+                                            photoPaths = capturedPhotos, photoCategories = photoCategories,
+                                            recordId = draftId,
+                                            location = location,
+                                            endLocation = endLocation,
+                                            locationSource = locationSource,
+                                            sideSource = sideSource,
+                                            sessionId = draftRecord?.sessionId ?: fieldSession?.sessionId,
+                                            segment = segment, direction = direction,
+                                            stampedPaths = stampedPaths.filterKeys { it in capturedPhotos },
+                                            endLatitude = endLocation?.latitude,
+                                            endLongitude = endLocation?.longitude,
+                                            endGpsAccuracyM = endLocation?.accuracyHorizontal,
+
+                                            detail = detail
+                                        ),
+
+                                    onSuccess = {
+                                        if(assetType==RoadAssetType.CULVERT && com.tuempresa.inventariovial.catalog.EngineeringConditions.badCulvert(sic18State.structuralConditionCode,sic18State.functionalConditionCode)) {
+                                            savedCulvert=inventoryViewModel.lastSavedRecord
+                                            completeCulvert=true
+                                        } else onSave()
+                                    },
+                                    onError = { error -> formError = error }
+                                )
+                            }
+                        }
+                    }
+    }
+
     LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 24.dp),
-
-        contentPadding =
-            PaddingValues(
-                top = 24.dp,
-                bottom = 40.dp
-            ),
-
-        verticalArrangement =
-            Arrangement.spacedBy(18.dp)
+        modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp),
+        contentPadding = PaddingValues(top = 24.dp, bottom = 40.dp),
+        verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
-
         item {
 
             OutlinedButton(
@@ -2594,6 +2875,7 @@ fun AssetFormScreen(
 
                     Sic18Fields(
                         state = sic18State,
+                        onCompleteSic18A = saveAsset,
                         onStateChange = {
                             sic18State = it
                         }
@@ -2815,297 +3097,7 @@ fun AssetFormScreen(
         item {
 
             Button(
-                onClick = {
-
-                    when {
-
-                        latitude == null ||
-                                longitude == null -> {
-                            formError =
-                                "Debes obtener la ubicación GPS."
-                        }
-
-                        route.trim().isEmpty() -> {
-                            formError =
-                                "Debes ingresar el código de ruta."
-                        }
-
-                        roadbed.trim().isEmpty() -> {
-                            formError =
-                                "Debes ingresar el código de calzada."
-                        }
-
-                        startPr.trim().isEmpty() -> {
-                            formError =
-                                "Debes ingresar el PR de inicio."
-                        }
-
-                        startDistance.trim().isEmpty() -> {
-
-                            formError =
-                                "Debes ingresar la distancia desde el PR de inicio."
-                        }
-
-
-                        needsEndLocation &&
-                                endPr.trim().isEmpty() -> {
-
-                            formError =
-                                "Debes ingresar el PR de fin."
-                        }
-
-
-                        needsEndLocation &&
-                                endDistance.trim().isEmpty() -> {
-
-                            formError =
-                                "Debes ingresar la distancia desde el PR de fin."
-                        }
-
-
-                        // =========================================================
-                        // VALIDACIÓN SIC-17
-                        // =========================================================
-
-                        assetType == RoadAssetType.BRIDGE &&
-                                sic17State.dimension1LengthM
-                                    .trim()
-                                    .isEmpty() -> {
-
-                            formError =
-                                "Debes ingresar la longitud del puente."
-                        }
-
-
-                        assetType == RoadAssetType.BRIDGE &&
-                                sic17State.dimension2LowerHeightM
-                                    .trim()
-                                    .isEmpty() -> {
-
-                            formError =
-                                "Debes ingresar la altura libre inferior."
-                        }
-
-
-                        assetType == RoadAssetType.BRIDGE &&
-                                sic17State.dimension3UpperHeightM
-                                    .trim()
-                                    .isEmpty() -> {
-
-                            formError =
-                                "Debes ingresar la altura libre superior. Si no existe limitación, usa 00.00."
-                        }
-
-
-                        // =========================================================
-                        // VALIDACIÓN SIC-18
-                        // =========================================================
-
-                        assetType == RoadAssetType.CULVERT &&
-                                sic18State.spans
-                                    .trim()
-                                    .isEmpty() -> {
-
-                            formError =
-                                "Debes ingresar el número de ojos / vanos."
-                        }
-
-
-                        assetType == RoadAssetType.CULVERT &&
-                                sic18State.dimension1M
-                                    .trim()
-                                    .isEmpty() -> {
-
-                            formError =
-                                "Debes ingresar la Dimensión 1."
-                        }
-
-
-                        assetType == RoadAssetType.CULVERT && sic18State.usesDimension2 &&
-                                sic18State.dimension2M
-                                    .trim()
-                                    .isEmpty() -> {
-
-                            formError =
-                                "Debes ingresar la Dimensión 2."
-                        }
-
-
-                        // =========================================================
-                        // VALIDACIÓN SIC-20
-                        // =========================================================
-
-                        assetType in setOf(RoadAssetType.FORD, RoadAssetType.TUNNEL, RoadAssetType.WALL) &&
-                                sic20State.dimension1M
-                                    .trim()
-                                    .isEmpty() -> {
-
-                            formError =
-                                "Debes ingresar la Dimensión 1."
-                        }
-
-
-                        assetType in setOf(RoadAssetType.FORD, RoadAssetType.TUNNEL, RoadAssetType.WALL) &&
-                                sic20State.usesDimension2 &&
-                                sic20State.dimension2M
-                                    .trim()
-                                    .isEmpty() -> {
-
-                            formError =
-                                "Debes ingresar la Dimensión 2."
-                        }
-
-                        else -> {
-                            formError = null
-
-                            run {
-
-                                val detail =
-                                    when (assetType) {
-
-                                        RoadAssetType.RIGHT_OF_WAY -> SicFormDetail.Sic23(sic23State)
-
-                                        RoadAssetType.BRIDGE ->
-                                            SicFormDetail.Sic17(
-                                                sic17State
-                                            )
-
-                                        RoadAssetType.CULVERT ->
-                                            SicFormDetail.Sic18(
-                                                sic18State
-                                            )
-
-                                        RoadAssetType.DITCH ->
-                                            SicFormDetail.Sic19(
-                                                sic19State
-                                            )
-
-                                        RoadAssetType.FORD, RoadAssetType.TUNNEL, RoadAssetType.WALL ->
-                                            SicFormDetail.Sic20(
-                                                sic20State
-                                            )
-
-                                        RoadAssetType.SIGNALIZATION -> {
-                                            formError =
-                                                "Utilice el módulo de señalización."
-                                            return@Button
-                                        }
-                                    }
-
-                                val actualAssetType =
-                                    when (assetType) {
-
-                                        RoadAssetType.RIGHT_OF_WAY -> sic23State.assetName
-
-                                        RoadAssetType.BRIDGE ->
-                                            "PUENTE"
-
-                                        RoadAssetType.CULVERT ->
-                                            "ALCANTARILLA"
-
-                                        RoadAssetType.DITCH ->
-                                            "DRENAJE"
-
-                                        RoadAssetType.FORD, RoadAssetType.TUNNEL, RoadAssetType.WALL ->
-                                            when (
-                                                sic20State.classCode
-                                            ) {
-                                                "12" -> "BADEN"
-                                                "13" -> "TUNEL"
-                                                "14" -> "MURO"
-                                                else -> "SIC20"
-                                            }
-
-                                        else ->
-                                            "SENALIZACION"
-                                    }
-
-                                inventoryViewModel.saveRecord(
-
-                                    request =
-                                        InventorySaveRequest(
-
-                                            sicCode =
-                                                assetType.sicCode,
-
-                                            assetType =
-                                                actualAssetType,
-
-                                            routeCode = route,
-
-                                            roadbedCode = roadbed,
-
-                                            startPrCode = startPr,
-
-                                            startDistanceM =
-                                                startDistance,
-
-                                            endPrCode =
-                                                if (needsEndLocation) {
-                                                    endPr
-                                                } else {
-                                                    null
-                                                },
-
-                                            endDistanceM =
-                                                if (needsEndLocation) {
-                                                    endDistance
-                                                } else {
-                                                    null
-                                                },
-
-                                            sideCode =
-                                                if (needsSide) {
-                                                    codeFromOption(
-                                                        side
-                                                    )
-                                                } else {
-                                                    null
-                                                },
-
-                                            latitude = latitude!!,
-
-                                            longitude = longitude!!,
-
-                                            gpsAccuracyM =
-                                                gpsAccuracy,
-
-                                            surveyDate =
-                                                registrationDate,
-
-                                            observations =
-                                                observations,
-
-                                            photoPath = capturedPhotos.firstOrNull().orEmpty(),
-                                            photoPaths = capturedPhotos, photoCategories = photoCategories,
-                                            recordId = draftId,
-                                            location = location,
-                                            endLocation = endLocation,
-                                            locationSource = locationSource,
-                                            sideSource = sideSource,
-                                            sessionId = draftRecord?.sessionId ?: fieldSession?.sessionId,
-                                            segment = segment, direction = direction,
-                                            stampedPaths = stampedPaths.filterKeys { it in capturedPhotos },
-                                            endLatitude = endLocation?.latitude,
-                                            endLongitude = endLocation?.longitude,
-                                            endGpsAccuracyM = endLocation?.accuracyHorizontal,
-
-                                            detail = detail
-                                        ),
-
-                                    onSuccess = {
-                                        if(assetType==RoadAssetType.CULVERT && com.tuempresa.inventariovial.catalog.EngineeringConditions.badCulvert(sic18State.structuralConditionCode,sic18State.functionalConditionCode)) savedCulvert=inventoryViewModel.lastSavedRecord
-                                        else onSave()
-                                    },
-
-                                    onError = { error ->
-                                        formError = error
-                                    }
-                                )
-                            }
-                        }
-                    }
-                },
+                onClick = saveAsset,
 
                 modifier = Modifier
                     .fillMaxWidth()
@@ -3133,6 +3125,7 @@ fun AssetFormScreen(
 @Composable
 fun Sic18Fields(
     state: Sic18FormState,
+    onCompleteSic18A: (() -> Unit)? = null,
     onStateChange: (Sic18FormState) -> Unit
 ) {
 
@@ -3312,7 +3305,16 @@ fun Sic18Fields(
 
     ConditionSelector("CONDICIÓN ESTRUCTURAL",state.structuralConditionCode,SicCatalogRepository.sic18StructuralDescriptions) {onStateChange(state.copy(structuralConditionCode=it))}
     ConditionSelector("Condición funcional",state.functionalConditionCode,com.tuempresa.inventariovial.catalog.EngineeringConditions.functional) {onStateChange(state.copy(functionalConditionCode=it))}
-    if(com.tuempresa.inventariovial.catalog.EngineeringConditions.badCulvert(state.structuralConditionCode,state.functionalConditionCode)) Text("! Condición mala detectada · Guarda SIC-18 para completar su ficha SIC-18A.",color=MaterialTheme.colorScheme.error)
+    if(com.tuempresa.inventariovial.catalog.EngineeringConditions.badCulvert(state.structuralConditionCode,state.functionalConditionCode)) {
+        Card(Modifier.fillMaxWidth(),colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.errorContainer)) {
+            Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
+                Text("⚠ CONDICIÓN MALA",style=MaterialTheme.typography.titleLarge)
+                Text("Corresponde completar SIC-18A")
+                Text("Primero se guardará SIC-18 con sus datos y fotografías.")
+                if(onCompleteSic18A!=null) Button(onClick=onCompleteSic18A) {Text("COMPLETAR SIC-18A")}
+            }
+        }
+    }
     Text("La condición estructural y funcional la selecciona el ingeniero.")
 
 }

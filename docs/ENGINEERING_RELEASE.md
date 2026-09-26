@@ -1,5 +1,7 @@
 # Cierre de decisiones confirmadas de ingeniería
 
+> Documento de una revisión anterior. Para el estado actual de Room 7, las continuaciones XLSX, F2 integrado, SIC-17/18A y watermark, consultar [Revisión de ingeniería de puentes 2](REVISION_INGENIERIA_PUENTES_2.md). Los límites antiguos de pilares, apoyos y juntas quedan superados por esa revisión.
+
 Se continúa el repositorio existente, manteniendo Room v6 y registros históricos. No se cambian la nomenclatura de fotos, el enrutamiento Drive, el contrato SIC ni EndLocationPolicy. El índice Git no se limpia ni se reescribe.
 
 ## Captura y exportación SIC

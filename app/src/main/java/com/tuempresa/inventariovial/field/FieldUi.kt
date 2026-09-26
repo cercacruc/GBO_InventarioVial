@@ -175,6 +175,8 @@ private fun KmlControls(viewModel: InventoryViewModel) {
 
 @Composable
 fun SupplementaryScreen(viewModel: InventoryViewModel,record: InventoryRecordEntity,format: SupplementaryFormat,onBack: ()->Unit) {
+    var registered by remember(record.id,format) { mutableStateOf(false) }
+    var editing by remember(record.id,format) { mutableStateOf(true) }
     var state by remember(record.id,format) { mutableStateOf(SupplementaryFormState(format)) }
     var error by remember { mutableStateOf<String?>(null) };var loaded by remember { mutableStateOf(false) };var saving by remember { mutableStateOf(false) }
     BackHandler(onBack=onBack)
@@ -186,7 +188,9 @@ fun SupplementaryScreen(viewModel: InventoryViewModel,record: InventoryRecordEnt
         Text("Fecha: ${record.surveyDate} · UUID: ${record.id}")
         if(!format.enabled) Text("Formato deshabilitado por configuración.") else if(loaded) {
             Text(if(format==SupplementaryFormat.SIC18A) "ALCANTARILLAS - CONDICIÓN MALA · Cabecera heredada de SIC-18" else "Ficha complementaria; los campos pendientes se pueden completar después.")
-            SupplementaryForms.fields(format,state.values).forEach { field ->
+            if(registered) Text("✓ SIC-18A registrado",color=MaterialTheme.colorScheme.primary,style=MaterialTheme.typography.titleLarge)
+            if(!editing) OutlinedButton(onClick={editing=true}) {Text("Editar SIC-18A")}
+            if(editing) SupplementaryForms.fields(format,state.values).forEach { field ->
                 val value=state.values[field.key].orEmpty()
                 if(format==SupplementaryFormat.SIC18A && field.key in setOf("classCode","typeCode","spans")) {
                     Text("${field.label}: ${field.options.find {it.substringBefore(" - ")==value} ?: value} · heredado")
@@ -204,8 +208,8 @@ fun SupplementaryScreen(viewModel: InventoryViewModel,record: InventoryRecordEnt
                     readOnly=field.key=="bridgeCode",modifier=Modifier.fillMaxWidth())
             }
             if(format==SupplementaryFormat.SIC18A) Sic18AExportButton(record,state)
-            Button(enabled=!saving,onClick={saving=true;viewModel.saveSupplementary(record.id,state,
-                {saving=false;onBack()},{saving=false;error=it})}) {Text("Guardar ${format.title}")}
+            if(editing) Button(enabled=!saving,onClick={saving=true;viewModel.saveSupplementary(record.id,state,
+                {saving=false;error=null;if(format==SupplementaryFormat.SIC18A){registered=true;editing=false}else onBack()},{saving=false;error=it})}) {Text("Guardar ${format.title}")}
         }
         error?.let {ErrorText(it)}
     }

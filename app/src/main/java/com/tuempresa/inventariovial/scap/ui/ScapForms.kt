@@ -78,13 +78,7 @@ internal val structureNames=linkedMapOf("LEFT_ABUTMENT" to "Estribo izquierdo","
 
 @Composable
 fun ScapTechnicalSection(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapCatalog,section:String,editable:Boolean) {
-    var spanId by rememberSaveable(s.inspection.id) {mutableStateOf<String?>(null)}
-    var structureId by rememberSaveable(s.inspection.id) {mutableStateOf<String?>(null)}
-    var supportId by rememberSaveable(s.inspection.id) {mutableStateOf<String?>(null)}
-    var profileId by rememberSaveable(s.inspection.id) {mutableStateOf<String?>(null)}
     var removeId by remember {mutableStateOf<String?>(null)}
-    var addKind by remember {mutableStateOf("PIER")}
-    var access by rememberSaveable {mutableStateOf("ACCESS_LEFT")}
     val id=s.inspection.id
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),verticalArrangement=Arrangement.spacedBy(10.dp)) {
         when(section) {
@@ -95,29 +89,27 @@ fun ScapTechnicalSection(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapC
                 Text("Agrega o edita cada tramo desde C2.")
             }
             "C2","C3" -> {
-                val spans=s.spans.sortedBy {it.spanIndex}
-                val current=spans.find {it.id==spanId} ?: spans.firstOrNull()
-                ScapChoice("Tramo",current?.let {"Tramo ${it.spanIndex}"}.orEmpty(),spans.map {"Tramo ${it.spanIndex}"}) {value->spanId=spans.find {"Tramo ${it.spanIndex}"==value}?.id}
-                if(section=="C2") Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(enabled=editable,onClick={c.submit {it.addRow(id,"SPAN")}}) {Text("Añadir tramo")}
-                    if(current!=null) TextButton(enabled=editable,onClick={removeId=current.id}) {Text("Retirar tramo")}
-                }
-                current?.let {ScapFields(s,c,catalog,section,it.id,editable)} ?: Text("Agrega un tramo en C2 para completar su configuración y tablero.")
+                s.spans.sortedBy {it.spanIndex}.forEach {span->key(span.id) {
+                    ScapElementCard("Tramo ${span.spanIndex}") {
+                        ScapFields(s,c,catalog,section,span.id,editable)
+                        if(section=="C2") TextButton(enabled=editable,onClick={removeId=span.id}) {Text("Retirar tramo")}
+                    }
+                }}
+                if(s.spans.isEmpty()) Text("Sin tramos registrados. Añade un tramo en C2.")
+                if(section=="C2") OutlinedButton(enabled=editable,onClick={c.submit {it.addRow(id,"SPAN")}}) {Text("+ Añadir tramo")}
             }
             "C4","D1" -> {
-                val rows=s.substructures.filter {section!="D1" || "ANCHOR" !in it.kind}.sortedWith(compareBy<ScapSubstructureEntity>{it.kind}.thenBy {it.elementIndex})
-                fun label(e:ScapSubstructureEntity)="${structureNames[e.kind]}${if(e.kind=="PIER") " ${e.elementIndex}" else ""}"
-                val current=rows.find {it.id==structureId} ?: rows.firstOrNull()
-                if(section=="C4") {
-                    Text("Incluye solo la subestructura existente. Los bloques no agregados no se muestran.")
-                    ScapChoice("Elemento para agregar",structureNames[addKind].orEmpty(),structureNames.filterKeys {k->k=="PIER" || rows.none {it.kind==k}}.values.toList(),editable) {v->addKind=structureNames.entries.find {it.value==v}?.key ?: "PIER"}
-                    OutlinedButton(enabled=editable && (addKind=="PIER" || rows.none {it.kind==addKind}),onClick={c.submit {it.addRow(id,addKind)}}) {Text("Añadir elemento de subestructura")}
+                val visible=com.tuempresa.inventariovial.scap.domain.ScapPresentation.withVisibleStructures(s)
+                val kinds=listOf("LEFT_ABUTMENT","RIGHT_ABUTMENT","LEFT_ANCHOR","RIGHT_ANCHOR","PIER")
+                kinds.filter {section!="D1" || "ANCHOR" !in it}.forEach {kind->
+                    visible.substructures.filter {it.kind==kind}.sortedBy {it.elementIndex}.forEach {row->key(row.id) {
+                        ScapElementCard("${structureNames[row.kind]}${if(row.kind=="PIER") " ${row.elementIndex}" else ""}") {
+                            ScapFields(visible,c,catalog,section,row.id,editable)
+                            if(section=="C4" && row.kind=="PIER") TextButton(enabled=editable,onClick={removeId=row.id}) {Text("Eliminar pilar")}
+                        }
+                    }}
                 }
-                ScapChoice("Elemento",current?.let(::label).orEmpty(),rows.map(::label)) {v->structureId=rows.find {label(it)==v}?.id}
-                current?.let {e->
-                    ScapFields(s,c,catalog,section,e.id,editable)
-                    if(section=="C4") TextButton(enabled=editable,onClick={removeId=e.id}) {Text("Retirar este elemento")}
-                } ?: Text("Sin elementos aplicables registrados. Agrega estribos o pilares en C4 cuando existan.")
+                if(section=="C4") OutlinedButton(enabled=editable,onClick={c.submit {it.addRow(id,"PIER")}}) {Text("+ AÑADIR PILAR")}
                 if(section=="D1") ScapFields(s,c,catalog,section,editable=editable)
             }
             "C5" -> {
@@ -148,7 +140,6 @@ fun ScapTechnicalSection(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapC
                                         HorizontalDivider()
                                     }
                                     OutlinedButton(enabled=editable,onClick={c.submit {it.addRow(id,"JOINT")}}) {Text("+ Añadir junta")}
-                                    if(s.joints.size>1) Text("! La plantilla admite una junta en el mapa validado. Se conserva toda la captura; exportación bloqueada.",color=MaterialTheme.colorScheme.error)
                                 }
                                 else -> {
                                     DetailState(s,c,catalog,"inspection",keys)
@@ -160,20 +151,20 @@ fun ScapTechnicalSection(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapC
                 }
             }
             "C6","C7" -> {
-                Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
-                    FilterChip(access=="ACCESS_LEFT",{access="ACCESS_LEFT"},label={Text("Acceso izquierdo")})
-                    FilterChip(access=="ACCESS_RIGHT",{access="ACCESS_RIGHT"},label={Text("Acceso derecho")})
+                listOf("ACCESS_LEFT" to "Acceso izquierdo","ACCESS_RIGHT" to "Acceso derecho").forEach {(owner,title)->
+                    ScapElementCard(title) {ScapFields(s,c,catalog,section,owner,editable)}
                 }
-                ScapFields(s,c,catalog,section,access,editable)
             }
             "D4" -> {
                 Text("Registra las cotas del perfil longitudinal respecto a un punto fijo.")
                 ScapFields(s,c,catalog,section,editable=editable)
-                val rows=s.profile.sortedBy {it.pointIndex};val current=rows.find {it.id==profileId} ?: rows.firstOrNull()
-                Text("Número de puntos: ${rows.size}")
-                ScapChoice("Punto",current?.let {"Punto ${it.pointIndex}"}.orEmpty(),rows.map {"Punto ${it.pointIndex}"}) {v->profileId=rows.find {"Punto ${it.pointIndex}"==v}?.id}
-                OutlinedButton(enabled=editable,onClick={c.submit {it.addRow(id,"PROFILE")}}) {Text("Añadir punto del perfil")}
-                current?.let {ScapFields(s,c,catalog,section,it.id,editable);TextButton(enabled=editable,onClick={removeId=it.id}){Text("Retirar punto")}}
+                s.profile.sortedBy {it.pointIndex}.forEach {row->key(row.id) {
+                    ScapElementCard("Punto ${row.pointIndex}") {
+                        ScapFields(s,c,catalog,section,row.id,editable)
+                        TextButton(enabled=editable,onClick={removeId=row.id}) {Text("Retirar punto")}
+                    }
+                }}
+                OutlinedButton(enabled=editable,onClick={c.submit {it.addRow(id,"PROFILE")}}) {Text("+ Añadir punto del perfil")}
             }
             else -> ScapFields(s,c,catalog,section,editable=editable)
         }
@@ -191,4 +182,15 @@ private fun DetailState(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapCa
     val fields=catalog.fields("C5",kind)
     val status=ScapFieldPolicy.state(keys,kind,values) {key->fields.find {it.key==key}?.let {ScapValidation.fieldError(it,values[key].orEmpty(),values,catalog)==null}==true}
     Text(status,color=when {status.startsWith("✓")->com.tuempresa.inventariovial.ui.theme.FieldSuccess;status.startsWith("—")->MaterialTheme.colorScheme.onSurfaceVariant;else->com.tuempresa.inventariovial.ui.theme.FieldPending})
+}
+
+/** Elements stay visible. Dropdowns inside these cards select characteristics only. */
+@Composable
+internal fun ScapElementCard(title:String,content:@Composable ColumnScope.()->Unit) {
+    Card(Modifier.fillMaxWidth(),colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.surface)) {
+        Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(10.dp)) {
+            Text(title,style=MaterialTheme.typography.titleLarge,color=MaterialTheme.colorScheme.primary)
+            content()
+        }
+    }
 }

@@ -28,7 +28,11 @@ class ScapRepository(private val db:InventoryDatabase,val catalog:ScapCatalog) {
         return s
     }
     suspend fun setField(id:String,owner:String,key:String,value:String,source:String="MANUAL")=db.withTransaction {
-        val s=editable(id)
+        var s=editable(id)
+        ScapPresentation.fixedStructures.firstOrNull { owner==ScapPresentation.fixedId(id,it) && s.substructures.none {row->row.kind==it} }?.let {
+            dao.putSubstructure(ScapPresentation.emptyStructure(id,it))
+            s=requireNotNull(dao.snapshot(id))
+        }
         val ownerType=ScapValidation.ownerType(s,owner)
         require(ownerType!=null || s.elements.any {it.element.id==owner}) {"Sección inexistente."}
         dao.putValue(ScapFieldValueEntity(id,owner,key,value,source))
@@ -58,7 +62,8 @@ class ScapRepository(private val db:InventoryDatabase,val catalog:ScapCatalog) {
             if(key=="quantity") dao.putElement(entry.element.copy(quantity=ScapNumbers.decimal(value)))
             else if(key.matches(Regex("percent[0-5]"))) {
                 val c=entry.condition
-                val p=(0..5).map {i->ScapNumbers.decimal(values["percent$i"])}
+                val previous=c?.let {com.tuempresa.inventariovial.scap.calculator.ScapPercentages.values(it)}
+                val p=(0..5).map {i->if(values.containsKey("percent$i")) ScapNumbers.decimal(values["percent$i"]) else previous?.get(i)}
                 dao.putCondition(ScapElementConditionEntity(c?.id ?: uuid(),owner,p[0],p[1],p[2],p[3],p[4],p[5]))
             }
         }
@@ -86,7 +91,18 @@ class ScapRepository(private val db:InventoryDatabase,val catalog:ScapCatalog) {
     suspend fun selectElement(id:String,code:String,present:Boolean)=db.withTransaction {
         val s=editable(id);val item=catalog.element(code) ?: error("Código SCAP desconocido.")
         val old=s.elements.find {it.element.elementCode==code}?.element
-        dao.putElement(old?.copy(isPresent=present) ?: ScapElementEntity(uuid(),id,code,item.name,null,item.unit,item.importanceFactor,item.group,present))
+        val element=old?.copy(isPresent=present) ?: ScapElementEntity(uuid(),id,code,item.name,null,item.unit,item.importanceFactor,item.group,present)
+        dao.putElement(element)
+        dao.putValue(ScapFieldValueEntity(id,element.id,"presence",if(present) "PRESENT" else "ABSENT","MANUAL"))
+        dao.touch(id,System.currentTimeMillis())
+    }
+    suspend fun addElementForReview(id:String,code:String)=db.withTransaction {
+        val s=editable(id)
+        if(s.elements.any {it.element.elementCode==code}) return@withTransaction
+        val item=requireNotNull(catalog.element(code))
+        val element=ScapElementEntity(uuid(),id,code,item.name,null,item.unit,item.importanceFactor,item.group,false)
+        dao.putElement(element)
+        dao.putValue(ScapFieldValueEntity(id,element.id,"presence","PENDING","MANUAL"))
         dao.touch(id,System.currentTimeMillis())
     }
     suspend fun setLocation(id:String,fix:GeoLocation)=db.withTransaction {
@@ -103,8 +119,9 @@ class ScapRepository(private val db:InventoryDatabase,val catalog:ScapCatalog) {
         dao.putDefect(defect);dao.touch(id,System.currentTimeMillis())
     }
     suspend fun removeDefect(id:String,defectId:String)=db.withTransaction {editable(id);dao.deleteDefect(id,defectId);dao.touch(id,System.currentTimeMillis())}
-    suspend fun setDefectField(id:String,defectId:String,key:String,value:String)=db.withTransaction {
-        val s=editable(id);val d=s.defects.single {it.id==defectId}
+    suspend fun setDefectField(id:String,defectId:String,key:String,value:String,draft:ScapDefectEntity?=null)=db.withTransaction {
+        val s=editable(id);val d=s.defects.singleOrNull {it.id==defectId} ?: requireNotNull(draft)
+        require(d.id==defectId && d.inspectionId==id)
         val updated=when(key) {
             "description"->d.copy(description=value)
             "locationDescription"->d.copy(locationDescription=value)
@@ -122,6 +139,15 @@ class ScapRepository(private val db:InventoryDatabase,val catalog:ScapCatalog) {
     }
     suspend fun describePhoto(id:String,photoId:String,description:String)=db.withTransaction {
         val s=editable(id);dao.updatePhoto(s.photos.single {it.id==photoId}.copy(description=description));dao.touch(id,System.currentTimeMillis())
+    }
+    suspend fun stampPhoto(id:String,photoId:String,path:String?)=db.withTransaction {
+        val s=editable(id);val photo=s.photos.single {it.id==photoId}
+        if(path!=null) {
+            require(java.io.File(path).isFile)
+            require(java.io.File(path).canonicalPath != java.io.File(photo.originalPath ?: photo.localPath).canonicalPath)
+        }
+        dao.updatePhoto(photo.copy(originalPath=photo.originalPath ?: photo.localPath,stampedPath=path))
+        dao.touch(id,System.currentTimeMillis())
     }
     suspend fun removePhoto(id:String,photoId:String)=db.withTransaction {
         val s=editable(id)
@@ -154,7 +180,7 @@ class ScapRepository(private val db:InventoryDatabase,val catalog:ScapCatalog) {
         dao.updateInspection(s.inspection.copy(status="COMPLETE",syncStatus="PENDING",updatedAt=maxOf(System.currentTimeMillis(),s.inspection.updatedAt+1)))
     }
     companion object {
-        val PHOTO_CATEGORIES=listOf("GENERAL","UPSTREAM","DOWNSTREAM","TRANSVERSE","ELEMENT","DEFECT","ACCESS","CHANNEL","OTHER")
+        val PHOTO_CATEGORIES=ScapPhotoCategories.labels.keys.toList()
         val SKETCH_TYPES=listOf("ELEVATION","PLAN","CROSS_SECTION")
     }
 }

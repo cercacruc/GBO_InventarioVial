@@ -103,9 +103,11 @@ class EngineeringUxScreenTest {
         val database=Room.inMemoryDatabaseBuilder(context,InventoryDatabase::class.java).build();db=database
         val catalog=ScapCatalog.load(context);val repo=ScapRepository(database,catalog);val id=repo.create("I","D",null)
         val initial=repo.dao.snapshot(id)!!
-        compose.setContent {InventarioVialTheme {ScapGlobalCondition(initial,catalog)}}
+        val jobs=CoroutineScope(SupervisorJob()+Dispatchers.Main);scope=jobs
+        val controller=ScapController(context,database,jobs)
+        compose.setContent {InventarioVialTheme {ScapElements(initial,controller,catalog,true){}}}
         compose.onNodeWithText("F.2 · CONDICIÓN GLOBAL DEL PUENTE").assertExists()
-        listOf("I. SUPERESTRUCTURA","II. SUBESTRUCTURA","III. DETALLES","IV. CAUCE","V. ACCESOS").forEach {compose.onNodeWithText(it).performScrollTo().assertExists()}
+        listOf("I. SUPERESTRUCTURA","II. SUBESTRUCTURA","III. DETALLES","IV. CAUCE","V. ACCESOS").forEach {compose.onNode(hasScrollToNodeAction()).performScrollToNode(hasText(it));compose.onNodeWithText(it).assertExists()}
         compose.onNodeWithText("F.2 · PANEL FOTOGRÁFICO").assertDoesNotExist()
     }
 }

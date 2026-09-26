@@ -1,6 +1,8 @@
 package com.tuempresa.inventariovial.camera
 
 import android.graphics.*
+import android.content.Context
+import com.tuempresa.inventariovial.R
 import android.media.ExifInterface
 import android.text.Layout
 import android.text.StaticLayout
@@ -23,8 +25,14 @@ enum class PhotoStampField(val label: String) {
 data class PhotoStampConfig(
     val fields: Set<PhotoStampField> = setOf(PhotoStampField.ROUTE,PhotoStampField.CHAINAGE,PhotoStampField.DATE_TIME),
     val maxEdgePx: Int = 2560, val marginFraction: Float = .025f, val fontFraction: Float = .022f,
-    val backgroundAlpha: Int = 160, val jpegQuality: Int = 92
+    val backgroundAlpha: Int = 160, val jpegQuality: Int = 92,
+    val showCorporateLogo: Boolean = true,
+    val logoWidthFraction: Float = .18f,
+    val logoAlpha: Int = 200,
+    val logoPosition: LogoPosition = LogoPosition.TOP_RIGHT
 )
+
+enum class LogoPosition { TOP_RIGHT }
 data class PhotoStampData(val route: String, val roadbed: String, val chainage: String,
     val location: GeoLocation?, val timestamp: Long, val operator: String, val asset: String)
 
@@ -44,12 +52,14 @@ object PhotoStampText {
     }
 }
 
-class PhotoStampService {
+class PhotoStampService(context: Context) {
+    private val resources = context.applicationContext.resources
     /** Returns a new file. The input is opened read-only and never replaced, renamed or deleted. */
     suspend fun process(original: File, outputDirectory: File, data: PhotoStampData,
         config: PhotoStampConfig = PhotoStampConfig()): File = withContext(Dispatchers.IO) {
         require(original.isFile) { "No se encontró la fotografía original." }
         require(config.maxEdgePx in 640..8192 && config.fontFraction in .005f..0.1f && config.marginFraction in .005f..0.1f)
+        require(config.logoWidthFraction in .01f..0.5f && config.logoAlpha in 0..255)
         val bounds=BitmapFactory.Options().apply { inJustDecodeBounds=true }
         BitmapFactory.decodeFile(original.absolutePath,bounds)
         require(bounds.outWidth>0 && bounds.outHeight>0) { "La fotografía no se puede decodificar." }
@@ -68,8 +78,19 @@ class PhotoStampService {
         requireNotNull(bitmap)
         var output: File? = null
         try {
+            val logoBottom = if (config.showCorporateLogo && config.logoAlpha > 0) {
+                // nodpi and inScaled=false preserve the official PNG and its alpha channel.
+                val logo = requireNotNull(BitmapFactory.decodeResource(resources, R.drawable.gbo_logo_watermark,
+                    BitmapFactory.Options().apply { inScaled = false })) { "No se pudo cargar el logo corporativo." }
+                try {
+                    val bounds = corporateLogoBounds(bitmap.width, bitmap.height, logo.width, logo.height, config)
+                    Canvas(bitmap).drawBitmap(logo, null, bounds,
+                        Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG).apply { alpha = config.logoAlpha })
+                    bounds.bottom + bitmap.height * config.marginFraction
+                } finally { logo.recycle() }
+            } else 0f
             val lines=PhotoStampText.lines(data,config)
-            if(lines.isNotEmpty()) drawStamp(bitmap,lines.joinToString("\n"),config)
+            if(lines.isNotEmpty()) drawStamp(bitmap,lines.joinToString("\n"),config,logoBottom)
             require(outputDirectory.exists() || outputDirectory.mkdirs()) { "No se pudo crear la carpeta de copias." }
             output=File(outputDirectory,"${UUID.randomUUID()}.jpg")
             require(output.canonicalPath!=original.canonicalPath)
@@ -100,7 +121,19 @@ class PhotoStampService {
         return "$degrees/1,$minutes/1,${kotlin.math.round(seconds).toLong()}/1000000"
     }
 
-    private fun drawStamp(bitmap: Bitmap,text: String,config: PhotoStampConfig) {
+    internal fun corporateLogoBounds(width: Int, height: Int, logoWidth: Int, logoHeight: Int, config: PhotoStampConfig): RectF {
+        val marginX = width * config.marginFraction
+        val marginY = height * config.marginFraction
+        val ratio = logoHeight.toFloat() / logoWidth
+        // Very wide panoramas still leave the lower half available for the technical text.
+        val targetWidth = min(width * config.logoWidthFraction, height * .45f / ratio)
+        return when (config.logoPosition) {
+            LogoPosition.TOP_RIGHT -> RectF(width - marginX - targetWidth, marginY,
+                width - marginX, marginY + targetWidth * ratio)
+        }
+    }
+
+    private fun drawStamp(bitmap: Bitmap,text: String,config: PhotoStampConfig,minimumTop: Float) {
         val edge=min(bitmap.width,bitmap.height).toFloat()
         val margin=max(2f,edge*config.marginFraction)
         val padding=max(2f,edge*.012f)
@@ -109,12 +142,13 @@ class PhotoStampService {
         fun layout(width: Int)=StaticLayout.Builder.obtain(text,0,text.length,paint,width).setAlignment(Layout.Alignment.ALIGN_NORMAL).setIncludePad(false).build()
         var width=min(availableWidth,max(1,text.lines().maxOf { paint.measureText(it).toInt()+1 }))
         var layout=layout(width)
-        while(layout.height>bitmap.height-2*margin-2*padding && paint.textSize>1f) {
+        val availableHeight = bitmap.height - margin - max(margin, minimumTop) - 2*padding
+        while(layout.height>availableHeight && paint.textSize>1f) {
             paint.textSize*=.85f
             width=min(availableWidth,max(1,text.lines().maxOf { paint.measureText(it).toInt()+1 }))
             layout=layout(width)
         }
-        require(layout.height<=bitmap.height-2*margin-2*padding) { "El texto del sello es demasiado extenso para esta fotografía." }
+        require(layout.height<=availableHeight) { "El texto del sello es demasiado extenso para esta fotografía." }
         val left=bitmap.width-margin-width-2*padding
         val top=bitmap.height-margin-layout.height-2*padding
         val canvas=Canvas(bitmap)

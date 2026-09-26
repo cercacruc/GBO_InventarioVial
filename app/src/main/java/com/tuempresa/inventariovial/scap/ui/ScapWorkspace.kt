@@ -34,7 +34,7 @@ internal val scapSections=linkedMapOf("A" to "Identificación", "B" to "Datos ge
     "C2" to "Tramos", "C3" to "Tablero", "C4" to "Subestructura", "C5" to "Detalles", "C6" to "Accesos",
     "C7" to "Seguridad vial", "C8" to "Cargas", "C9" to "Cruces alternativos", "C10" to "Estado de la vía",
     "D1" to "Suelos", "D2" to "Niveles de agua", "D3" to "Hidráulica", "D4" to "Perfil longitudinal",
-    "E" to "Croquis", "F1" to "Elementos y condición", "F2" to "Condición global del puente", "FOTO" to "Panel fotográfico", "F3" to "Defectos", "G" to "Revisión y condición global")
+    "E" to "Croquis", "F2" to "Condición global del puente", "FOTO" to "Panel fotográfico", "G" to "Revisión y condición global")
 
 @Composable
 fun ScapWorkspace(vm:InventoryViewModel,onBack:()->Unit) {
@@ -90,6 +90,8 @@ internal fun statusLabel(status:String)=when(status){"COMPLETE"->"Completa";"IN_
 @Composable
 private fun ScapEditor(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapCatalog,vm:InventoryViewModel,saved:String,pending:Int,error:String?) {
     var section by rememberSaveable(s.inspection.id){mutableStateOf("A")}
+    var photoElement by rememberSaveable(s.inspection.id){mutableStateOf<String?>(null)}
+    LaunchedEffect(section) {if(section in setOf("F1","F3")) section="F2"}
     var confirm by remember {mutableStateOf(false)}
     val values=scapValues(s,c,"inspection")
     val editable=s.inspection.status!="COMPLETE"
@@ -121,10 +123,8 @@ private fun ScapEditor(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapCat
             when(section) {
                 "A"->ScapIdentification(s,c,catalog,vm,editable)
                 "E"->ScapMedia(s,c,catalog,editable,true)
-                "F1"->ScapElements(s,c,catalog,editable)
-                "F2"->ScapGlobalCondition(s,catalog)
-                "FOTO"->ScapMedia(s,c,catalog,editable,false)
-                "F3"->ScapDefects(s,c,catalog,editable)
+                "F2"->ScapElements(s,c,catalog,editable) {code->photoElement=code;section="FOTO"}
+                "FOTO"->ScapMedia(s,c,catalog,editable,false,photoElement)
                 "G"->ScapReviewPanel(s,catalog,review,pending==0 && error==null,c)
                 else->ScapTechnicalSection(s,c,catalog,section,editable)
             }
@@ -173,6 +173,7 @@ private fun ScapIdentification(s:ScapInspectionSnapshot,c:ScapController,catalog
         s.inspection.latitude?.let{Text("GNSS guardado: $it, ${s.inspection.longitude} · precisión ${s.inspection.gpsAccuracyM} m")}
         Text("Las coordenadas UTM de la ficha se ingresan manualmente; la captura GNSS conserva latitud y longitud.")
         ScapFields(s,c,catalog,"A",editable=editable)
+        ScapSicSupplementPanel(s,c,editable)
     }
 }
 
@@ -204,6 +205,7 @@ private fun ScapReviewPanel(s:ScapInspectionSnapshot,catalog:ScapCatalog,review:
         review.errors.forEach{Text("• $it",color=MaterialTheme.colorScheme.error)}
         Text("Pendientes para revisión (${review.pending.size})",style=MaterialTheme.typography.titleMedium)
         review.pending.forEach{Text("• $it")}
+        ScapSicSupplementPanel(s,controller,s.inspection.status!="COMPLETE")
         ScapExportPanel(s,ready,controller)
     }
 }

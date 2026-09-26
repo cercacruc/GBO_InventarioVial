@@ -13,105 +13,103 @@ import androidx.compose.ui.unit.dp
 import com.tuempresa.inventariovial.scap.calculator.ScapPercentages
 import com.tuempresa.inventariovial.scap.catalog.ScapCatalog
 import com.tuempresa.inventariovial.scap.data.*
-import com.tuempresa.inventariovial.scap.domain.ScapNumbers
+import com.tuempresa.inventariovial.scap.domain.*
 import java.util.UUID
 
 @Composable
-fun ScapElements(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapCatalog,editable:Boolean) {
+fun ScapElements(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapCatalog,editable:Boolean,onPhoto:(String?)->Unit) {
     var query by rememberSaveable {mutableStateOf("")}
-    var selectedId by rememberSaveable(s.inspection.id){mutableStateOf<String?>(null)}
-    var selecting by rememberSaveable {mutableStateOf(false)}
-    val selected=s.elements.filter{it.element.isPresent}.sortedBy{it.element.elementCode}
-    val current=selected.find{it.element.id==selectedId} ?: selected.firstOrNull()
-    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(16.dp),verticalArrangement=Arrangement.spacedBy(10.dp)) {
+    var searching by rememberSaveable {mutableStateOf(false)}
+    var absent by remember {mutableStateOf<String?>(null)}
+    val codes=ScapPresentation.visibleElements(s)
+    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(16.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
         item {
-            Text("Elementos presentes: ${selected.size}",style=MaterialTheme.typography.titleLarge)
-            Text("Selecciona únicamente los elementos existentes en el puente. Cada uno requiere sus seis porcentajes de condición.")
-            OutlinedButton(onClick={selecting=!selecting}){Text(if(selecting) "Volver a evaluación" else "Buscar y seleccionar elementos")}
+            Text("F.2 · CONDICIÓN GLOBAL DEL PUENTE",style=MaterialTheme.typography.headlineSmall)
+            Text("Los elementos visibles son recordatorios. Confirma su presencia y evalúa únicamente lo observado.")
         }
-        if(selecting) {
-            item {OutlinedTextField(query,{query=it},label={Text("Buscar por código o nombre")},modifier=Modifier.fillMaxWidth())}
-            items(catalog.elements.filter{it.code.contains(query,true)||it.name.contains(query,true)},key={it.code}) {e->
-                Row(Modifier.fillMaxWidth()) {
-                    Checkbox(selected.any{it.element.elementCode==e.code},onCheckedChange={present->c.submit{it.selectElement(s.inspection.id,e.code,present)}},enabled=editable)
-                    Column(Modifier.weight(1f).padding(top=8.dp)) {
-                        Text("${e.code} · ${e.name}");Text("${e.group} · ${e.unit} · Factor ${e.importanceFactor}",style=MaterialTheme.typography.bodySmall)
+        ScapPresentation.groups.forEachIndexed {index,group->
+            item {Text("${listOf("I","II","III","IV","V")[index]}. $group",style=MaterialTheme.typography.titleLarge,color=MaterialTheme.colorScheme.primary)}
+            items(codes.filter {catalog.element(it)?.group==group},key={"element:$it"}) {code->
+                val item=requireNotNull(catalog.element(code))
+                val entry=s.elements.find {it.element.elementCode==code}
+                ScapElementCard("$code · ${item.name}") {
+                    Text("Estado: ${ScapPresentation.presence(s,code)}")
+                    Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(enabled=editable,onClick={c.submit {it.selectElement(s.inspection.id,code,true)}}) {Text("Presente")}
+                        TextButton(enabled=editable,onClick={absent=code}) {Text("No aplica")}
                     }
-                }
-            }
-        } else if(current!=null) {
-            item {ScapChoice("Elemento a evaluar","${current.element.elementCode} · ${current.element.description}",selected.map{"${it.element.elementCode} · ${it.element.description}"}) {v->
-                selectedId=selected.find{"${it.element.elementCode} · ${it.element.description}"==v}?.element?.id
-            }}
-            item(key=current.element.id) {
-                val e=current.element
-                val values=scapValues(s,c,e.id)
-                val p=(0..5).map{ScapNumbers.decimal(values["percent$it"])}
-                val error=ScapPercentages.error(p)
-                Column(verticalArrangement=Arrangement.spacedBy(10.dp)) {
-                    Text("Unidad: ${e.unit} · Factor de importancia: ${e.importanceFactor}")
-                    Text("Grupo: ${e.group}")
-                    val quantity=values["quantity"].orEmpty()
-                    OutlinedTextField(quantity,{c.edit(s.inspection.id,e.id,"quantity",it)},label={Text("Metrado (${e.unit})")},enabled=editable,
-                        isError=quantity.isNotBlank() && ScapNumbers.decimal(quantity)?.let{it>=0}!=true,
-                        modifier=Modifier.fillMaxWidth(),keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Decimal))
-                    Text("Condición del elemento (%)",style=MaterialTheme.typography.titleMedium)
-                    (0..5).chunked(2).forEach {levels->Row(horizontalArrangement=Arrangement.spacedBy(10.dp)) {
-                        levels.forEach {level->
-                            val value=values["percent$level"].orEmpty()
-                            OutlinedTextField(value,{c.edit(s.inspection.id,e.id,"percent$level",it)},label={Text("Nivel $level (%)")},
-                                enabled=editable,modifier=Modifier.weight(1f),keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Decimal),
-                                isError=value.isNotBlank() && ScapNumbers.decimal(value)?.let{it in 0.0..100.0}!=true)
-                        }
+                    if(entry?.element?.isPresent==true) ElementConditionFields(s,c,entry,editable)
+                    s.defects.filter {it.elementCode==code}.sortedBy {it.createdAt}.ifEmpty {listOf(ScapDefectEntity(
+                        "${s.inspection.id}:observation:$code",s.inspection.id,code,"","",null,false,true,System.currentTimeMillis()))}.forEach {defect->key(defect.id) {
+                        ScapDefectFields(s,c,catalog,defect,editable)
                     }}
-                    Text("Suma: ${p.filterNotNull().sum()}% · ${p.count{it!=null}}/6 niveles")
-                    if(error!=null) Text(error,color=MaterialTheme.colorScheme.error) else Text("Evaluación válida: suma 100%.")
-                    Text("La ficha se guarda aunque la evaluación esté incompleta. Los porcentajes deben ser válidos para cerrar la inspección.")
+                    val photos=s.photos.count {photo->photo.scapElementCode==code || s.defects.any {d->d.elementCode==code && d.photoId==photo.id}}
+                    Text("Fotos asociadas: $photos")
+                    OutlinedButton(enabled=editable,onClick={onPhoto(code)}) {Text("+ Añadir foto")}
+                    AddDefectButton(s,c,code,editable)
                 }
             }
-        } else item {Text("No se han seleccionado elementos. Abre la búsqueda para agregarlos.")}
+        }
+        item {
+            OutlinedButton(enabled=editable,onClick={searching=!searching}) {Text("+ BUSCAR / AÑADIR OTRO ELEMENTO")}
+            if(searching) OutlinedTextField(query,{query=it},label={Text("Buscar en los ${catalog.elements.size} elementos por código o nombre")},modifier=Modifier.fillMaxWidth())
+        }
+        if(searching) items(catalog.elements.filter {it.code.contains(query,true)||it.name.contains(query,true)},key={"search:${it.code}"}) {e->
+            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                Text("${e.code} · ${e.name}",Modifier.weight(1f))
+                OutlinedButton(enabled=editable && e.code !in codes,onClick={c.submit {it.addElementForReview(s.inspection.id,e.code)}}) {Text(if(e.code in codes) "Visible" else "Añadir")}
+            }
+        }
+        item {
+            Text("OBSERVACIONES GENERALES",style=MaterialTheme.typography.titleLarge,color=MaterialTheme.colorScheme.primary)
+            AddDefectButton(s,c,null,editable)
+        }
+        items(s.defects.filter {it.elementCode==null || catalog.element(it.elementCode)==null},key={"general:${it.id}"}) {
+            ScapElementCard("Observación general") {ScapDefectFields(s,c,catalog,it,editable)}
+        }
     }
+    absent?.let {code->AlertDialog(onDismissRequest={absent=null},title={Text("Marcar $code como No aplica")},
+        text={Text("Se conservarán porcentajes, observaciones y fotos. El elemento no participará en el cálculo mientras esté marcado No aplica.")},
+        confirmButton={TextButton(onClick={c.submit {it.selectElement(s.inspection.id,code,false)};absent=null}){Text("Marcar y conservar")}},
+        dismissButton={TextButton(onClick={absent=null}){Text("Cancelar")}})}
 }
 
 @Composable
-fun ScapDefects(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapCatalog,editable:Boolean) {
-    var selectedId by rememberSaveable(s.inspection.id){mutableStateOf<String?>(null)}
-    var removing by remember{mutableStateOf<String?>(null)}
-    val defects=s.defects.sortedBy{it.createdAt}
-    val current=defects.find{it.id==selectedId} ?: defects.firstOrNull()
-    fun label(d:ScapDefectEntity)="${defects.indexOf(d)+1}. ${d.elementCode ?: "General"} · ${d.description.take(55).ifBlank{"Sin descripción"}}"
-    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(16.dp),verticalArrangement=Arrangement.spacedBy(10.dp)) {
-        item {
-            Text("Defectos observados: ${defects.size}",style=MaterialTheme.typography.titleLarge)
-            Button(enabled=editable,onClick={val id=UUID.randomUUID().toString();c.submit{it.saveDefect(s.inspection.id,
-                ScapDefectEntity(id,s.inspection.id,null,"","",null,false,true,System.currentTimeMillis()))};selectedId=id}){Text("Agregar defecto")}
-            ScapChoice("Defecto",current?.let(::label).orEmpty(),defects.map(::label)) {v->selectedId=defects.find{label(it)==v}?.id}
-        }
-        current?.let {d->item(key=d.id) {
-            var description by remember(d.id){mutableStateOf(d.description)}
-            var location by remember(d.id){mutableStateOf(d.locationDescription)}
-            val codes=s.elements.filter{it.element.isPresent}.map{it.element.elementCode}.toSet()+listOfNotNull(d.elementCode)
-            val choices=catalog.elements.filter{it.code in codes}.map{"${it.code} · ${it.name}"}
-            Column(verticalArrangement=Arrangement.spacedBy(10.dp)) {
-                ScapChoice("Elemento SCAP (opcional)",catalog.element(d.elementCode.orEmpty())?.let{"${it.code} · ${it.name}"}.orEmpty(),choices,editable) {v->
-                    c.submit{it.setDefectField(s.inspection.id,d.id,"elementCode",v.substringBefore(" · "))}
-                }
-                OutlinedTextField(description,{description=it;c.submit{r->r.setDefectField(s.inspection.id,d.id,"description",it)}},label={Text("Descripción del defecto")},enabled=editable,modifier=Modifier.fillMaxWidth(),minLines=3,isError=description.isBlank())
-                OutlinedTextField(location,{location=it;c.submit{r->r.setDefectField(s.inspection.id,d.id,"locationDescription",it)}},label={Text("Ubicación del defecto")},enabled=editable,modifier=Modifier.fillMaxWidth())
-                fun photoLabel(id:String)=s.photos.find{it.id==id}?.let{"Foto ${it.photoIndex} · ${photoLabels[it.photoCategory] ?: it.photoCategory}"}.orEmpty()
-                ScapChoice("Fotografía asociada",d.photoId?.let(::photoLabel).orEmpty(),s.photos.map{photoLabel(it.id)},editable) {v->
-                    c.submit{it.setDefectField(s.inspection.id,d.id,"photoId",s.photos.find{photoLabel(it.id)==v}?.id.orEmpty())}
-                }
-                if(d.photoId!=null) s.photos.find{it.id==d.photoId}?.let{ScapImage(it.originalPath ?: it.localPath)}
-                if(d.aiSuggested) {
-                    Text("Sugerencia de IA: requiere verificación del ingeniero.")
-                    Row {Checkbox(d.validatedByUser,{v->c.submit{it.setDefectField(s.inspection.id,d.id,"validatedByUser",v.toString())}},enabled=editable);Text("Validado por el inspector")}
-                } else Text("Registro manual del inspector.")
-                TextButton(enabled=editable,onClick={removing=d.id}){Text("Eliminar defecto")}
-            }
-        }}
-        item {Text("La asistencia visual de IA no está conectada. La evaluación y las mediciones corresponden al inspector.")}
-    }
-    removing?.let{id->AlertDialog(onDismissRequest={removing=null},title={Text("Eliminar defecto")},text={Text("Se elimina la anotación. La fotografía permanece en el panel.")},
-        confirmButton={TextButton(onClick={c.submit{it.removeDefect(s.inspection.id,id)};removing=null}){Text("Eliminar")}},dismissButton={TextButton(onClick={removing=null}){Text("Cancelar")}})}
+private fun ElementConditionFields(s:ScapInspectionSnapshot,c:ScapController,entry:ScapElementWithCondition,editable:Boolean) {
+    val e=entry.element
+    val values=scapValues(s,c,e.id)
+    val p=(0..5).map {i->if(values.containsKey("percent$i")) ScapNumbers.decimal(values["percent$i"]) else entry.condition?.let {ScapPercentages.values(it)[i]}}
+    Text("Unidad: ${e.unit} · Factor: ${e.importanceFactor}")
+    OutlinedTextField(values["quantity"] ?: e.quantity?.toString().orEmpty(),{c.edit(s.inspection.id,e.id,"quantity",it)},
+        label={Text("Metrado (${e.unit})")},enabled=editable,modifier=Modifier.fillMaxWidth(),keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Decimal))
+    (0..5).chunked(2).forEach {levels->Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {levels.forEach {level->
+        val value=values["percent$level"] ?: p[level]?.toString().orEmpty()
+        OutlinedTextField(value,{c.edit(s.inspection.id,e.id,"percent$level",it)},label={Text("Nivel $level (%)")},enabled=editable,
+            modifier=Modifier.weight(1f),keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Decimal),
+            isError=value.isNotBlank() && ScapNumbers.decimal(value)?.let {it in 0.0..100.0}!=true)
+    }}}
+    Text("Suma: ${p.filterNotNull().sum()}% · ${p.count {it!=null}}/6 niveles")
+    ScapPercentages.error(p)?.let {Text(it,color=MaterialTheme.colorScheme.error)}
+}
+
+@Composable
+private fun AddDefectButton(s:ScapInspectionSnapshot,c:ScapController,code:String?,editable:Boolean) {
+    OutlinedButton(enabled=editable,onClick={c.submit {it.saveDefect(s.inspection.id,ScapDefectEntity(
+        UUID.randomUUID().toString(),s.inspection.id,code,"","",null,false,true,System.currentTimeMillis()))}}) {Text("+ Añadir observación / falla")}
+}
+
+@Composable
+internal fun ScapDefectFields(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapCatalog,d:ScapDefectEntity,editable:Boolean) {
+    var description by remember(d.id) {mutableStateOf(d.description)}
+    var location by remember(d.id) {mutableStateOf(d.locationDescription)}
+    var removing by remember {mutableStateOf(false)}
+    OutlinedTextField(description,{description=it;c.submit {r->r.setDefectField(s.inspection.id,d.id,"description",it,d)}},label={Text("Descripción observada")},enabled=editable,modifier=Modifier.fillMaxWidth(),minLines=2)
+    OutlinedTextField(location,{location=it;c.submit {r->r.setDefectField(s.inspection.id,d.id,"locationDescription",it,d)}},label={Text("Ubicación")},enabled=editable,modifier=Modifier.fillMaxWidth())
+    if(d.elementCode==null) ScapChoice("Elemento SCAP (opcional)","",catalog.elements.map {"${it.code} · ${it.name}"},editable) {v->c.submit {it.setDefectField(s.inspection.id,d.id,"elementCode",v.substringBefore(" · "))}}
+    fun label(id:String)=s.photos.find {it.id==id}?.let {"Foto ${it.photoIndex} · ${ScapPhotoCategories.label(it.photoCategory)}"}.orEmpty()
+    ScapChoice("Foto asociada",d.photoId?.let(::label).orEmpty(),s.photos.map {label(it.id)},editable) {v->c.submit {it.setDefectField(s.inspection.id,d.id,"photoId",s.photos.find {label(it.id)==v}?.id.orEmpty(),d)}}
+    if(d.aiSuggested) Row {Checkbox(d.validatedByUser,{v->c.submit {it.setDefectField(s.inspection.id,d.id,"validatedByUser",v.toString())}},enabled=editable);Text("Validado por el inspector")}
+    if(s.defects.any {it.id==d.id}) TextButton(enabled=editable,onClick={removing=true}) {Text("Eliminar observación")}
+    if(removing) AlertDialog(onDismissRequest={removing=false},title={Text("Eliminar observación")},text={Text("La fotografía se conservará.")},
+        confirmButton={TextButton(onClick={c.submit {it.removeDefect(s.inspection.id,d.id);description="";location=""};removing=false}){Text("Eliminar")}},dismissButton={TextButton(onClick={removing=false}){Text("Cancelar")}})
 }

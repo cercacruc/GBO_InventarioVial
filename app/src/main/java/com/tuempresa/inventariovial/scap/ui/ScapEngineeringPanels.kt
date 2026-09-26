@@ -61,26 +61,3 @@ fun ScapSketchDimensions(s:ScapInspectionSnapshot,c:ScapController,editable:Bool
         confirmButton={TextButton(onClick={c.edit(s.inspection.id,"inspection",key,ScapFieldPolicy.NOT_APPLICABLE);confirm=null}){Text("Marcar y conservar")}},
         dismissButton={TextButton(onClick={confirm=null}){Text("Cancelar")}})}
 }
-
-@Composable
-fun ScapGlobalCondition(s:ScapInspectionSnapshot,catalog:ScapCatalog) {
-    val groups=listOf("SUPERESTRUCTURA","SUBESTRUCTURA","DETALLES","CAUCE","ACCESOS")
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
-        Text("F.2 · CONDICIÓN GLOBAL DEL PUENTE",style=MaterialTheme.typography.headlineSmall)
-        groups.forEachIndexed {index,group->Card(Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(10.dp)) {
-                Text("${listOf("I","II","III","IV","V")[index]}. $group",style=MaterialTheme.typography.titleLarge)
-                val entries=s.elements.filter {it.element.isPresent && it.element.group==group}
-                if(entries.isEmpty()) Text("○ Sin elementos seleccionados")
-                entries.forEach {entry->
-                    val e=entry.element
-                    Text("${e.elementCode} · ${catalog.element(e.elementCode)?.name ?: e.description}",style=MaterialTheme.typography.titleMedium)
-                    val description=s.defects.filter {it.elementCode==e.elementCode}.joinToString("\n") {it.description}
-                    Text(description.ifBlank {"○ Descripción pendiente. Completar en Defectos."})
-                    HorizontalDivider()
-                }
-            }
-        }}
-        Text("La condición estadística y sus fórmulas se conservan en G. Esta sección corresponde a la hoja sec F.")
-    }
-}

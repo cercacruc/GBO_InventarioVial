@@ -1,5 +1,7 @@
 # Corrección funcional y UX — 25 de septiembre de 2026
 
+> Documento de una revisión anterior. Para el estado actual de Room 7, las continuaciones XLSX, F2 integrado, SIC-17/18A y watermark, consultar [Revisión de ingeniería de puentes 2](REVISION_INGENIERIA_PUENTES_2.md). Los límites antiguos de pilares, apoyos y juntas quedan superados por esa revisión.
+
 Implementación sobre el repositorio existente, para revisión de la ingeniera. Sin commit ni push. Las decisiones explícitas de esta revisión prevalecen sobre interpretaciones anteriores del Manual.
 
 ## Alcance por punto solicitado

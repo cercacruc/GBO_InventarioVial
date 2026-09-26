@@ -2,6 +2,7 @@ package com.tuempresa.inventariovial.catalog
 
 /** Existing SIC-17..22 labels/codes preserved verbatim. One editable source for all Compose catalogs. */
 object SicCatalogRepository {
+    val roadbedCodes = listOf("UC", "UD", "CD", "A1", "A2")
     val newSic22Types = setOf("1", "2", "3")
     const val kilometerMarkerType = "3"
     val sic18StructuralDescriptions = mapOf(

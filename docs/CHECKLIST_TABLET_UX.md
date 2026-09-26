@@ -9,6 +9,8 @@ Completar con la ingeniera responsable usando registros de prueba. No borrar dat
 - [ ] Girar la tablet y verificar legibilidad, controles táctiles y desplazamiento.
 - [ ] Confirmar tema azul/blanco y logo; cada estado tiene texto/símbolo, no solo color.
 
+Checklist ampliado de 26 pasos: [Revisión de ingeniería de puentes 2](REVISION_INGENIERIA_PUENTES_2.md).
+
 ## SCAP
 
 - [ ] A: elegir ruta de la lista compartida con SIC; guardar, salir y reabrir.
@@ -19,7 +21,7 @@ Completar con la ingeniera responsable usando registros de prueba. No borrar dat
 - [ ] Confirmar No aplica: dependientes deshabilitados; volver a tipo real: recuperar material anterior.
 - [ ] Repetir para material de veredas, apoyos, juntas y drenaje.
 - [ ] Añadir, editar y eliminar con confirmación apoyos y juntas; reabrir y comprobar persistencia.
-- [ ] Con más de dos apoyos o una junta: captura conservada, mensaje de capacidad y exportación bloqueada.
+- [ ] Con más de dos apoyos o una junta: verificar todos los valores en las continuaciones XLSX, sin bloqueo por esos cupos originales.
 - [ ] E: completar las once medidas de croquis con decimales y unidades m; cerrar y reabrir.
 - [ ] Divisorio: ingresar ancho y altura, elegir No aplica, confirmar; ambos quedan deshabilitados sin borrarse.
 - [ ] Volver a Sin completar en el estado del grupo y comprobar que se recuperan las medidas.

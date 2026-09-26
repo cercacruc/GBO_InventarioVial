@@ -18,7 +18,7 @@ object ScapToSicMapper {
             (ScapNumbers.chainage(s.values()["progressive"])?.let {m->listOf(
                 ScapMappedField("progressive","startPrCode",(m/1000).toInt().toString().padStart(4,'0'),ScapMappingStatus.TRANSFORM),
                 ScapMappedField("progressive","startDistanceM",(m%1000).toString(),ScapMappingStatus.TRANSFORM))} ?: emptyList())
-        return ScapSicMapping("SIC-17",s.inspection.roadRecordId,fields,listOf("Clase/tipo y códigos de condición no equivalen automáticamente a SCAP.","Calzada, servicio, singularidad y código inventariado requieren confirmación."))
+        return ScapSicMapping("SIC-17",s.inspection.roadRecordId,fields + ScapSicSupplement.fields(s),emptyList())
     }
     fun mapToSic17A(s:ScapInspectionSnapshot):ScapSicMapping {
         val fields=direct(s,listOf("bridgeName" to "bridgeName","bridgeCode" to "bridgeCode","constructionYear" to "constructionYear",

@@ -29,16 +29,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
-internal val photoLabels=linkedMapOf("GENERAL" to "Vista general", "UPSTREAM" to "Aguas arriba", "DOWNSTREAM" to "Aguas abajo",
-    "TRANSVERSE" to "Vista transversal", "ELEMENT" to "Elemento", "DEFECT" to "Defecto", "ACCESS" to "Acceso", "CHANNEL" to "Cauce", "OTHER" to "Otra")
+internal val photoLabels=com.tuempresa.inventariovial.scap.domain.ScapPhotoCategories.labels
 internal val sketchLabels=linkedMapOf("ELEVATION" to "Elevación", "PLAN" to "Planta", "CROSS_SECTION" to "Sección transversal")
 
 @Composable
-fun ScapMedia(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapCatalog,editable:Boolean,sketch:Boolean) {
+fun ScapMedia(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapCatalog,editable:Boolean,sketch:Boolean,initialElementCode:String?=null) {
     val context=LocalContext.current
     val scope=rememberCoroutineScope()
     var category by rememberSaveable(sketch){mutableStateOf(if(sketch) "ELEVATION" else "GENERAL")}
-    var code by rememberSaveable {mutableStateOf("")}
+    var code by rememberSaveable(initialElementCode) {mutableStateOf(initialElementCode.orEmpty())}
+    var additional by rememberSaveable {mutableStateOf(false)}
     var cameraPath by rememberSaveable {mutableStateOf<String?>(null)}
     var captureCategory by rememberSaveable {mutableStateOf("")}
     var captureCode by rememberSaveable {mutableStateOf("")}
@@ -58,7 +58,7 @@ fun ScapMedia(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapCatalog,edit
     val takePhoto:()->Unit={
         runCatching {
             val photo=createPhotoFile(context,"SCAP")
-            cameraPath=photo.file.absolutePath;captureCategory=category;captureCode=code
+            cameraPath=photo.file.absolutePath
             camera.launch(photo.uri)
         }.onFailure{message="No se pudo abrir la cámara: ${it.message}"}
     }
@@ -86,54 +86,91 @@ fun ScapMedia(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapCatalog,edit
             }
         }
     }
-    val elementOptions=s.elements.filter{it.element.isPresent}.map{"${it.element.elementCode} · ${it.element.description}"}
+    val elementOptions=catalog.elements.map {"${it.code} · ${it.name}"}
+    @Composable fun captureButtons(cat:String,element:String="") {
+        Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(enabled=editable && !importing,onClick={
+                captureCategory=cat;captureCode=element
+                if(ContextCompat.checkSelfPermission(context,Manifest.permission.CAMERA)==PackageManager.PERMISSION_GRANTED) takePhoto() else permission.launch(Manifest.permission.CAMERA)
+            }) {Text("Tomar foto")}
+            OutlinedButton(enabled=editable && !importing,onClick={captureCategory=cat;captureCode=element;importer.launch(arrayOf("image/*"))}) {Text("Importar")}
+        }
+    }
     LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(16.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
         if(sketch) item {ScapSketchDimensions(s,c,editable)}
         item {
             Text(if(sketch) "Croquis del puente" else "Panel fotográfico",style=MaterialTheme.typography.titleLarge)
-            Text(if(sketch) "Adjunta una fotografía o imagen de elevación, planta o sección transversal." else "Cada fotografía queda asociada a esta inspección y, opcionalmente, a un elemento SCAP.")
-            ScapChoice(if(sketch) "Tipo de croquis" else "Categoría",labels[category].orEmpty(),labels.values.toList(),editable) {v->labels.entries.find{it.value==v}?.key?.let{category=it}}
-            if(!sketch) ScapChoice("Elemento SCAP (opcional)",catalog.element(code)?.let{"${it.code} · ${it.name}"}.orEmpty(),elementOptions,editable) {code=it.substringBefore(" · ")}
-            Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(enabled=editable && !importing,onClick={
-                    if(ContextCompat.checkSelfPermission(context,Manifest.permission.CAMERA)==PackageManager.PERMISSION_GRANTED)takePhoto() else permission.launch(Manifest.permission.CAMERA)
-                }){Text("Tomar foto")}
-                OutlinedButton(enabled=editable && !importing,onClick={captureCategory=category;captureCode=code;importer.launch(arrayOf("image/*"))}){Text("Importar imagen")}
-            }
+            if(!sketch) Text("Estas tomas son recordatorios; puedes registrar varias fotos por categoría.")
             if(importing) LinearProgressIndicator(Modifier.fillMaxWidth())
-            message?.let{Text(it,color=MaterialTheme.colorScheme.error)}
+            message?.let {Text(it,color=MaterialTheme.colorScheme.error)}
         }
-        if(sketch) items(s.sketches,key={it.id}) {item->Card(Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(12.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
-                Text(sketchLabels[item.type].orEmpty(),style=MaterialTheme.typography.titleMedium)
-                ScapImage(item.localUri)
-                TextButton(enabled=editable,onClick={removing=item.id}){Text("Retirar croquis")}
+        if(sketch) {
+            sketchLabels.forEach {(cat,label)->
+                item {ScapElementCard(label) {captureButtons(cat)}}
+                items(s.sketches.filter {it.type==cat},key={it.id}) {item->ScapElementCard(label) {
+                    ScapImage(item.localUri)
+                    TextButton(enabled=editable,onClick={removing=item.id}) {Text("Retirar croquis")}
+                }}
             }
-        }} else items(s.photos.sortedBy{it.photoIndex},key={it.id}) {photo->Card(Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(12.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
-                Text("Foto ${s.photos.sortedBy {it.photoIndex}.indexOf(photo)+1}",style=MaterialTheme.typography.titleMedium)
-                Text("Fecha: ${java.text.SimpleDateFormat("dd/MM/yyyy",java.util.Locale.getDefault()).format(java.util.Date(photo.createdAt))}")
-                Text("✓ Guardada localmente · ${if(photo.description.isNullOrBlank()) "Descripción pendiente" else "Con descripción"}")
-                var description by remember(photo.id) {mutableStateOf(photo.description.orEmpty())}
-                OutlinedTextField(description,{description=it;c.submit {repo->repo.describePhoto(s.inspection.id,photo.id,it)}},label={Text("Descripción")},enabled=editable,modifier=Modifier.fillMaxWidth())
-                Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
-                    TextButton(enabled=editable && photo!=s.photos.minByOrNull {it.photoIndex},onClick={c.submit {it.movePhoto(s.inspection.id,photo.id,-1)}}) {Text("↑ Subir")}
-                    TextButton(enabled=editable && photo!=s.photos.maxByOrNull {it.photoIndex},onClick={c.submit {it.movePhoto(s.inspection.id,photo.id,1)}}) {Text("↓ Bajar")}
-                    TextButton(enabled=editable,onClick={removing=photo.id}) {Text("Eliminar")}
-                }
-                ScapImage(photo.originalPath ?: photo.localPath)
-                ScapChoice("Categoría",photoLabels[photo.photoCategory].orEmpty(),photoLabels.values.toList(),editable) {v->
-                    photoLabels.entries.find{it.value==v}?.key?.let{cat->c.submit{it.setPhotoMetadata(s.inspection.id,photo.id,cat,photo.scapElementCode)}}
-                }
-                ScapChoice("Elemento",catalog.element(photo.scapElementCode.orEmpty())?.let{"${it.code} · ${it.name}"}.orEmpty(),elementOptions,editable) {v->
-                    c.submit{it.setPhotoMetadata(s.inspection.id,photo.id,photo.photoCategory ?: "OTHER",v.substringBefore(" · ").ifBlank{null})}
+        } else {
+            val categories=com.tuempresa.inventariovial.scap.domain.ScapPhotoCategories.primary.keys.toList() +
+                s.photos.map {it.photoCategory.orEmpty()}.distinct().filter {it !in com.tuempresa.inventariovial.scap.domain.ScapPhotoCategories.primary}
+            categories.forEach {cat->
+                val photos=s.photos.filter {it.photoCategory.orEmpty()==cat}.sortedBy {it.photoIndex}
+                item(key="category:$cat") {ScapElementCard("${com.tuempresa.inventariovial.scap.domain.ScapPhotoCategories.label(cat)} · ${photos.size} fotos") {
+                    if(cat=="DEFECT") ScapChoice("Elemento SCAP (opcional)",catalog.element(code)?.let {"${it.code} · ${it.name}"}.orEmpty(),elementOptions,editable) {code=it.substringBefore(" · ")}
+                    captureButtons(cat.ifBlank {"OTHER"},if(cat=="DEFECT") code else "")
+                }}
+                items(photos,key={it.id}) {photo->
+                    ScapPhotoCard(s,c,catalog,photo,editable) {removing=photo.id}
                 }
             }
-        }}
+            item {
+                OutlinedButton(enabled=editable,onClick={additional=!additional}) {Text("+ AÑADIR FOTO / CATEGORÍA ADICIONAL")}
+                if(additional) {
+                    ScapChoice("Categoría adicional",photoLabels[category].orEmpty(),photoLabels.values.toList(),editable) {v->category=(photoLabels.entries.firstOrNull {it.value==v}?.key ?: "OTHER")}
+                    captureButtons(category)
+                }
+            }
+        }
         item {Text(if(sketch) "Croquis guardados: ${s.sketches.size}" else "Fotografías guardadas: ${s.photos.size}")}
     }
     removing?.let{id->AlertDialog(onDismissRequest={removing=null},title={Text(if(sketch) "Retirar croquis" else "Eliminar fotografía")},text={Text("Se retirará esta imagen de la ficha SCAP.")},
         confirmButton={TextButton(onClick={c.submit{if(sketch) it.removeSketch(s.inspection.id,id) else it.removePhoto(s.inspection.id,id)};removing=null}){Text("Retirar")}},dismissButton={TextButton(onClick={removing=null}){Text("Cancelar")}})}
+}
+
+@Composable
+private fun ScapPhotoCard(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapCatalog,photo:com.tuempresa.inventariovial.data.entity.PhotoEntity,editable:Boolean,onRemove:()->Unit) {
+    ScapElementCard("Foto ${photo.photoIndex} · ${com.tuempresa.inventariovial.scap.domain.ScapPhotoCategories.label(photo.photoCategory)}") {
+        Text("Fecha: ${java.text.SimpleDateFormat("dd/MM/yyyy",java.util.Locale.getDefault()).format(java.util.Date(photo.createdAt))}")
+        var description by remember(photo.id) {mutableStateOf(photo.description.orEmpty())}
+        OutlinedTextField(description,{description=it;c.submit {repo->repo.describePhoto(s.inspection.id,photo.id,it)}},label={Text("Descripción")},enabled=editable,modifier=Modifier.fillMaxWidth())
+        ScapImage(com.tuempresa.inventariovial.DriveUploadPolicy.uploadPath(photo))
+        ScapChoice("Categoría",com.tuempresa.inventariovial.scap.domain.ScapPhotoCategories.label(photo.photoCategory),photoLabels.values.toList(),editable) {v->
+            c.submit {it.setPhotoMetadata(s.inspection.id,photo.id,(photoLabels.entries.firstOrNull {it.value==v}?.key ?: "OTHER"),photo.scapElementCode)}
+        }
+        ScapChoice("Elemento SCAP",catalog.element(photo.scapElementCode.orEmpty())?.let {"${it.code} · ${it.name}"}.orEmpty(),catalog.elements.map {"${it.code} · ${it.name}"},editable) {v->
+            c.submit {it.setPhotoMetadata(s.inspection.id,photo.id,photo.photoCategory ?: "OTHER",v.substringBefore(" · ").ifBlank {null})}
+        }
+        if(photo.photoCategory=="DEFECT") {
+            s.defects.filter {it.photoId==photo.id}.forEach {d->key(d.id) {ScapDefectFields(s,c,catalog,d,editable)}}
+            OutlinedButton(enabled=editable,onClick={c.submit {it.saveDefect(s.inspection.id,com.tuempresa.inventariovial.scap.data.ScapDefectEntity(
+                java.util.UUID.randomUUID().toString(),s.inspection.id,photo.scapElementCode,description,"",photo.id,false,true,System.currentTimeMillis()))}}) {Text("+ Asociar observación / ubicación")}
+        }
+        if(editable) {
+            val original=photo.originalPath ?: photo.localPath
+            val v=s.values()
+            val location=s.inspection.latitude?.let {lat->s.inspection.longitude?.let {lon->com.tuempresa.inventariovial.location.GeoLocation(lat,lon,s.inspection.gpsAccuracyM?.toFloat() ?: Float.NaN)}}
+            com.tuempresa.inventariovial.field.PhotoStampPanel(listOf(original),com.tuempresa.inventariovial.camera.PhotoStampData(
+                v["route"].orEmpty(),v["sic17.roadbedCode"].orEmpty(),v["progressive"].orEmpty(),location,photo.createdAt,s.inspection.createdBy,s.inspection.bridgeName),
+                photo.stampedPath?.let {mapOf(original to it)} ?: emptyMap()) {paths->c.submit {it.stampPhoto(s.inspection.id,photo.id,paths[original])}}
+        }
+        Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+            TextButton(enabled=editable && photo!=s.photos.minByOrNull {it.photoIndex},onClick={c.submit {it.movePhoto(s.inspection.id,photo.id,-1)}}) {Text("↑ Subir")}
+            TextButton(enabled=editable && photo!=s.photos.maxByOrNull {it.photoIndex},onClick={c.submit {it.movePhoto(s.inspection.id,photo.id,1)}}) {Text("↓ Bajar")}
+            TextButton(enabled=editable,onClick=onRemove) {Text("Eliminar")}
+        }
+    }
 }
 
 @Composable

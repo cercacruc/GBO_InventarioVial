@@ -29,7 +29,7 @@ class PhotoStampServiceTest {
         ExifInterface(original.absolutePath).apply {setAttribute(ExifInterface.TAG_ORIENTATION,"6");saveAttributes()}
         val before=original.readBytes()
         val data=PhotoStampData("RUTA "+"muy extensa ".repeat(15),"CD","0045 + 273 m",GeoLocation(-12.123456,-77.123456,0.5f),1_750_000_000_000,"Ingeniero","Cuneta")
-        val stamped=PhotoStampService().process(original,temporary.newFolder("processed"),data,PhotoStampConfig(fields=PhotoStampField.entries.toSet()))
+        val stamped=PhotoStampService(androidx.test.core.app.ApplicationProvider.getApplicationContext()).process(original,temporary.newFolder("processed"),data,PhotoStampConfig(fields=PhotoStampField.entries.toSet()))
         assertArrayEquals(before,original.readBytes());assertNotEquals(original.canonicalPath,stamped.canonicalPath)
         val output=BitmapFactory.decodeFile(stamped.absolutePath)
         assertEquals(800,output.width);assertEquals(1200,output.height)
