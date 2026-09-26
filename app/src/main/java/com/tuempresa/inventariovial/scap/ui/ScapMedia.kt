@@ -47,7 +47,10 @@ fun ScapMedia(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapCatalog,edit
     var removing by remember {mutableStateOf<String?>(null)}
     val labels=if(sketch) sketchLabels else photoLabels
     fun attach(path:String,selectedCategory:String,selectedCode:String) {
-        c.submit {if(sketch)it.addSketch(s.inspection.id,selectedCategory,path) else it.addPhoto(s.inspection.id,path,selectedCategory,selectedCode.ifBlank{null})}
+        c.submit {if(sketch)it.addSketch(s.inspection.id,selectedCategory,path) else {
+            val marked=com.tuempresa.inventariovial.camera.RequiredWatermark.prepare(context,path)
+            it.addPhoto(s.inspection.id,path,selectedCategory,selectedCode.ifBlank{null},marked.absolutePath)
+        }}
     }
     val camera=rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()){ok->
         val path=cameraPath
@@ -141,6 +144,7 @@ fun ScapMedia(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapCatalog,edit
 
 @Composable
 private fun ScapPhotoCard(s:ScapInspectionSnapshot,c:ScapController,catalog:ScapCatalog,photo:com.tuempresa.inventariovial.data.entity.PhotoEntity,editable:Boolean,onRemove:()->Unit) {
+    val context=LocalContext.current
     ScapElementCard("Foto ${photo.photoIndex} · ${com.tuempresa.inventariovial.scap.domain.ScapPhotoCategories.label(photo.photoCategory)}") {
         Text("Fecha: ${java.text.SimpleDateFormat("dd/MM/yyyy",java.util.Locale.getDefault()).format(java.util.Date(photo.createdAt))}")
         var description by remember(photo.id) {mutableStateOf(photo.description.orEmpty())}
@@ -163,7 +167,10 @@ private fun ScapPhotoCard(s:ScapInspectionSnapshot,c:ScapController,catalog:Scap
             val location=s.inspection.latitude?.let {lat->s.inspection.longitude?.let {lon->com.tuempresa.inventariovial.location.GeoLocation(lat,lon,s.inspection.gpsAccuracyM?.toFloat() ?: Float.NaN)}}
             com.tuempresa.inventariovial.field.PhotoStampPanel(listOf(original),com.tuempresa.inventariovial.camera.PhotoStampData(
                 v["route"].orEmpty(),v["sic17.roadbedCode"].orEmpty(),v["progressive"].orEmpty(),location,photo.createdAt,s.inspection.createdBy,s.inspection.bridgeName),
-                photo.stampedPath?.let {mapOf(original to it)} ?: emptyMap()) {paths->c.submit {it.stampPhoto(s.inspection.id,photo.id,paths[original])}}
+                photo.stampedPath?.let {mapOf(original to it)} ?: emptyMap()) {paths->c.submit {
+                    val marked=com.tuempresa.inventariovial.camera.RequiredWatermark.prepare(context,original,paths[original])
+                    it.stampPhoto(s.inspection.id,photo.id,marked.absolutePath)
+                }}
         }
         Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
             TextButton(enabled=editable && photo!=s.photos.minByOrNull {it.photoIndex},onClick={c.submit {it.movePhoto(s.inspection.id,photo.id,-1)}}) {Text("↑ Subir")}

@@ -96,6 +96,9 @@ class PhotoStampService(context: Context) {
             require(output.canonicalPath!=original.canonicalPath)
             output.outputStream().use { require(bitmap.compress(Bitmap.CompressFormat.JPEG,config.jpegQuality.coerceIn(1,100),it)) }
             val copyExif=ExifInterface(output.absolutePath)
+            if (config.showCorporateLogo && config.logoAlpha > 0) {
+                copyExif.setAttribute(ExifInterface.TAG_USER_COMMENT, RequiredWatermark.MARKER)
+            }
             copyExif.setAttribute(ExifInterface.TAG_ORIENTATION,ExifInterface.ORIENTATION_NORMAL.toString())
             copyExif.setAttribute(ExifInterface.TAG_DATETIME_ORIGINAL,SimpleDateFormat("yyyy:MM:dd HH:mm:ss",Locale.US).format(Date(data.timestamp)))
             data.location?.let { location ->

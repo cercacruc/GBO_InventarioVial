@@ -164,10 +164,10 @@ class ScapRepository(private val db:InventoryDatabase,val catalog:ScapCatalog) {
         dao.updatePhoto(current.copy(photoIndex=other.photoIndex,isPrimary=other.isPrimary));dao.touch(id,System.currentTimeMillis())
     }
     suspend fun removeSketch(id:String,sketchId:String)=db.withTransaction {editable(id);dao.deleteSketch(id,sketchId);dao.touch(id,System.currentTimeMillis())}
-    suspend fun addPhoto(id:String,path:String,category:String,code:String?)=db.withTransaction {
+    suspend fun addPhoto(id:String,path:String,category:String,code:String?,stampedPath:String?=null)=db.withTransaction {
         val s=editable(id);require(category in PHOTO_CATEGORIES);require(code==null || catalog.element(code)!=null)
         val index=(s.photos.maxOfOrNull {it.photoIndex} ?: 0)+1
-        db.inventoryDao().insertPhoto(PhotoEntity(uuid(),s.inspection.roadRecordId,index,path,index==1,null,null,null,"PENDING",System.currentTimeMillis(),scapInspectionId=id,scapElementCode=code,photoCategory=category))
+        db.inventoryDao().insertPhoto(PhotoEntity(uuid(),s.inspection.roadRecordId,index,path,index==1,null,null,null,"PENDING",System.currentTimeMillis(),scapInspectionId=id,scapElementCode=code,photoCategory=category,originalPath=path,stampedPath=stampedPath))
         dao.touch(id,System.currentTimeMillis())
     }
     suspend fun addSketch(id:String,type:String,path:String)=db.withTransaction {

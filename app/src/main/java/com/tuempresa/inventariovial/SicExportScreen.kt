@@ -1,5 +1,6 @@
 package com.tuempresa.inventariovial
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,6 +16,7 @@ import com.tuempresa.inventariovial.export.ExportHeading
 import com.tuempresa.inventariovial.export.SicExcelWriter
 import com.tuempresa.inventariovial.export.SicExportFormat
 import com.tuempresa.inventariovial.viewmodel.InventoryViewModel
+import com.tuempresa.inventariovial.export.SicExportUploader
 
 @Composable
 fun SicExportScreen(viewModel: InventoryViewModel, onBack: () -> Unit) {
@@ -83,6 +85,40 @@ fun SicExportScreen(viewModel: InventoryViewModel, onBack: () -> Unit) {
             HorizontalDivider()
             Text("Archivo preparado: ${prepared.file.name}")
             Text("${prepared.recordCount} registros · ${prepared.workbookCount} Excel. Si cambias la selección o los encabezados, vuelve a generar.")
+            Button(
+                enabled = !locked,
+                onClick = {
+
+                    SicExportUploader.upload(
+                        prepared.file
+                    ) { success, message ->
+
+                        if (success) {
+
+                            Log.d(
+                                "SIC_UPLOAD",
+                                "Excel enviado al Drive"
+                            )
+
+                        } else {
+
+                            Log.e(
+                                "SIC_UPLOAD",
+                                message ?: "Error subiendo Excel"
+                            )
+
+                        }
+
+                    }
+
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+
+                Text("Subir Excel al Drive")
+
+            }
+
             Button(enabled = !locked, onClick = {
                 try {
                     picking = true

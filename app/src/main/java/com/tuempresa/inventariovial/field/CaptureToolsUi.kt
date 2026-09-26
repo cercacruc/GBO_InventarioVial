@@ -133,7 +133,8 @@ fun PhotoStampPanel(paths: List<String>,data: PhotoStampData,stampedPaths: Map<S
     var previewOriginal by remember {mutableStateOf<String?>(null)}
     var busy by remember {mutableStateOf(false)};var error by remember {mutableStateOf<String?>(null)}
     if(paths.isEmpty()) return
-    OutlinedButton(onClick={expanded=!expanded}) {Text("Sello fotográfico · ${stampedPaths.keys.count { it in paths }} copias seleccionadas")}
+    Text("Logo GBO obligatorio · se aplica automáticamente al guardar, subir o exportar.")
+    OutlinedButton(onClick={expanded=!expanded}) {Text("Textos opcionales de la foto · ${stampedPaths.keys.count { it in paths }} copias seleccionadas")}
     if(expanded) {
         Text("Campos opcionales del sello")
         PhotoStampField.entries.forEach { field -> Row {
@@ -151,7 +152,7 @@ fun PhotoStampPanel(paths: List<String>,data: PhotoStampData,stampedPaths: Map<S
         }}) {Text(if(busy) "Procesando…" else "Vista previa del sello")}
         stampedPaths[paths[index]]?.let {
             Text("Copia con sello seleccionada. El original se conserva.")
-            TextButton(onClick={onStamped(stampedPaths-paths[index])}) {Text("Usar solo original")}
+            TextButton(onClick={onStamped(stampedPaths-paths[index])}) {Text("Quitar textos opcionales · conservar logo")}
         }
         error?.let {ErrorText(it)}
     }

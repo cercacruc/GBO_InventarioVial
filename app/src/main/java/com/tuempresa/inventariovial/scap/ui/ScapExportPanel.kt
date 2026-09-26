@@ -55,19 +55,28 @@ internal fun ScapExportPanel(s:ScapInspectionSnapshot,ready:Boolean,controller:S
         scope.launch {
             busy=true;message="Preparando $format…"
             var file:File?=null
+            val temporaryPhotos=mutableListOf<File>()
             try {
                 val timestamp=SimpleDateFormat("yyyyMMdd_HHmmss",Locale.US).format(Date())
                 // Local document suggestion only. Does not touch final photo names or Drive routing.
                 val target=File(context.cacheDir,"${format}_${timestamp}_${UUID.randomUUID().toString().take(8)}.xlsx")
                 file=target
                 val saved=controller.savedSnapshot(s.inspection.id)
+                val delivery = if(format=="SCAP") saved.copy(photos=saved.photos.map { photo ->
+                    val directory=File(context.cacheDir,"watermark-export")
+                    val marked=com.tuempresa.inventariovial.camera.RequiredWatermark.prepare(
+                        context,photo.originalPath ?: photo.localPath,photo.stampedPath,directory)
+                    if(marked.parentFile?.canonicalPath==directory.canonicalPath) temporaryPhotos.add(marked)
+                    // If the prepared copy disappears, fail instead of exporting the original.
+                    photo.copy(localPath=marked.absolutePath,stampedPath=marked.absolutePath)
+                }) else saved
                 withContext(Dispatchers.IO){
-                    target.outputStream().use{out->if(format=="SCAP") exporter.write(out,saved){readExportImage(context,it)} else ScapSicExporter.write(out,saved,format)}
+                    target.outputStream().use{out->if(format=="SCAP") exporter.write(out,delivery){readExportImage(context,it)} else ScapSicExporter.write(out,delivery,format)}
                 }
                 prepared=target.absolutePath;message="Elige dónde guardar $format.";launcher.launch(target.name)
             } catch(e:CancellationException){file?.delete();throw e}
             catch(e:Exception){file?.delete();message="No se pudo preparar $format: ${e.message}"}
-            finally{busy=false}
+            finally{temporaryPhotos.forEach {it.delete()};busy=false}
         }
     }
     HorizontalDivider()
