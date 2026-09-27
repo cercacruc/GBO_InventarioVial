@@ -73,6 +73,8 @@ interface InventoryDao {
     }
     @Query("SELECT * FROM field_sessions WHERE endTime IS NULL ORDER BY startTime DESC LIMIT 1")
     fun observeSession(): Flow<FieldSession?>
+    @Query("SELECT * FROM field_sessions WHERE endTime IS NULL ORDER BY startTime DESC LIMIT 1")
+    suspend fun currentSession(): FieldSession?
     @Query("SELECT * FROM field_sessions WHERE sessionId = :id") suspend fun sessionById(id: String): FieldSession?
     @Insert(onConflict = OnConflictStrategy.ABORT) suspend fun insertSession(session: FieldSession)
     @Query("UPDATE field_sessions SET endTime = :now WHERE endTime IS NULL") suspend fun endSessions(now: Long)

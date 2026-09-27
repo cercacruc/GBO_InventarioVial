@@ -4,6 +4,17 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 object InventoryMigrations {
+    val MIGRATION_7_8 = object : Migration(7, 8) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS user_cache (id TEXT NOT NULL, username TEXT NOT NULL, displayName TEXT NOT NULL, role TEXT NOT NULL, active INTEGER NOT NULL, credentialCiphertext TEXT NOT NULL, createdAt INTEGER NOT NULL, updatedAt INTEGER NOT NULL, syncedAt INTEGER NOT NULL, PRIMARY KEY(id))")
+            db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_user_cache_username ON user_cache(username)")
+            db.execSQL("CREATE TABLE IF NOT EXISTS user_sync_state (id INTEGER NOT NULL, usersVersion INTEGER NOT NULL, lastSuccessfulSyncAt INTEGER NOT NULL, accessRevoked INTEGER NOT NULL, PRIMARY KEY(id))")
+            db.execSQL("CREATE TABLE IF NOT EXISTS local_login_state (id INTEGER NOT NULL, failures INTEGER NOT NULL, blockedUntil INTEGER NOT NULL, lastUserId TEXT, PRIMARY KEY(id))")
+            db.execSQL("CREATE TABLE IF NOT EXISTS auth_audit (id TEXT NOT NULL, timestamp INTEGER NOT NULL, userId TEXT, username TEXT, action TEXT NOT NULL, details TEXT, PRIMARY KEY(id))")
+            db.execSQL("CREATE INDEX IF NOT EXISTS index_auth_audit_timestamp ON auth_audit(timestamp)")
+        }
+    }
+
     val MIGRATION_4_5 = object : Migration(4, 5) {
         override fun migrate(db: SupportSQLiteDatabase) {
             db.execSQL("ALTER TABLE inventory_records ADD COLUMN segment TEXT")

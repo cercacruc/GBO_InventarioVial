@@ -65,7 +65,7 @@ class Engineering2DataTest {
             assertEquals(3,s.defects.size);assertTrue(s.defects.any {it.elementCode==null})
             assertTrue(s.photos.mapNotNull {it.photoCategory}.containsAll(ScapPhotoCategories.labels.keys))
             assertEquals("/original/one.jpg",s.photos.single {it.id==photo.id}.originalPath)
-            assertEquals(7,db.openHelper.readableDatabase.version)
+            assertEquals(8,db.openHelper.readableDatabase.version)
         } finally {db.close();context.deleteDatabase(name)}
     }
     @Test fun complementarySic17RequiredFieldsPersistEnableExportAndNeverLeakIntoScap()=runBlocking {

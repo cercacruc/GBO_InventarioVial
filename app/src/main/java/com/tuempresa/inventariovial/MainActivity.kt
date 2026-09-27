@@ -1,6 +1,7 @@
 package com.tuempresa.inventariovial
 
 import androidx.compose.material3.*
+import com.tuempresa.inventariovial.auth.*
 import androidx.compose.foundation.layout.Box
 import com.tuempresa.inventariovial.field.*
 import androidx.compose.foundation.layout.size
@@ -107,6 +108,16 @@ import com.tuempresa.inventariovial.validation.requiresEndLocation
 
 class MainActivity : ComponentActivity() {
 
+    override fun onStart() {
+        super.onStart()
+        AuthGraph.get(this).foreground()
+    }
+
+    override fun onStop() {
+        if (!isChangingConfigurations) AuthGraph.get(this).background()
+        super.onStop()
+    }
+
     override fun onCreate(
         savedInstanceState: Bundle?
     ) {
@@ -154,6 +165,15 @@ fun InventarioVialApp(
 ) {
 
     if (!deviceAccessGate(inventoryViewModel)) return
+    val graph = rememberAuthGraph()
+    AuthShell(graph) { InventoryWorkspace(inventoryViewModel, graph) }
+}
+
+@Composable
+private fun rememberAuthGraph(): AuthGraph = AuthGraph.get(LocalContext.current)
+
+@Composable
+private fun InventoryWorkspace(inventoryViewModel: InventoryViewModel, graph: AuthGraph) {
     SaveWarningsDialog(inventoryViewModel)
     var selectedDraft by remember { mutableStateOf<InventoryRecordEntity?>(null) }
     var showExport by rememberSaveable { mutableStateOf(false) }
@@ -165,6 +185,15 @@ fun InventarioVialApp(
 
     var selectedSignalization by remember {
         mutableStateOf<SignalizationType?>(null)
+    }
+
+    val authSession by graph.sessions.current.collectAsState()
+    val activeTrack by com.tuempresa.inventariovial.tracking.TrackCaptureService.activeRecordId.collectAsState()
+    val pendingSave by inventoryViewModel.pendingSave.collectAsState()
+    val safeAtHome = selectedAsset == null && !showHistory && !showExport && pendingSave == null
+    androidx.compose.runtime.SideEffect { graph.safeAtHome = safeAtHome }
+    LaunchedEffect(authSession?.closing, safeAtHome, activeTrack) {
+        if (authSession?.closing == true && safeAtHome && activeTrack == null) graph.logoutAtHome()
     }
 
     val recordsToday by
@@ -213,8 +242,11 @@ fun InventarioVialApp(
                         recordsToday = recordsToday,
                         pendingSync = pendingSync,
                         onAssetSelected = {
-                            selectedDraft = null
-                            selectedAsset = it
+                            if (authSession?.closing == true) syncMessage = "Finaliza el recorrido abierto; tu acceso fue desactivado."
+                            else {
+                                selectedDraft = null
+                                selectedAsset = it
+                            }
                         }
                     )
                 }
@@ -319,6 +351,7 @@ fun HomeScreen(
         }
 
         item {
+            inventoryViewModel?.let { AuthHomePanel(it.field.auth) }
             if(inventoryViewModel!=null) FieldHomePanel(inventoryViewModel,onResumeDraft) else ProjectCard()
         }
         item {

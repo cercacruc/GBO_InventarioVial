@@ -1,6 +1,7 @@
 package com.tuempresa.inventariovial.data.database
 
 import android.content.Context
+import com.tuempresa.inventariovial.auth.*
 
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -24,6 +25,7 @@ import com.tuempresa.inventariovial.scap.data.*
 
 @Database(
     entities = [
+        UserCacheEntity::class, UserSyncStateEntity::class, LocalLoginStateEntity::class, AuditLogEntity::class,
         InventoryRecordEntity::class,
         PhotoEntity::class,
         Sic17Entity::class,
@@ -41,12 +43,15 @@ import com.tuempresa.inventariovial.scap.data.*
         ScapProfilePointEntity::class, ScapJointEntity::class
     ],
 
-    version = 7,
+    version = 8,
 
     exportSchema = true
 )
 abstract class InventoryDatabase :
     RoomDatabase() {
+
+    abstract fun userDao(): UserDao
+    abstract fun auditDao(): AuditDao
 
     abstract fun scapDao(): ScapDao
 
@@ -55,6 +60,7 @@ abstract class InventoryDatabase :
 
 
     companion object {
+        val MIGRATION_7_8 = InventoryMigrations.MIGRATION_7_8
         val MIGRATION_6_7 = EngineeringMigration.MIGRATION_6_7
         val MIGRATION_5_6 = ScapMigration.MIGRATION_5_6
         val MIGRATION_4_5 = InventoryMigrations.MIGRATION_4_5
@@ -96,7 +102,7 @@ abstract class InventoryDatabase :
                             InventoryDatabase::class.java,
                             "inventario_vial.db"
                         )
-                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
                             .build()
 
                     INSTANCE = instance

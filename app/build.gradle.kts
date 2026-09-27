@@ -56,8 +56,10 @@ android {
 
     buildTypes {
         release {
+            isDebuggable = false
+            proguardFiles("proguard-rules.pro")
             optimization {
-                enable = false
+                enable = true
             }
         }
     }

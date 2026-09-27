@@ -207,7 +207,7 @@ class EngineeringUxTest {
             old.execSQL("INSERT INTO photos(id,recordId,photoIndex,localPath,isPrimary,syncStatus,createdAt,originalPath,stampedPath,generatedFileName,driveFolderId,driveFileId) VALUES ('p','road',1,'/final.jpg',1,'SYNCED',1,'/raw.jpg','/stamp.jpg','KEEP.jpg','folder','file')")
             old.version=6
         }
-        val database=Room.databaseBuilder(context,InventoryDatabase::class.java,name).addMigrations(InventoryDatabase.MIGRATION_6_7).build()
+        val database=Room.databaseBuilder(context,InventoryDatabase::class.java,name).addMigrations(InventoryDatabase.MIGRATION_6_7,InventoryDatabase.MIGRATION_7_8).build()
         try {
             val s=database.scapDao().snapshot("s")!!;assertEquals("Vacio",s.joints.single().type);assertEquals("Jebe",s.values(s.joints.single().id)["jointMaterial"])
             assertEquals("Vacio",s.values()["jointType"])

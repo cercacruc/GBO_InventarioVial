@@ -92,12 +92,14 @@ fun FieldHomePanel(viewModel: InventoryViewModel,onResumeDraft: (InventoryRecord
 
 @Composable
 private fun SessionDialog(field: FieldController,onClose: ()->Unit) {
-    var project by remember { mutableStateOf("") }; var operator by remember { mutableStateOf("") }
+    var project by remember { mutableStateOf("") }
+    val currentUser by field.auth.sessions.current.collectAsState()
+    val operator = currentUser?.displayName.orEmpty()
     var road by remember { mutableStateOf("") };var segment by remember { mutableStateOf("") };var roadbed by remember { mutableStateOf("") }
     var decreasing by remember { mutableStateOf(false) };var error by remember { mutableStateOf<String?>(null) }
     AlertDialog(onDismissRequest=onClose,title={Text("Nueva sesión")},text={ Column(Modifier.verticalScroll(rememberScrollState())) {
         OutlinedTextField(project,{project=it},label={Text("Proyecto")})
-        OutlinedTextField(operator,{operator=it},label={Text("Operador")})
+        OutlinedTextField(operator,{},readOnly=true,label={Text("Operador autenticado")})
         OutlinedTextField(road,{road=it},label={Text("Ruta (opcional)")})
         Text("Tramo")
         ChoiceSelector(SurveyPreferences.segments,segment,{segment=it})
@@ -107,7 +109,7 @@ private fun SessionDialog(field: FieldController,onClose: ()->Unit) {
         error?.let { ErrorText(it) }
     } },confirmButton={TextButton(onClick={
         if(project.isBlank() || operator.isBlank()) error="Completa proyecto y operador." else {
-            field.startSession(project,operator,road,segment,roadbed,if(decreasing) "DECREASING" else "INCREASING",onClose) { error=it }
+            field.startSession(project,road,segment,roadbed,if(decreasing) "DECREASING" else "INCREASING",onClose) { error=it }
         }
     }) {Text("Iniciar")} },dismissButton={TextButton(onClick=onClose){Text("Cancelar")}})
 }

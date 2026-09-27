@@ -3,6 +3,9 @@ package com.tuempresa.inventariovial.field
 import android.content.Context
 import androidx.room.withTransaction
 import com.tuempresa.inventariovial.access.*
+import com.tuempresa.inventariovial.auth.AuthGraph
+import com.tuempresa.inventariovial.auth.AuditLogEntity
+import com.tuempresa.inventariovial.auth.AuthSessionManager
 import com.tuempresa.inventariovial.data.database.InventoryDatabase
 import com.tuempresa.inventariovial.data.entity.*
 import com.tuempresa.inventariovial.gis.LocalKmlExport
@@ -17,7 +20,9 @@ import java.util.Date
 import java.util.Locale
 import java.util.UUID
 
-class FieldController(private val context: Context,private val database: InventoryDatabase,private val scope: CoroutineScope) {
+class FieldController(private val context: Context,private val database: InventoryDatabase,private val scope: CoroutineScope,
+    private val authSessions: AuthSessionManager = AuthGraph.get(context).sessions) {
+    val auth get() = AuthGraph.get(context)
     val dao=database.inventoryDao()
     private val _reference=MutableStateFlow(RoadReferenceData())
     val reference=_reference.asStateFlow()
@@ -42,18 +47,23 @@ class FieldController(private val context: Context,private val database: Invento
         catch(error: Exception) { _reference.value=RoadReferenceData();_referenceError.value=error.message ?: "Cartografía inválida." }
     } }
     fun saveSettings(value: FieldSettings) { value.save(context);_settings.value=value }
-    fun startSession(project: String,operator: String,road: String,segment: String,roadbed: String,direction: String,onSuccess: ()->Unit,onError: (String)->Unit) {
+    fun startSession(project: String,road: String,segment: String,roadbed: String,direction: String,onSuccess: ()->Unit,onError: (String)->Unit) {
         scope.launch {
             try {
-                require(project.isNotBlank() && operator.isNotBlank()) { "Completa proyecto y operador." }
+                val user = authSessions.requireUser()
+                val operator = user.displayName
+                require(project.isNotBlank()) { "Completa el proyecto." }
                 require(direction in SurveyDirection.entries.map { it.name })
                 check(TrackCaptureService.activeRecordId.value==null) { "Finaliza el recorrido antes de cambiar de sesión." }
                 database.withTransaction {
+                    authSessions.requireUser()
                     val now=System.currentTimeMillis()
+                    if (dao.currentSession() != null) database.auditDao().insert(AuditLogEntity(userId = user.id, username = user.username, action = "FIELD_SESSION_ENDED"))
                     dao.closeSessions(now)
                     dao.insertSession(FieldSession(UUID.randomUUID().toString(),project.trim(),operator.trim(),
                         DeviceAccessManager(context).fingerprint(),road.trim().uppercase().ifEmpty { null },segment.trim().ifEmpty { null },
                         roadbed.trim().uppercase().ifEmpty { null },direction,now))
+                    database.auditDao().insert(AuditLogEntity(userId = user.id, username = user.username, action = "FIELD_SESSION_STARTED"))
                 }
                 scheduleServerSync(context)
                 onSuccess()
@@ -63,7 +73,11 @@ class FieldController(private val context: Context,private val database: Invento
     fun endSession(onError: (String)->Unit) { scope.launch {
         try {
             check(TrackCaptureService.activeRecordId.value==null) { "Finaliza el recorrido antes de cerrar la sesión." }
-            dao.closeSessions(System.currentTimeMillis())
+            database.withTransaction {
+                dao.closeSessions(System.currentTimeMillis())
+                val user = authSessions.current.value
+                database.auditDao().insert(AuditLogEntity(userId = user?.id, username = user?.username, action = "FIELD_SESSION_ENDED"))
+            }
             scheduleServerSync(context)
         } catch(error:Exception) { onError(error.message ?: "No se pudo finalizar la sesión.") }
     } }
@@ -72,6 +86,7 @@ class FieldController(private val context: Context,private val database: Invento
         segment: String="",direction: String="INCREASING") {
         scope.launch {
             try {
+                authSessions.requireUser()
                 require(TrackCaptureService.activeRecordId.value==null) { "Ya hay un recorrido activo." }
                 require(segment in SurveyPreferences.segments && route.isNotBlank() && roadbed.isNotBlank()) { "Completa tramo, ruta y calzada antes de iniciar el recorrido." }
                 require(SurveyOrder.chainage(pr,distance)!=null) { "Completa una progresiva inicial válida." }
