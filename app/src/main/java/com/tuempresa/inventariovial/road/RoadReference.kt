@@ -23,8 +23,8 @@ data class RoadReferenceData(
     val prs: List<RoadPr> = emptyList()
 )
 
-enum class PositionSource { OFFICIAL_PR, ESTIMATED_FROM_PR_CODE, KILOMETRIC, UNKNOWN }
-enum class CaptureSource { MANUAL, GNSS_MAP_MATCH, SERVER, IMPORT }
+enum class PositionSource { OFFICIAL_PR, ESTIMATED_FROM_PR_CODE, KILOMETRIC, UNKNOWN, AXIS_GEOMETRY }
+enum class CaptureSource { MANUAL, GNSS_MAP_MATCH, SERVER, IMPORT, GNSS_PR_SUGGESTION_CONFIRMED }
 data class RoadPosition(val chainageM: Double?, val source: PositionSource)
 
 fun normalizedRoadCode(value: String) = value.trim().uppercase(Locale.ROOT)
@@ -32,7 +32,7 @@ fun normalizedPr(value: String) = value.trim().padStart(4, '0')
 
 class ChainageCalculator(private val prs: List<RoadPr> = emptyList()) {
     fun calculate(record: com.tuempresa.inventariovial.data.entity.InventoryRecordEntity): RoadPosition =
-        if(record.surveyDirection != null) {
+        if(record.surveyDirection != null && ContractualPrInput.catalog(prs, record.routeCode, record.roadbedCode).isEmpty()) {
             val chainage = com.tuempresa.inventariovial.field.SurveyOrder.chainage(record.startPrCode,record.startDistanceM.toString())
             RoadPosition(chainage,if(chainage == null) PositionSource.UNKNOWN else PositionSource.KILOMETRIC)
         } else calculate(record.routeCode,record.roadbedCode,record.startPrCode,record.startDistanceM)
@@ -50,9 +50,22 @@ class ChainageCalculator(private val prs: List<RoadPr> = emptyList()) {
     }
 }
 
-data class SequencedRecord(val item: InventoryRecordWithPhotos, val computedSequence: Int?, val position: RoadPosition)
+data class SequencedRecord(val item: InventoryRecordWithPhotos, val computedSequence: Int?, val position: RoadPosition,
+    val asset: OrderedAsset? = null)
 
 object RoadOrdering {
+    fun orderAssetsForRoute(records: List<InventoryRecordWithPhotos>, calculator: ChainageCalculator = ChainageCalculator(),
+        routeCode: String? = null): List<OrderedAsset> = orderedAssets(
+        if (routeCode == null) records else records.filter { normalizedRoadCode(it.record.routeCode) == normalizedRoadCode(routeCode) }, calculator)
+
+    fun assetHistory(records: List<InventoryRecordWithPhotos>, calculator: ChainageCalculator): List<SequencedRecord> {
+        val active = orderAssetsForRoute(records, calculator).map { asset ->
+            SequencedRecord(asset.item, asset.sequence, asset.axisMeasureM?.let { RoadPosition(it, PositionSource.AXIS_GEOMETRY) }
+                ?: asset.fallbackPosition, asset)
+        }
+        return active + order(records.filter { it.record.status != "ACTIVE" || it.record.sicCode == "SCAP" }, calculator)
+    }
+
     fun order(records: List<InventoryRecordWithPhotos>, calculator: ChainageCalculator): List<SequencedRecord> {
         val sorted = records.filter { it.record.status != "DRAFT" }.map { item ->
             val r = item.record

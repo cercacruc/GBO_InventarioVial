@@ -34,7 +34,7 @@ import java.util.Locale
 @Composable
 fun TrackCapturePanel(viewModel: InventoryViewModel,recordId: String?,sicCode: String,asset: String,route: String,
     roadbed: String,pr: String,distance: String,side: String?,location: GeoLocation?,
-    onRecordId: (String)->Unit,onEndLocation: (GeoLocation)->Unit,segment: String="",direction: String="INCREASING") {
+    onRecordId: (String)->Unit,onEndLocation: (GeoLocation)->Unit,segment: String="",direction: String="INCREASING",prSource: String="MANUAL") {
     val context=LocalContext.current;val scope=rememberCoroutineScope()
     val active by TrackCaptureService.activeRecordId.collectAsState()
     val message by TrackCaptureService.message.collectAsState()
@@ -54,7 +54,7 @@ fun TrackCapturePanel(viewModel: InventoryViewModel,recordId: String?,sicCode: S
         }
         starting=true
         viewModel.field.startTrack(recordId,sicCode,asset,route,roadbed,pr,distance,side,location,
-            {starting=false;onRecordId(it)},{starting=false;error=it},segment,direction)
+            {starting=false;onRecordId(it)},{starting=false;error=it},segment,direction,prSource)
     }
     val permissions=rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { start() }
     SectionTitle("Recorrido del elemento")

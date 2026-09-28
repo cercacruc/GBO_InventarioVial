@@ -22,7 +22,7 @@ class JsonRoadReferenceImporter : RoadReferenceImporter {
                     "LineString" -> {
                         val id=p.getString("segmentId"); val coordinates=g.getJSONArray("coordinates")
                         val chainages=p.getJSONArray("chainageM")
-                        require(chainages.length()==coordinates.length()) { "Cada vértice requiere progresiva oficial chainageM." }
+                        require(chainages.length()==coordinates.length()) { "Cada vértice requiere medida geométrica chainageM." }
                         val points=(0 until coordinates.length()).map { i ->
                             val xy=coordinates.getJSONArray(i)
                             RoadPolylinePoint(route,roadbed,id,i,xy.getDouble(1),xy.getDouble(0),chainages.getDouble(i))
@@ -53,9 +53,9 @@ class JsonRoadReferenceImporter : RoadReferenceImporter {
         segments.forEach { s ->
             require(s.routeCode.isNotBlank() && s.segmentId.isNotBlank() && s.points.size>=2) { "Eje incompleto." }
             require(s.points.map { it.sequence }.distinct().size==s.points.size) { "Secuencias duplicadas." }
-            s.points.forEach { require(GeoMath.validCoordinate(it.latitude,it.longitude) && it.chainageM.isFinite()) { "Coordenada/progresiva inválida." } }
+            s.points.forEach { require(GeoMath.validCoordinate(it.latitude,it.longitude) && it.chainageM.isFinite()) { "Coordenada/medida geométrica inválida." } }
             val differences=s.points.zipWithNext().map { (a,b)->b.chainageM-a.chainageM }
-            require(differences.all { it>0 } || differences.all { it<0 }) { "El eje debe tener progresiva monótona; dividir los ramales." }
+            require(differences.all { it>0 } || differences.all { it<0 }) { "El eje debe tener medida geométrica monótona; dividir los ramales." }
         }
         prs.forEach { require(it.routeCode.isNotBlank() && it.prCode.matches(Regex("[0-9]{4}")) && GeoMath.validCoordinate(it.latitude,it.longitude) && it.chainageM.isFinite()) { "PR inválido." } }
         return RoadReferenceData((segments.map { it.routeCode }+prs.map { it.routeCode }).distinct().map { RoadRoute(it) },segments,prs)

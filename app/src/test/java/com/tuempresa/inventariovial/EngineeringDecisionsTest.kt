@@ -82,7 +82,8 @@ class EngineeringDecisionsTest {
         val reopened=SurveyPreferences(context)
         assertEquals("PE-28H",reopened.last()!!.route);assertEquals("12",reopened.last()!!.pr);assertEquals(350.0,reopened.last()!!.distance,0.0)
         prefs.saveRoutes("Tramo 1",listOf("PE-3N","PE-28H"))
-        assertNotNull(prefs.validate(r.copy(routeCode="PE-3N")))
+        assertNull(prefs.validate(r.copy(routeCode="PE-3N")))
+        assertNotNull(prefs.continuityWarning(r.copy(routeCode="PE-3N")))
         assertEquals(expected,prefs.routes("Tramo 2"))
     }
 }

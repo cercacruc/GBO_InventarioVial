@@ -51,14 +51,13 @@ object CaptureValidation {
         if(requiresEndLocation(request) && (request.endLatitude==null || request.endLongitude==null)) add(ValidationWarning("MISSING_END_GPS","Falta GPS final del elemento lineal."))
         if(request.photoPaths.isEmpty()) add(ValidationWarning("MISSING_PHOTO","El registro no tiene fotografías."))
         if(photos.any { minOf(it.width,it.height)<quality.minPhotoEdgePx }) add(ValidationWarning("SMALL_PHOTO","Una fotografía tiene resolución pequeña o no puede leerse."))
-        // New captures explicitly use kilometre + offset; legacy requests can still use official PR identifiers.
-        val prs=if(request.segment.isNotBlank()) emptyList() else data.prs.filter { normalizedRoadCode(it.routeCode)==normalizedRoadCode(request.routeCode) && normalizedRoadCode(it.roadbedCode)==normalizedRoadCode(request.roadbedCode) }
+        val prs=ContractualPrInput.catalog(data.prs, request.routeCode, request.roadbedCode)
         val pr=prs.find { normalizedPr(it.prCode)==normalizedPr(request.startPrCode) }
         if(prs.isNotEmpty() && pr==null) add(ValidationWarning("PR_OUT_OF_RANGE","El PR no está en el catálogo de esta ruta y calzada."))
         val distance=request.startDistanceM.replace(',','.').toDoubleOrNull()
         val endDistance=request.endDistanceM?.replace(',','.')?.toDoubleOrNull()
         if(distance!=null && endDistance!=null && !request.endPrCode.isNullOrBlank()) {
-            val calculator=ChainageCalculator(if(request.segment.isNotBlank()) emptyList() else data.prs)
+            val calculator=ChainageCalculator(data.prs)
             val start=calculator.calculate(request.routeCode,request.roadbedCode,request.startPrCode,distance).chainageM
             val end=calculator.calculate(request.routeCode,request.roadbedCode,request.endPrCode,endDistance).chainageM
             if(start!=null && end!=null && end<start && request.direction!="DECREASING") add(ValidationWarning("DECREASING_INTERVAL","La ubicación final es anterior a la inicial. Confirma el sentido decreciente del recorrido."))
@@ -74,7 +73,7 @@ object CaptureValidation {
             if(next!=null && endPr.chainageM+endDistance>next.chainageM) add(ValidationWarning("END_DISTANCE_PAST_NEXT_PR","La distancia final supera el PR siguiente del catálogo."))
         }
         if(data.segments.isNotEmpty()) {
-            val broad=RoadMatcher(data,matchConfig.copy(maxDistanceToAxisM=Double.MAX_VALUE,maxAccuracyM=Double.MAX_VALUE))
+            val broad=RoadMatcher(data.forSelectedRoute(request.routeCode),matchConfig.copy(maxDistanceToAxisM=Double.MAX_VALUE,maxAccuracyM=Double.MAX_VALUE))
                 .match(request.latitude,request.longitude,0.0)
             if(broad!=null && broad.distanceToRoadAxisM>matchConfig.maxDistanceToAxisM) add(ValidationWarning("FAR_FROM_AXIS","Punto a ${"%.1f".format(broad.distanceToRoadAxisM)} m del eje vial."))
         }

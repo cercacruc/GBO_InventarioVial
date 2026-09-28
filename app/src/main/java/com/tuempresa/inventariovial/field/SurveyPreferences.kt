@@ -4,6 +4,7 @@ import android.content.Context
 import com.tuempresa.inventariovial.model.form.InventorySaveRequest
 import org.json.JSONArray
 import org.json.JSONObject
+import com.tuempresa.inventariovial.road.*
 
 data class SurveyPosition(val segment: String, val route: String, val roadbed: String,
     val pr: String, val distance: Double, val direction: String, val sessionId: String? = null)
@@ -67,20 +68,29 @@ class SurveyPreferences(context: Context) {
 
     fun reset() { prefs.edit().remove("last").apply() }
 
-    fun validate(request: InventorySaveRequest): String? {
+    fun validate(request: InventorySaveRequest, prs: List<RoadPr> = emptyList()): String? {
         if (request.segment !in segments) return "Selecciona uno de los tres tramos."
         if (request.direction !in listOf("INCREASING", "DECREASING")) return "Selecciona el sentido del recorrido."
         val routes = configuredRoutes(request.segment)
         if (routes.isNotEmpty() && request.routeCode.trim().uppercase() !in routes) return "La ruta no pertenece al catálogo del tramo."
-        val start = SurveyOrder.chainage(request.startPrCode, request.startDistanceM)
-            ?: return "Progresiva inicial: kilómetro entero de hasta cuatro dígitos y metros desde 0 hasta menos de 1000."
+        if (!ContractualPrInput.valid(request.startPrCode, request.startDistanceM, prs, request.routeCode, request.roadbedCode))
+            return "PR inicial o distancia inválidos. Sin catálogo: kilómetro de hasta cuatro dígitos y metros desde 0 hasta menos de 1000."
+        val start = ContractualPrInput.measure(request.startPrCode, request.startDistanceM, prs, request.routeCode, request.roadbedCode)
         if (!request.endPrCode.isNullOrBlank()) {
-            val end = SurveyOrder.chainage(request.endPrCode,request.endDistanceM.orEmpty()) ?: return "Progresiva final inválida."
-            if (request.direction == "INCREASING" && end < start || request.direction == "DECREASING" && end > start)
+            if (!ContractualPrInput.valid(request.endPrCode, request.endDistanceM.orEmpty(), prs, request.routeCode, request.roadbedCode)) return "Progresiva final inválida."
+            val end = ContractualPrInput.measure(request.endPrCode, request.endDistanceM.orEmpty(), prs, request.routeCode, request.roadbedCode)
+            if (start != null && end != null && (request.direction == "INCREASING" && end < start || request.direction == "DECREASING" && end > start))
                 return "La progresiva final no coincide con el sentido seleccionado."
         }
-        return SurveyOrder.error(last(), position(request),routes)
+        // Capture can return to an omitted asset. Continuity is advisory between records.
+        return null
     }
+
+    fun continuityWarning(request: InventorySaveRequest, prs: List<RoadPr> = emptyList()): String? =
+        if (ContractualPrInput.catalog(prs, request.routeCode, request.roadbedCode).isNotEmpty()) null else
+        SurveyOrder.error(last(), position(request), configuredRoutes(request.segment))?.let {
+            "Captura fuera de la continuidad anterior. Se conservará el PR ingresado y el orden se calculará sobre el eje."
+        }
 
     private fun position(r: InventorySaveRequest) = SurveyPosition(r.segment,r.routeCode.trim().uppercase(),
         r.roadbedCode.trim().uppercase(),r.startPrCode.trim(),r.startDistanceM.replace(',','.').toDouble(),r.direction,r.sessionId)

@@ -83,13 +83,13 @@ class FieldController(private val context: Context,private val database: Invento
     } }
     fun startTrack(existingId: String?,sicCode: String,asset: String,route: String,roadbed: String,pr: String,distance: String,
         side: String?,fix: GeoLocation,onStarted: (String)->Unit,onError: (String)->Unit,
-        segment: String="",direction: String="INCREASING") {
+        segment: String="",direction: String="INCREASING",prSource: String="MANUAL") {
         scope.launch {
             try {
                 authSessions.requireUser()
                 require(TrackCaptureService.activeRecordId.value==null) { "Ya hay un recorrido activo." }
                 require(segment in SurveyPreferences.segments && route.isNotBlank() && roadbed.isNotBlank()) { "Completa tramo, ruta y calzada antes de iniciar el recorrido." }
-                require(SurveyOrder.chainage(pr,distance)!=null) { "Completa una progresiva inicial válida." }
+                require(ContractualPrInput.valid(pr,distance,reference.value.prs,route,roadbed)) { "Completa una progresiva inicial válida." }
                 val id=existingId ?: UUID.randomUUID().toString()
                 if(existingId==null) {
                     val now=System.currentTimeMillis()
@@ -97,7 +97,7 @@ class FieldController(private val context: Context,private val database: Invento
                         distance.replace(',','.').toDoubleOrNull()?.takeIf { it.isFinite() && it>=0 } ?: 0.0,
                         null,null,side,fix.latitude,fix.longitude,fix.altitude,fix.horizontalAccuracy.toDouble(),
                         SimpleDateFormat("dd/MM/yyyy",Locale.US).format(Date(now)),null,"DRAFT","PENDING","PENDING",now,now,
-                        sessionId=session.value?.sessionId,gpsTimestamp=fix.timestamp,segment=segment,surveyDirection=direction))
+                        sessionId=session.value?.sessionId,gpsTimestamp=fix.timestamp,segment=segment,surveyDirection=direction,locationSource=prSource))
                 } else check(dao.recordById(id)?.status=="DRAFT")
                 onStarted(id)
                 TrackCaptureService.start(context,id)

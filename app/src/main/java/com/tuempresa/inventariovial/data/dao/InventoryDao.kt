@@ -23,6 +23,17 @@ import androidx.room.Upsert
 
 @Dao
 interface InventoryDao {
+    @Query("SELECT * FROM inventory_records WHERE status != 'DRAFT' AND sicCode != 'SCAP'")
+    suspend fun recordsForAxis(): List<InventoryRecordEntity>
+
+    // Derived data only; a concurrent route/GNSS edit must not receive a stale projection.
+    @Query("""UPDATE inventory_records SET axisMeasureM=:axis, distanceToRoadAxisM=:distance,
+        roadMatchConfidence=:confidence, matchedSegmentId=:segmentId, projectedLatitude=:projectedLat,
+        projectedLongitude=:projectedLon WHERE id=:id AND routeCode=:route AND latitude=:lat
+        AND longitude=:lon AND gpsAccuracyM IS :accuracy""")
+    suspend fun updateAxisPosition(id: String, route: String, lat: Double, lon: Double, accuracy: Double?,
+        axis: Double?, distance: Double?, confidence: Double?, segmentId: String?, projectedLat: Double?, projectedLon: Double?): Int
+
     @Update suspend fun updateSic21(detail:Sic21Entity)
     @Update suspend fun updateSic22(detail:Sic22Entity)
     @Update suspend fun updateSic18(detail:Sic18Entity)
@@ -137,8 +148,8 @@ interface InventoryDao {
     @Query("UPDATE inventory_records SET status = :status, excelSyncStatus = 'PENDING', serverSyncStatus = 'PENDING', serverSyncError = NULL, updatedAt = MAX(updatedAt + 1, :now) WHERE id = :id")
     suspend fun setRecordStatus(id: String, status: String, now: Long)
 
-    @Query("UPDATE inventory_records SET routeCode = :route, roadbedCode = :roadbed, startPrCode = :startPr, startDistanceM = :startDistance, endPrCode = :endPr, endDistanceM = :endDistance, sideCode = :side, observations = :observations, locationSource = 'MANUAL', sideSource = 'MANUAL', excelSyncStatus = 'PENDING', serverSyncStatus = 'PENDING', serverSyncError = NULL, updatedAt = MAX(updatedAt + 1, :now) WHERE id = :id")
-    suspend fun updateCoreFields(id: String, route: String, roadbed: String, startPr: String, startDistance: Double, endPr: String?, endDistance: Double?, side: String?, observations: String?, now: Long)
+    @Query("UPDATE inventory_records SET axisMeasureM = CASE WHEN routeCode = :route THEN axisMeasureM ELSE NULL END, distanceToRoadAxisM = CASE WHEN routeCode = :route THEN distanceToRoadAxisM ELSE NULL END, roadMatchConfidence = CASE WHEN routeCode = :route THEN roadMatchConfidence ELSE NULL END, matchedSegmentId = CASE WHEN routeCode = :route THEN matchedSegmentId ELSE NULL END, projectedLatitude = CASE WHEN routeCode = :route THEN projectedLatitude ELSE NULL END, projectedLongitude = CASE WHEN routeCode = :route THEN projectedLongitude ELSE NULL END, routeCode = :route, roadbedCode = :roadbed, startPrCode = :startPr, startDistanceM = :startDistance, endPrCode = :endPr, endDistanceM = :endDistance, sideCode = :side, observations = :observations, locationSource = :startSource, endLocationSource = :endSource, sideSource = 'MANUAL', excelSyncStatus = 'PENDING', serverSyncStatus = 'PENDING', serverSyncError = NULL, updatedAt = MAX(updatedAt + 1, :now) WHERE id = :id")
+    suspend fun updateCoreFields(id: String, route: String, roadbed: String, startPr: String, startDistance: Double, endPr: String?, endDistance: Double?, side: String?, observations: String?, now: Long, startSource: String = "MANUAL", endSource: String = "MANUAL")
 
     @Query("UPDATE inventory_records SET photoSyncStatus = CASE WHEN EXISTS (SELECT 1 FROM photos WHERE photos.recordId = inventory_records.id AND syncStatus != 'SYNCED') THEN 'PENDING' ELSE 'SYNCED' END WHERE id = :recordId")
     fun refreshRecordPhotoStatus(recordId: String)

@@ -18,6 +18,8 @@ import com.tuempresa.inventariovial.location.GeoLocation
 import com.tuempresa.inventariovial.location.TabletLocationProvider
 import com.tuempresa.inventariovial.viewmodel.InventoryViewModel
 import com.tuempresa.inventariovial.road.SequencedRecord
+import com.tuempresa.inventariovial.road.*
+import com.tuempresa.inventariovial.field.PrSuggestionPanel
 import com.tuempresa.inventariovial.supplementary.SupplementaryFormat
 import com.tuempresa.inventariovial.field.SupplementaryScreen
 import com.tuempresa.inventariovial.data.entity.InventoryRecordEntity
@@ -61,6 +63,11 @@ fun FinalLocationCapture(location: GeoLocation?, onLocation: (GeoLocation) -> Un
 
 @Composable
 fun RecordHistoryScreen(viewModel: InventoryViewModel, onScap: (() -> Unit)? = null, onBack: () -> Unit) {
+    var showAssetOrder by remember { mutableStateOf(false) }
+    if (showAssetOrder) {
+        com.tuempresa.inventariovial.road.AssetOrderScreen(viewModel) { showAssetOrder = false }
+        return
+    }
     val ordered by viewModel.sequencedHistory.collectAsState()
     var showAnnulled by remember { mutableStateOf(false) }
     val records = ordered.filter { it.item.record.sicCode != "SCAP" && (showAnnulled || it.item.record.status == "ACTIVE") }
@@ -82,7 +89,8 @@ fun RecordHistoryScreen(viewModel: InventoryViewModel, onScap: (() -> Unit)? = n
             OutlinedButton(onClick = onBack) { Text("Volver") }
             Text("Registros locales", style = MaterialTheme.typography.headlineMedium)
             onScap?.let { open -> OutlinedButton(onClick = open) { Text("Inspecciones SCAP de puentes") } }
-            Text("Ordenados por ruta, calzada y progresiva")
+            Text("Ordenados por ruta y posición sobre eje; respaldo identificado cuando falta matching")
+            OutlinedButton(onClick = { showAssetOrder = true }) { Text("Orden de elementos") }
             Row { Checkbox(showAnnulled,{showAnnulled=it});Text("Mostrar también anulados") }
             error?.let { ErrorText(it) }
         }
@@ -114,6 +122,10 @@ private fun HistoryRecordCard(
     var startDistance by remember(record, editing) { mutableStateOf(record.startDistanceM.toString()) }
     var endPr by remember(record, editing) { mutableStateOf(record.endPrCode.orEmpty()) }
     var endDistance by remember(record, editing) { mutableStateOf(record.endDistanceM?.toString().orEmpty()) }
+    var startSource by remember(record, editing) { mutableStateOf(record.locationSource) }
+    var endSource by remember(record, editing) { mutableStateOf(record.endLocationSource) }
+    val reference by viewModel.field.reference.collectAsState()
+    val settings by viewModel.field.settings.collectAsState()
     var side by remember(record, editing) { mutableStateOf(record.sideCode.orEmpty()) }
     var observations by remember(record, editing) { mutableStateOf(record.observations.orEmpty()) }
     var editError by remember { mutableStateOf<String?>(null) }
@@ -121,14 +133,19 @@ private fun HistoryRecordCard(
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("${record.sicCode} · ${record.assetType}", style = MaterialTheme.typography.titleMedium)
-            Text("${row.computedSequence?.toString()?.padStart(3,'0') ?: "Sin número operativo"} · ${row.position.chainageM?.let { String.format(java.util.Locale.US,"%.2f m",it) } ?: "Progresiva no determinada"}")
+            Text("${row.asset?.shortCode ?: "Sin número operativo"} · ${row.position.chainageM?.let { String.format(java.util.Locale.US,"%.2f m",it) } ?: "Posición no determinada"}")
             Text(when(row.position.source) {
+                com.tuempresa.inventariovial.road.PositionSource.AXIS_GEOMETRY -> "Posición geométrica sobre eje (GNSS)"
                 com.tuempresa.inventariovial.road.PositionSource.OFFICIAL_PR -> "Progresiva: catálogo oficial de PR"
                 com.tuempresa.inventariovial.road.PositionSource.ESTIMATED_FROM_PR_CODE -> "Progresiva ESTIMADA desde código PR"
                 com.tuempresa.inventariovial.road.PositionSource.KILOMETRIC -> "Progresiva kilométrica registrada"
                 else -> "Revisar PR en catálogo"
             })
+            if (row.asset?.axisMeasureM == null) Text("Posición sobre eje no determinada · orden de respaldo")
+            record.distanceToRoadAxisM?.let { Text(String.format(java.util.Locale.US, "Distancia al eje: %.1f m", it)) }
             Text("${record.routeCode} / ${record.roadbedCode} · PR ${record.startPrCode} + ${record.startDistanceM}")
+            if (record.locationSource == PrEntrySource.CONFIRMED) Text("PR inicial: sugerencia GNSS confirmada")
+            if (record.endLocationSource == PrEntrySource.CONFIRMED) Text("PR final: sugerencia GNSS confirmada")
             record.segment?.let { Text("$it · Sentido: ${if(record.surveyDirection=="DECREASING") "Decreciente" else "Creciente"}") }
             item.sic18?.let { detail ->
                 if(detail.crossSectionCode=="2") Text("Forma: ${when(detail.sectionShape) { "CIRCULAR" -> "Circular"; "OVAL" -> "Ovalada"; else -> "Circular / ovalada (registro anterior)" }}")
@@ -193,12 +210,22 @@ private fun HistoryRecordCard(
                     }) { Text(if (record.status == "ACTIVE") "Anular" else "Restaurar") }
                 }
             } else {
-                OutlinedTextField(value = route, onValueChange = { route = it }, label = { Text("Ruta") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = roadbed, onValueChange = { roadbed = it }, label = { Text("Calzada") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = startPr, onValueChange = { startPr = it }, label = { Text("PR inicio") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = startDistance, onValueChange = { startDistance = it }, label = { Text("Distancia inicio (m)") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = endPr, onValueChange = { endPr = it }, label = { Text("PR fin") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = endDistance, onValueChange = { endDistance = it }, label = { Text("Distancia fin (m)") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = route, onValueChange = { route = it; startSource = PrEntrySource.MANUAL; endSource = PrEntrySource.MANUAL }, label = { Text("Ruta") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = roadbed, onValueChange = { roadbed = it; startSource = PrEntrySource.MANUAL; endSource = PrEntrySource.MANUAL }, label = { Text("Calzada") }, modifier = Modifier.fillMaxWidth())
+                PrSuggestionPanel(reference, settings.matchConfig(), route, roadbed, record.latitude, record.longitude, record.gpsAccuracyM, "inicio") { suggestion ->
+                    val confirmed = PrEntry(startPr, startDistance, startSource).confirm(suggestion)
+                    startPr = confirmed.prCode; startDistance = confirmed.distanceM; startSource = confirmed.source
+                }
+                OutlinedTextField(value = startPr, onValueChange = { startPr = it; startSource = PrEntrySource.MANUAL }, label = { Text("PR inicio") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = startDistance, onValueChange = { startDistance = it; startSource = PrEntrySource.MANUAL }, label = { Text("Distancia inicio (m)") }, modifier = Modifier.fillMaxWidth())
+                if (com.tuempresa.inventariovial.validation.requiresEndLocation(record.sicCode, record.assetType, item.sic20?.classCode, item.sic23?.classCode)) {
+                    PrSuggestionPanel(reference, settings.matchConfig(), route, roadbed, record.endLatitude, record.endLongitude, record.endGpsAccuracyM, "fin") { suggestion ->
+                        val confirmed = PrEntry(endPr, endDistance, endSource).confirm(suggestion)
+                        endPr = confirmed.prCode; endDistance = confirmed.distanceM; endSource = confirmed.source
+                    }
+                }
+                OutlinedTextField(value = endPr, onValueChange = { endPr = it; endSource = PrEntrySource.MANUAL }, label = { Text("PR fin") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = endDistance, onValueChange = { endDistance = it; endSource = PrEntrySource.MANUAL }, label = { Text("Distancia fin (m)") }, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(value = side, onValueChange = { side = it }, label = { Text("Lado") }, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(value = observations, onValueChange = { observations = it }, label = { Text("Observaciones") }, modifier = Modifier.fillMaxWidth())
                 editError?.let { ErrorText(it) }
@@ -219,6 +246,7 @@ private fun HistoryRecordCard(
                                     routeCode = route, roadbedCode = roadbed, startPrCode = startPr,
                                     startDistanceM = start, endPrCode = endPr.ifBlank { null },
                                     endDistanceM = end, sideCode = side.trim().uppercase().ifBlank { null },
+                                    locationSource = startSource, endLocationSource = endSource,
                                     observations = observations.trim().ifBlank { null }),
                                     onSuccess = { saving = false; editing = false },
                                     onError = { saving = false; editError = it })

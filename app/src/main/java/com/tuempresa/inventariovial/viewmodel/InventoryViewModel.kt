@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 
 
 import androidx.lifecycle.AndroidViewModel
@@ -132,10 +133,46 @@ class InventoryViewModel(
     val field = FieldController(application, database, viewModelScope)
     val scap = com.tuempresa.inventariovial.scap.ui.ScapController(application, database, viewModelScope)
     val sequencedHistory = combine(repository.observeHistory(),field.reference) { records, reference ->
-        RoadOrdering.order(records,ChainageCalculator(reference.prs))
+        RoadOrdering.assetHistory(records,ChainageCalculator(reference.prs))
     }.stateIn(viewModelScope,SharingStarted.WhileSubscribed(5_000),emptyList())
     val history: StateFlow<List<InventoryRecordWithPhotos>> = sequencedHistory.map { rows -> rows.map { it.item } }
         .stateIn(viewModelScope,SharingStarted.WhileSubscribed(5_000),emptyList())
+
+    private val axisStorage = RoadAxisStorage(database.inventoryDao())
+    private val _axisFeedback = MutableStateFlow<String?>(null)
+    val axisFeedback = _axisFeedback.asStateFlow()
+    private val _axisBusy = MutableStateFlow(false)
+    val axisBusy = _axisBusy.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            val reference = field.reference.first { it.segments.isNotEmpty() }
+            refreshAxis(reference, null)
+        }
+    }
+
+    fun recalculateOrder(routeCode: String) {
+        if (_axisBusy.value) return
+        viewModelScope.launch {
+            try { refreshAxis(RoadReferenceRepository(getApplication()).loadFromAssets(), routeCode) }
+            catch (e: Exception) { _axisFeedback.value = e.message ?: "No se pudo cargar el eje vial." }
+        }
+    }
+
+    private suspend fun refreshAxis(reference: RoadReferenceData, routeCode: String?) {
+        _axisBusy.value = true
+        try {
+            val count = axisStorage.refresh(reference, field.settings.value.matchConfig(), routeCode)
+            _axisFeedback.value = "$count elemento(s) con posición sobre eje. Los demás conservan su orden de respaldo."
+        } catch (e: Exception) { _axisFeedback.value = e.message ?: "No se pudo recalcular el orden." }
+        finally { _axisBusy.value = false }
+    }
+
+    private suspend fun positionRecord(record: InventoryRecordEntity): InventoryRecordEntity {
+        val reference = field.reference.value.takeIf { it.segments.isNotEmpty() }
+            ?: runCatching { RoadReferenceRepository(getApplication()).loadFromAssets() }.getOrDefault(RoadReferenceData())
+        return withContext(Dispatchers.Default) { RoadAxisPositioner(reference, field.settings.value.matchConfig()).position(record) }
+    }
 
     data class PendingSave(val request: InventorySaveRequest, val warnings: List<ValidationWarning>,
         val onSuccess: ()->Unit, val onError: (String)->Unit)
@@ -305,7 +342,9 @@ class InventoryViewModel(
                 }
                 database.inventoryDao().updateCoreFields(record.id, record.routeCode.trim().uppercase(),
                     record.roadbedCode.trim().uppercase(), normalizeRequiredPr(record.startPrCode), record.startDistanceM,
-                    normalizeOptionalPr(record.endPrCode), record.endDistanceM, record.sideCode, record.observations, maxOf(System.currentTimeMillis(),record.updatedAt+1))
+                    normalizeOptionalPr(record.endPrCode), record.endDistanceM, record.sideCode, record.observations, maxOf(System.currentTimeMillis(),record.updatedAt+1),
+                    record.locationSource, record.endLocationSource)
+                database.inventoryDao().recordById(record.id)?.let { axisStorage.persist(positionRecord(it)) }
                 scheduleServerSync(getApplication())
                 onSuccess()
             } catch (error: Exception) { onError(error.message ?: "No se pudo editar el registro.") }
@@ -334,7 +373,7 @@ class InventoryViewModel(
                         request.startPrCode, request.startDistanceM, request.endPrCode,
                         request.endDistanceM, request.sideCode, checkEstimatedOrder = false)?.let { throw IllegalArgumentException(it) }
                 }
-                com.tuempresa.inventariovial.field.SurveyPreferences(getApplication()).validate(request)?.let { error(it) }
+                com.tuempresa.inventariovial.field.SurveyPreferences(getApplication()).validate(request, field.reference.value.prs)?.let { error(it) }
                 val errors=CaptureValidation.errors(request)
                 require(errors.isEmpty()) { errors.joinToString("\n") { it.message } }
                 require(TrackCaptureService.activeRecordId.value==null || TrackCaptureService.activeRecordId.value!=request.recordId) { "Finaliza el recorrido antes de guardar." }
@@ -346,7 +385,9 @@ class InventoryViewModel(
                         PhotoDimensions(bounds.outWidth,bounds.outHeight)
                     } }
                     val warnings=CaptureValidation.warnings(request,field.reference.value,System.currentTimeMillis(),dimensions,
-                        field.settings.value.qualityConfig(),field.settings.value.matchConfig())
+                        field.settings.value.qualityConfig(),field.settings.value.matchConfig()) +
+                        listOfNotNull(com.tuempresa.inventariovial.field.SurveyPreferences(getApplication()).continuityWarning(request, field.reference.value.prs)
+                            ?.let { ValidationWarning("RETROACTIVE_CAPTURE", it) })
                     _pendingSave.value=PendingSave(request,warnings,onSuccess,onError); return@launch
                 }
 
@@ -385,7 +426,7 @@ class InventoryViewModel(
                 // REGISTRO PRINCIPAL
                 // -------------------------------------------------
 
-                val record =
+                val capturedRecord =
                     InventoryRecordEntity(
 
                         id =
@@ -511,6 +552,7 @@ class InventoryViewModel(
                         correctionAge = request.location?.correctionAge,
                         isRtkFixed = request.location?.isRtkFixed ?: false,
                         locationSource = request.locationSource,
+                        endLocationSource = request.endLocationSource,
                         sideSource = request.sideSource,
                         sessionId = request.sessionId,
                         updatedAt =
@@ -522,6 +564,7 @@ class InventoryViewModel(
                 // FOTO
                 // -------------------------------------------------
 
+                val record = positionRecord(capturedRecord)
                 val photo =
                     PhotoEntity(
 

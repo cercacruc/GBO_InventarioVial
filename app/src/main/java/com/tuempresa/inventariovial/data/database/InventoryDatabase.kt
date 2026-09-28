@@ -43,7 +43,7 @@ import com.tuempresa.inventariovial.scap.data.*
         ScapProfilePointEntity::class, ScapJointEntity::class
     ],
 
-    version = 8,
+    version = 10,
 
     exportSchema = true
 )
@@ -60,6 +60,20 @@ abstract class InventoryDatabase :
 
 
     companion object {
+        val MIGRATION_9_10 = object : Migration(9, 10) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE inventory_records ADD COLUMN endLocationSource TEXT NOT NULL DEFAULT 'MANUAL'")
+            }
+        }
+        val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                listOf("axisMeasureM", "distanceToRoadAxisM", "roadMatchConfidence",
+                    "projectedLatitude", "projectedLongitude").forEach {
+                    db.execSQL("ALTER TABLE inventory_records ADD COLUMN $it REAL")
+                }
+                db.execSQL("ALTER TABLE inventory_records ADD COLUMN matchedSegmentId TEXT")
+            }
+        }
         val MIGRATION_7_8 = InventoryMigrations.MIGRATION_7_8
         val MIGRATION_6_7 = EngineeringMigration.MIGRATION_6_7
         val MIGRATION_5_6 = ScapMigration.MIGRATION_5_6
@@ -102,7 +116,7 @@ abstract class InventoryDatabase :
                             InventoryDatabase::class.java,
                             "inventario_vial.db"
                         )
-                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10)
                             .build()
 
                     INSTANCE = instance

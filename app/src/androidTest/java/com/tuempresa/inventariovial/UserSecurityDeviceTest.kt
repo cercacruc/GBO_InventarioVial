@@ -43,7 +43,7 @@ class UserSecurityDeviceTest {
             }
             old.version = 7
         }
-        val migrated = Room.databaseBuilder(context, InventoryDatabase::class.java, name).addMigrations(InventoryDatabase.MIGRATION_7_8).build()
+        val migrated = Room.databaseBuilder(context, InventoryDatabase::class.java, name).addMigrations(InventoryDatabase.MIGRATION_7_8,InventoryDatabase.MIGRATION_8_9,InventoryDatabase.MIGRATION_9_10).build()
         try {
             assertEquals(0, migrated.userDao().countUsers())
             for (i in 0 until entities.length()) {

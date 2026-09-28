@@ -99,5 +99,13 @@ data class InventoryRecordEntity(
     @androidx.room.ColumnInfo(defaultValue = "'PENDING'") val serverSyncStatus: String = "PENDING",
     val serverSyncError: String? = null,
     val segment: String? = null,
-    val surveyDirection: String? = null
+    val surveyDirection: String? = null,
+    // Geometric distance from the reference start, independent of contractual PR.
+    val axisMeasureM: Double? = null,
+    val distanceToRoadAxisM: Double? = null,
+    val roadMatchConfidence: Double? = null,
+    val matchedSegmentId: String? = null,
+    val projectedLatitude: Double? = null,
+    val projectedLongitude: Double? = null,
+    @androidx.room.ColumnInfo(defaultValue = "'MANUAL'") val endLocationSource: String = "MANUAL"
 )

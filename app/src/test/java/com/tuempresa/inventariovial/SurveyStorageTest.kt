@@ -36,7 +36,7 @@ class SurveyStorageTest {
             old.execSQL("INSERT INTO sic18_details VALUES ('old','06','1',1,'2',1.2,0.8,'2','1')")
             old.version=4
         }
-        val db=Room.databaseBuilder(context,InventoryDatabase::class.java,name).addMigrations(InventoryDatabase.MIGRATION_4_5,InventoryDatabase.MIGRATION_5_6,InventoryDatabase.MIGRATION_6_7,InventoryDatabase.MIGRATION_7_8).build()
+        val db=Room.databaseBuilder(context,InventoryDatabase::class.java,name).addMigrations(InventoryDatabase.MIGRATION_4_5,InventoryDatabase.MIGRATION_5_6,InventoryDatabase.MIGRATION_6_7,InventoryDatabase.MIGRATION_7_8,InventoryDatabase.MIGRATION_8_9,InventoryDatabase.MIGRATION_9_10).build()
         try {
             val snapshot=db.inventoryDao().snapshot("old")!!
             assertEquals(0.8,snapshot.sic18!!.dimension2M!!,0.0)
@@ -54,8 +54,10 @@ class SurveyStorageTest {
         assertNull(prefs.validate(request));prefs.remember(request)
         val reopened=SurveyPreferences(context)
         assertEquals("12",reopened.last()!!.pr)
-        assertNotNull(reopened.validate(request.copy(startDistanceM="300")))
+        assertNull(reopened.validate(request.copy(startDistanceM="300")))
+        assertNotNull(reopened.continuityWarning(request.copy(startDistanceM="300")))
         reopened.reset();assertNull(reopened.validate(request.copy(startDistanceM="300")))
+        assertNull(reopened.continuityWarning(request.copy(startDistanceM="300")))
         assertEquals(listOf("R1","R2"),reopened.routes("Tramo 1"))
         assertNotNull(reopened.validate(request.copy(routeCode="NO_EXISTE")))
     }

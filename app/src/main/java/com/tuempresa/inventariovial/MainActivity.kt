@@ -4,6 +4,7 @@ import androidx.compose.material3.*
 import com.tuempresa.inventariovial.auth.*
 import androidx.compose.foundation.layout.Box
 import com.tuempresa.inventariovial.field.*
+import com.tuempresa.inventariovial.road.*
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.heightIn
 import android.Manifest
@@ -647,7 +648,10 @@ fun SignalizationFormScreen(
     var location by remember { mutableStateOf(draftRecord?.let {
         GeoLocation(it.latitude,it.longitude,it.gpsAccuracyM?.toFloat() ?: Float.POSITIVE_INFINITY,it.altitudeM,timestamp=it.gpsTimestamp ?: 0)
     }) }
-    var locationSource by rememberSaveable { mutableStateOf("MANUAL") }
+    val prReference by inventoryViewModel.field.reference.collectAsState()
+    val prSettings by inventoryViewModel.field.settings.collectAsState()
+    var locationSource by rememberSaveable { mutableStateOf(draftRecord?.locationSource ?: "MANUAL") }
+    var endLocationSource by rememberSaveable { mutableStateOf(draftRecord?.endLocationSource ?: "MANUAL") }
     var sideSource by rememberSaveable { mutableStateOf("MANUAL") }
     var stampedPaths by remember { mutableStateOf<Map<String,String>>(emptyMap()) }
 
@@ -819,6 +823,7 @@ fun SignalizationFormScreen(
                 longitude = fix.longitude
                 gpsAccuracy = fix.horizontalAccuracy
                 location = fix
+                locationSource = PrEntrySource.MANUAL
                 locating = false
             },
 
@@ -1026,9 +1031,9 @@ fun SignalizationFormScreen(
 
         item {
             SurveyHeader(survey, segment, route, roadbed, direction,
-                onSegment={ segment=it; route=""; startPr=""; startDistance=""; locationSource="MANUAL" },
-                onRoute={ route=it; startPr=""; startDistance=""; locationSource="MANUAL" },
-                onRoadbed={ roadbed=it; locationSource="MANUAL" }, onDirection={ direction=it })
+                onSegment={ segment=it; route=""; startPr=""; startDistance=""; locationSource="MANUAL"; endLocationSource="MANUAL" },
+                onRoute={ route=it; startPr=""; startDistance=""; locationSource="MANUAL"; endLocationSource="MANUAL" },
+                onRoadbed={ roadbed=it; locationSource="MANUAL"; endLocationSource="MANUAL" }, onDirection={ direction=it })
         }
         item {
             OutlinedButton(enabled = !locating, onClick = { if(hasLocationPermission()) captureLocation() else locationPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION)) }) { Text("Actualizar GPS inicial") }
@@ -1037,7 +1042,7 @@ fun SignalizationFormScreen(
         if (requiresEndLocation(signalizationType.sicCode, signalizationType.name)) {
             item {
                 TrackCapturePanel(inventoryViewModel,draftId,"SIC-21",signalizationType.name,route,roadbed,startPr,startDistance,codeFromOption(side),location,
-                    onRecordId = { draftId=it }, onEndLocation = { endLocation=it }, segment=segment, direction=direction)
+                    onRecordId = { draftId=it }, onEndLocation = { endLocation=it; endLocationSource=PrEntrySource.MANUAL }, segment=segment, direction=direction, prSource=locationSource)
             }
         }
 
@@ -1140,6 +1145,12 @@ fun SignalizationFormScreen(
         item {
 
             SectionTitle("Ubicación inicio")
+            PrSuggestionPanel(prReference, prSettings.matchConfig(), route, roadbed,
+                latitude, longitude, gpsAccuracy?.toDouble(), "inicio") { suggestion ->
+                val confirmed = PrEntry(startPr, startDistance, locationSource).confirm(suggestion)
+                startPr = confirmed.prCode; startDistance = confirmed.distanceM; locationSource = confirmed.source
+            }
+            if (locationSource == PrEntrySource.CONFIRMED) Text("Inicio: sugerencia GNSS confirmada")
 
             OutlinedTextField(
                 value = startPr,
@@ -1148,7 +1159,7 @@ fun SignalizationFormScreen(
                     startPr = it
                 },
                 label = {
-                    Text("Kilómetro de progresiva inicial (PR)")
+                    Text(if (ContractualPrInput.catalog(prReference.prs,route,roadbed).isEmpty()) "Kilómetro de progresiva inicial (PR)" else "Código PR inicial")
                 },
                 placeholder = {
                     Text("4 dígitos, ej. 0010")
@@ -1169,7 +1180,7 @@ fun SignalizationFormScreen(
                     startDistance = it
                 },
                 label = {
-                    Text("Metros desde el kilómetro inicial")
+                    Text(if (ContractualPrInput.catalog(prReference.prs,route,roadbed).isEmpty()) "Metros desde el kilómetro inicial" else "Metros desde el PR inicial")
                 },
                 placeholder = {
                     Text("Ej. 125.50")
@@ -1182,15 +1193,21 @@ fun SignalizationFormScreen(
         item {
 
             SectionTitle("Ubicación fin")
+                PrSuggestionPanel(prReference, prSettings.matchConfig(), route, roadbed,
+                    endLocation?.latitude, endLocation?.longitude, endLocation?.horizontalAccuracy?.toDouble(), "fin") { suggestion ->
+                    val confirmed = PrEntry(endPr, endDistance, endLocationSource).confirm(suggestion)
+                    endPr = confirmed.prCode; endDistance = confirmed.distanceM; endLocationSource = confirmed.source
+                }
+                if (endLocationSource == PrEntrySource.CONFIRMED) Text("Fin: sugerencia GNSS confirmada")
 
             OutlinedTextField(
                 value = endPr,
                 onValueChange = {
-                    locationSource = "MANUAL"
+                    endLocationSource = "MANUAL"
                     endPr = it
                 },
                 label = {
-                    Text("Kilómetro de progresiva final (PR)")
+                    Text(if (ContractualPrInput.catalog(prReference.prs,route,roadbed).isEmpty()) "Kilómetro de progresiva final (PR)" else "Código PR final")
                 },
                 placeholder = {
                     Text("4 dígitos, ej. 0010")
@@ -1207,11 +1224,11 @@ fun SignalizationFormScreen(
             OutlinedTextField(
                 value = endDistance,
                 onValueChange = {
-                    locationSource = "MANUAL"
+                    endLocationSource = "MANUAL"
                     endDistance = it
                 },
                 label = {
-                    Text("Metros desde el kilómetro final")
+                    Text(if (ContractualPrInput.catalog(prReference.prs,route,roadbed).isEmpty()) "Metros desde el kilómetro final" else "Metros desde el PR final")
                 },
                 placeholder = {
                     Text("Ej. 180.25")
@@ -1368,7 +1385,7 @@ fun SignalizationFormScreen(
                 }
             }
             if (requiresEndLocation(signalizationType.sicCode, signalizationType.name)) {
-                FinalLocationCapture(endLocation) { endLocation = it }
+                FinalLocationCapture(endLocation) { endLocation = it; endLocationSource=PrEntrySource.MANUAL }
             }
         }
         if (
@@ -1582,6 +1599,7 @@ fun SignalizationFormScreen(
                                             location = location,
                                             endLocation = endLocation,
                                             locationSource = locationSource,
+                                            endLocationSource = endLocationSource,
                                             sideSource = sideSource,
                                             sessionId = draftRecord?.sessionId ?: fieldSession?.sessionId,
                                             segment = segment, direction = direction,
@@ -1971,7 +1989,10 @@ fun AssetFormScreen(
     var location by remember { mutableStateOf(draftRecord?.let {
         GeoLocation(it.latitude,it.longitude,it.gpsAccuracyM?.toFloat() ?: Float.POSITIVE_INFINITY,it.altitudeM,timestamp=it.gpsTimestamp ?: 0)
     }) }
-    var locationSource by rememberSaveable { mutableStateOf("MANUAL") }
+    val prReference by inventoryViewModel.field.reference.collectAsState()
+    val prSettings by inventoryViewModel.field.settings.collectAsState()
+    var locationSource by rememberSaveable { mutableStateOf(draftRecord?.locationSource ?: "MANUAL") }
+    var endLocationSource by rememberSaveable { mutableStateOf(draftRecord?.endLocationSource ?: "MANUAL") }
     var sideSource by rememberSaveable { mutableStateOf("MANUAL") }
     var stampedPaths by remember { mutableStateOf<Map<String,String>>(emptyMap()) }
 
@@ -2123,6 +2144,7 @@ fun AssetFormScreen(
                 longitude = fix.longitude
                 gpsAccuracy = fix.horizontalAccuracy
                 location = fix
+                locationSource = PrEntrySource.MANUAL
                 locating = false
             },
 
@@ -2593,6 +2615,7 @@ fun AssetFormScreen(
                                             location = location,
                                             endLocation = endLocation,
                                             locationSource = locationSource,
+                                            endLocationSource = endLocationSource,
                                             sideSource = sideSource,
                                             sessionId = draftRecord?.sessionId ?: fieldSession?.sessionId,
                                             segment = segment, direction = direction,
@@ -2652,9 +2675,9 @@ fun AssetFormScreen(
         // FOTO
         item {
             SurveyHeader(survey, segment, route, roadbed, direction,
-                onSegment={ segment=it; route=""; startPr=""; startDistance=""; locationSource="MANUAL" },
-                onRoute={ route=it; startPr=""; startDistance=""; locationSource="MANUAL" },
-                onRoadbed={ roadbed=it; locationSource="MANUAL" }, onDirection={ direction=it })
+                onSegment={ segment=it; route=""; startPr=""; startDistance=""; locationSource="MANUAL"; endLocationSource="MANUAL" },
+                onRoute={ route=it; startPr=""; startDistance=""; locationSource="MANUAL"; endLocationSource="MANUAL" },
+                onRoadbed={ roadbed=it; locationSource="MANUAL"; endLocationSource="MANUAL" }, onDirection={ direction=it })
         }
         item {
             OutlinedButton(enabled = !locating, onClick = { if(hasLocationPermission()) captureLocation() else locationPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION)) }) { Text("Actualizar GPS inicial") }
@@ -2664,7 +2687,7 @@ fun AssetFormScreen(
             sic20Class=if(assetType.sicCode=="SIC-20") sic20State.classCode else null, sic23Class=sic23State.classCode)) {
             item {
                 TrackCapturePanel(inventoryViewModel,draftId,assetType.sicCode,assetType.name,route,roadbed,startPr,startDistance,codeFromOption(side),location,
-                    onRecordId = { draftId=it }, onEndLocation = { endLocation=it }, segment=segment, direction=direction)
+                    onRecordId = { draftId=it }, onEndLocation = { endLocation=it; endLocationSource=PrEntrySource.MANUAL }, segment=segment, direction=direction, prSource=locationSource)
             }
         }
 
@@ -2767,6 +2790,12 @@ fun AssetFormScreen(
         item {
 
             SectionTitle("Ubicación inicio")
+            PrSuggestionPanel(prReference, prSettings.matchConfig(), route, roadbed,
+                latitude, longitude, gpsAccuracy?.toDouble(), "inicio") { suggestion ->
+                val confirmed = PrEntry(startPr, startDistance, locationSource).confirm(suggestion)
+                startPr = confirmed.prCode; startDistance = confirmed.distanceM; locationSource = confirmed.source
+            }
+            if (locationSource == PrEntrySource.CONFIRMED) Text("Inicio: sugerencia GNSS confirmada")
 
             OutlinedTextField(
                 value = startPr,
@@ -2775,7 +2804,7 @@ fun AssetFormScreen(
                     startPr = it
                 },
                 label = {
-                    Text("Kilómetro de progresiva inicial (PR)")
+                    Text(if (ContractualPrInput.catalog(prReference.prs,route,roadbed).isEmpty()) "Kilómetro de progresiva inicial (PR)" else "Código PR inicial")
                 },
                 placeholder = {
                     Text("4 dígitos, ej. 0010")
@@ -2797,7 +2826,7 @@ fun AssetFormScreen(
                 },
                 label = {
                     Text(
-                        "Metros desde el kilómetro inicial"
+                        if (ContractualPrInput.catalog(prReference.prs,route,roadbed).isEmpty()) "Metros desde el kilómetro inicial" else "Metros desde el PR inicial"
                     )
                 },
                 placeholder = {
@@ -2813,15 +2842,21 @@ fun AssetFormScreen(
             item {
 
                 SectionTitle("Ubicación fin")
+                PrSuggestionPanel(prReference, prSettings.matchConfig(), route, roadbed,
+                    endLocation?.latitude, endLocation?.longitude, endLocation?.horizontalAccuracy?.toDouble(), "fin") { suggestion ->
+                    val confirmed = PrEntry(endPr, endDistance, endLocationSource).confirm(suggestion)
+                    endPr = confirmed.prCode; endDistance = confirmed.distanceM; endLocationSource = confirmed.source
+                }
+                if (endLocationSource == PrEntrySource.CONFIRMED) Text("Fin: sugerencia GNSS confirmada")
 
                 OutlinedTextField(
                     value = endPr,
                     onValueChange = {
-                        locationSource = "MANUAL"
+                        endLocationSource = "MANUAL"
                         endPr = it
                     },
                     label = {
-                        Text("Kilómetro de progresiva final (PR)")
+                        Text(if (ContractualPrInput.catalog(prReference.prs,route,roadbed).isEmpty()) "Kilómetro de progresiva final (PR)" else "Código PR final")
                     },
                     placeholder = {
                         Text(
@@ -2840,12 +2875,12 @@ fun AssetFormScreen(
                 OutlinedTextField(
                     value = endDistance,
                     onValueChange = {
-                        locationSource = "MANUAL"
+                        endLocationSource = "MANUAL"
                         endDistance = it
                     },
                     label = {
                         Text(
-                            "Metros desde el kilómetro final"
+                            if (ContractualPrInput.catalog(prReference.prs,route,roadbed).isEmpty()) "Metros desde el kilómetro final" else "Metros desde el PR final"
                         )
                     },
                     placeholder = {
@@ -3033,7 +3068,7 @@ fun AssetFormScreen(
             }
             if (requiresEndLocation(assetType.sicCode, assetType.name,
                 sic20Class=if(assetType.sicCode=="SIC-20") sic20State.classCode else null, sic23Class=sic23State.classCode)) {
-                FinalLocationCapture(endLocation) { endLocation = it }
+                FinalLocationCapture(endLocation) { endLocation = it; endLocationSource=PrEntrySource.MANUAL }
             }
         }
         if (
