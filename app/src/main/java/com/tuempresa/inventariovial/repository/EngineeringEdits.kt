@@ -13,14 +13,19 @@ object EngineeringEdits {
         "SIC-18" -> with(requireNotNull(s.sic18)) {SicFormDetail.Sic18(Sic18FormState(classCode,typeCode,spans?.toString().orEmpty(),crossSectionCode,dimension1M?.toString().orEmpty(),dimension2M?.toString().orEmpty(),structuralConditionCode,functionalConditionCode,sectionShape=sectionShape.orEmpty()))}
         "SIC-19" -> with(requireNotNull(s.sic19)) {SicFormDetail.Sic19(Sic19FormState(classCode,typeCode,crossSectionCode,structuralConditionCode,functionalConditionCode,structuralCriterion.orEmpty()))}
         "SIC-20" -> with(requireNotNull(s.sic20)) {SicFormDetail.Sic20(Sic20FormState(classCode,typeCode,dimension1M?.toString().orEmpty(),dimension2M?.toString().orEmpty(),structuralConditionCode,functionalConditionCode.orEmpty(),wallLengthMeters?.toString().orEmpty()))}
-        else -> error("Este editor requiere SIC-18, SIC-19 o SIC-20.")
+        "SIC-21" -> with(requireNotNull(s.sic21)) {SicFormDetail.Sic21(Sic21FormState(classCode,typeCode,materialCode,conditionCode))}
+        "SIC-22" -> with(requireNotNull(s.sic22)) {SicFormDetail.Sic22(Sic22FormState(classCode,typeCode,materialCode,signalCode.orEmpty(),kilometerPostNumber.orEmpty(),conditionCode,
+            signWidthM?.toString().orEmpty(),signHeightM?.toString().orEmpty(),lowerEdgeHeightM?.toString().orEmpty()))}
+        else -> error("Este editor requiere SIC-18 a SIC-22.")
     }
     suspend fun save(db:InventoryDatabase,id:String,detail:SicFormDetail,paths:List<String>,categories:Map<String,String>)=db.withTransaction {
         val dao=db.inventoryDao();val s=requireNotNull(dao.snapshot(id));val r=s.record
         require(r.status=="ACTIVE") {"Solo se pueden editar registros activos."}
         val request=InventorySaveRequest(r.sicCode,r.assetType,r.routeCode,r.roadbedCode,r.startPrCode,r.startDistanceM.toString(),
             r.endPrCode,r.endDistanceM?.toString(),r.sideCode,r.latitude,r.longitude,r.gpsAccuracyM?.toFloat(),r.surveyDate,r.observations.orEmpty(),"",detail,photoPaths=paths)
-        val errors=CaptureValidation.errors(request);require(errors.isEmpty()) {errors.joinToString("\n") {it.message}}
+        val unchangedLegacyType=detail is SicFormDetail.Sic22 && detail.state.typeCode==s.sic22?.typeCode && detail.state.typeCode in setOf("4","5","6")
+        val errors=CaptureValidation.errors(request).filterNot {unchangedLegacyType && it.field=="typeCode"}
+        require(errors.isEmpty()) {errors.joinToString("\n") {it.message}}
         when(detail) {
             is SicFormDetail.Sic18 -> with(detail.state) {
                 val old=requireNotNull(s.sic18)
@@ -31,6 +36,12 @@ object EngineeringEdits {
             }
             is SicFormDetail.Sic19 -> with(detail.state) {dao.updateSic19(requireNotNull(s.sic19).copy(classCode=classCode,typeCode=typeCode,crossSectionCode=crossSectionCode,structuralConditionCode=structuralConditionCode,functionalConditionCode=functionalConditionCode,structuralCriterion=structuralCriterion.ifBlank {null}))}
             is SicFormDetail.Sic20 -> with(detail.state) {dao.updateSic20(requireNotNull(s.sic20).copy(classCode=classCode,typeCode=typeCode,dimension1M=dimension1M.replace(',','.').toDoubleOrNull(),dimension2M=if(usesDimension2)dimension2M.replace(',','.').toDoubleOrNull() else s.sic20.dimension2M,structuralConditionCode=structuralConditionCode,functionalConditionCode=functionalConditionCode,wallLengthMeters=wallLengthMeters.replace(',','.').toDoubleOrNull()))}
+            is SicFormDetail.Sic21 -> with(detail.state) {dao.updateSic21(requireNotNull(s.sic21).copy(classCode=classCode,typeCode=typeCode,materialCode=materialCode,conditionCode=conditionCode))}
+            is SicFormDetail.Sic22 -> with(detail.state) {
+                // Removed capture dimensions and historical marker number remain intact in Room.
+                dao.updateSic22(requireNotNull(s.sic22).copy(classCode=classCode,typeCode=typeCode,materialCode=materialCode,
+                    signalCode=signalCode.ifBlank {null},conditionCode=conditionCode))
+            }
             else -> error("Detalle incompatible")
         }
         if(detail is SicFormDetail.Sic18) {

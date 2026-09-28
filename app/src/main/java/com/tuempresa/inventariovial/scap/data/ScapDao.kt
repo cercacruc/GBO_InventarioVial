@@ -55,4 +55,11 @@ interface ScapDao {
     @Update suspend fun updatePhoto(photo:PhotoEntity)
     @Query("UPDATE scap_inspections SET status='IN_PROGRESS',syncStatus='PENDING',updatedAt=MAX(updatedAt+1,:now) WHERE id=:id")
     suspend fun touch(id:String,now:Long)
+
+    // An ACK for an older revision must never hide edits made during upload.
+    @Query("UPDATE scap_inspections SET syncStatus=:state WHERE id=:id AND updatedAt=:revision")
+    suspend fun syncState(id:String,revision:Long,state:String):Int
+
+    @Query("UPDATE photos SET syncStatus='SYNCED',driveFolderId=:folderId,driveFileId=:fileId WHERE scapInspectionId=:id AND id=:photoId")
+    suspend fun photoSynced(id:String,photoId:String,folderId:String,fileId:String)
 }

@@ -31,6 +31,11 @@ fun EngineeringEditScreen(id:String,onBack:()->Unit) {
             is SicFormDetail.Sic18 -> {Sic18Fields(d.state) {detail=SicFormDetail.Sic18(it)};CulvertPhotos(paths,categories) {p,c->paths=p;categories=c}}
             is SicFormDetail.Sic19 -> Sic19Fields(d.state) {detail=SicFormDetail.Sic19(it)}
             is SicFormDetail.Sic20 -> Sic20Fields(d.state) {detail=SicFormDetail.Sic20(it)}
+            is SicFormDetail.Sic21 -> Sic21Fields(d.state) {detail=SicFormDetail.Sic21(it)}
+            is SicFormDetail.Sic22 -> {
+                if(d.state.typeCode in setOf("4","5","6")) Text("Tipo histórico ${d.state.typeCode}: se conservará mientras no selecciones un tipo nuevo.")
+                Sic22Fields(d.state) {detail=SicFormDetail.Sic22(it)}
+            }
             else -> Text("Cargando ficha…")
         }
         error?.let {Text(it,color=MaterialTheme.colorScheme.error)}

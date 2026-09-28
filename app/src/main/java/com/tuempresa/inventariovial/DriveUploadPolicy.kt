@@ -5,7 +5,7 @@ import com.tuempresa.inventariovial.data.entity.PhotoEntity
 import java.io.File
 
 object DriveUploadPolicy {
-    const val SCAP_LOCAL_MESSAGE = "SCAP guardado localmente. Sincronización de puente pendiente de configuración del servidor."
+    const val SCAP_LOCAL_MESSAGE = "SCAP se guarda localmente y se envía desde su propia sección de exportación; no pertenece a la cola SIC."
     private val sicFormats=setOf("SIC-17","SIC-18","SIC-19","SIC-20","SIC-21","SIC-22","SIC-23")
     fun configurationError(token:String=DriveConfig.API_TOKEN,url:String=DriveConfig.WEB_APP_URL):String? = when {
         token.isBlank()->"Drive no configurado: falta DRIVE_API_TOKEN en drive.local.properties."

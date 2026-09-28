@@ -25,7 +25,14 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk=[28])
 class Engineering2ScreenTest {
-    @get:Rule val compose=createComposeRule()
+    // Dispose Compose collectors before closing Room; otherwise teardown races the final query.
+    @get:Rule(order=0) val resources=object:org.junit.rules.TestWatcher() {
+        override fun finished(description:org.junit.runner.Description) {
+            if(::scope.isInitialized) scope.cancel()
+            if(::db.isInitialized) db.close()
+        }
+    }
+    @get:Rule(order=1) val compose=createComposeRule()
     private val context get()=ApplicationProvider.getApplicationContext<Context>()
     private lateinit var db:InventoryDatabase
     private lateinit var repo:ScapRepository
@@ -38,7 +45,6 @@ class Engineering2ScreenTest {
         catalog=ScapCatalog.load(context);repo=ScapRepository(db,catalog);id=repo.create("Inspector","Tablet",null)
         scope=CoroutineScope(SupervisorJob()+Dispatchers.Main);controller=ScapController(context,db,scope)
     }
-    @After fun cleanup(){scope.cancel();db.close()}
     @Test fun c4ShowsFixedStructuresAndSevenIndependentlyEditablePiers():Unit=runBlocking {
         repeat(7) {repo.addRow(id,"PIER")}
         val initial=repo.dao.snapshot(id)!!

@@ -23,6 +23,8 @@ import androidx.room.Upsert
 
 @Dao
 interface InventoryDao {
+    @Update suspend fun updateSic21(detail:Sic21Entity)
+    @Update suspend fun updateSic22(detail:Sic22Entity)
     @Update suspend fun updateSic18(detail:Sic18Entity)
     @Update suspend fun updateSic19(detail:Sic19Entity)
     @Update suspend fun updateSic20(detail:Sic20Entity)

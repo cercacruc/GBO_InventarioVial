@@ -4,9 +4,9 @@ import com.tuempresa.inventariovial.scap.data.ScapInspectionSnapshot
 import com.tuempresa.inventariovial.data.entity.PhotoEntity
 import org.json.JSONObject
 
-/** Prepared contract only: no network client, worker or SIC routing calls. */
+/** Identity and photo ownership contract. SCAP uses its own WorkManager job on the existing endpoint. */
 object ScapDrivePayload {
-    const val uploadEnabled=false
+    const val uploadEnabled=true
     fun bridgeIdentity(bridgeCode:String,inspectionId:String):String =
         bridgeCode.trim().takeIf{it.isNotEmpty()}?.let{"code:$it"} ?: "inspection:$inspectionId"
     fun prepare(s:ScapInspectionSnapshot,p:PhotoEntity,fileName:String,mimeType:String,base64:String):JSONObject {

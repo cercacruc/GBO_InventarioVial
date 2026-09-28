@@ -74,6 +74,24 @@ class ScapFullExportTest {
         val sketches=ScapRepository.SKETCH_TYPES.map {ScapSketchEntity(it,id,it,image(it))}
         return ScapInspectionSnapshot(inspection,values,spans,structures,supports,elements,defects,sketches,photos,profile,joints)
     }
+    @Test fun fifthSpanHasItsOwnLengthStructureAndDeckWithoutOverwritingFourSpanContinuation() {
+        val original=fixture()
+        val fifth=original.spans.last().copy(id="span5",spanIndex=5,lengthM=19.75)
+        val values=original.values+original.values.filter {it.ownerId=="span4"}.map {it.copy(ownerId="span5")}
+        val s=original.copy(spans=original.spans+fifth,values=values)
+        val output=ByteArrayOutputStream();exporter().write(output,s) {File(it).readBytes()}
+        val w=TemplateWorkbook(output.toByteArray().inputStream())
+        assertEquals("5",w.cell(1,"E62").textContent)
+        assertEquals("13.0",w.cell(1,"N686").textContent)
+        assertEquals("19.75",w.cell(1,"N726").textContent)
+        assertEquals("C.2 · TRAMO 5",w.cell(1,"C722").textContent)
+        assertEquals("C.3 · TABLERO · TRAMO 5",w.cell(1,"C741").textContent)
+        assertEquals(7,s.substructures.count {it.kind=="PIER"})
+        assertEquals(4,s.supports.size)
+        w.parts.keys.filter {it.endsWith(".xml") || it.endsWith(".rels")}.forEach {w.document(it)}
+        File(directory,"SCAP_CINCO_TRAMOS_TEST.xlsx").writeBytes(output.toByteArray())
+    }
+
     @Test fun SCAP_COMPLETO_TEST_reopensWithAllFieldsSevenDistinctPiersAndOriginalGeometry() {
         val s=fixture();val out=ByteArrayOutputStream();val review=exporter().review(s)
         assertEquals(emptyList<String>(),review.errors)

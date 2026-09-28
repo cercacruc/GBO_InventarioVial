@@ -180,7 +180,7 @@ private fun HistoryRecordCard(
                     val v=d.values()[f.key].orEmpty();Text("${f.label}: ${f.options.find {it.substringBefore(" - ")==v} ?: v}")
                 }
             }
-            if(record.status=="ACTIVE" && record.sicCode in listOf("SIC-18","SIC-19","SIC-20")) OutlinedButton(onClick=onTechnical) {Text("Editar ficha técnica y fotografías")}
+            if(record.status=="ACTIVE" && record.sicCode in listOf("SIC-18","SIC-19","SIC-20","SIC-21","SIC-22")) OutlinedButton(onClick=onTechnical) {Text("Editar ficha técnica y fotografías")}
             if (!editing) {
                 if(record.status=="ACTIVE") SupplementaryFormat.entries.filter { it.enabled &&
                     if(record.sicCode=="SIC-17") it!=SupplementaryFormat.SIC18A else record.sicCode=="SIC-18" && it==SupplementaryFormat.SIC18A

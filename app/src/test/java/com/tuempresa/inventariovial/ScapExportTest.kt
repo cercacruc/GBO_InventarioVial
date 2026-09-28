@@ -114,8 +114,8 @@ class ScapExportTest {
         assertEquals("code:P-TEST",ScapDrivePayload.bridgeIdentity("P-TEST","other-inspection"))
         assertNotEquals(ScapDrivePayload.bridgeIdentity("",s.inspection.id),ScapDrivePayload.bridgeIdentity("","other-inspection"))
         assertTrue(runCatching{ScapDrivePayload.prepare(s,p.copy(scapInspectionId="other"),"photo","image/png","AA==")}.isFailure)
-        assertFalse(ScapDrivePayload.uploadEnabled);assertFalse(DriveUploadPolicy.eligible("SCAP","ACTIVE",s.inspection.id))
+        assertTrue(ScapDrivePayload.uploadEnabled);assertFalse(DriveUploadPolicy.eligible("SCAP","ACTIVE",s.inspection.id))
         assertFalse(DriveUploadPolicy.eligible("SIC-17","ACTIVE",s.inspection.id))
-        assertEquals("SCAP guardado localmente. Sincronización de puente pendiente de configuración del servidor.",DriveUploadPolicy.SCAP_LOCAL_MESSAGE)
+        assertEquals("SCAP se guarda localmente y se envía desde su propia sección de exportación; no pertenece a la cola SIC.",DriveUploadPolicy.SCAP_LOCAL_MESSAGE)
     }
 }

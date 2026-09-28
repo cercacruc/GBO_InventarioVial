@@ -1,5 +1,7 @@
 # Versión rústica para prueba de campo
 
+> Estado vigente del 27/09/2026: [FIELD_DELIVERY_2026_09_27.md](FIELD_DELIVERY_2026_09_27.md) y [SCAP_VERIFICATION.json](SCAP_VERIFICATION.json). El contenido siguiente describe una entrega anterior.
+
 Se aplica sobre el estado actual del proyecto y del módulo SCAP. No se reescribe la aplicación. El objetivo de esta entrega es captura local comprobable y diagnóstico claro de la sincronización SIC.
 
 ## Configuración Drive

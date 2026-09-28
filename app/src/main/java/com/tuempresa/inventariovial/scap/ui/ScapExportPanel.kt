@@ -1,9 +1,5 @@
 package com.tuempresa.inventariovial.scap.ui
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -18,7 +14,6 @@ import com.tuempresa.inventariovial.export.SicExcelWriter
 import com.tuempresa.inventariovial.scap.data.ScapInspectionSnapshot
 import com.tuempresa.inventariovial.scap.export.*
 import kotlinx.coroutines.*
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -55,37 +50,43 @@ internal fun ScapExportPanel(s:ScapInspectionSnapshot,ready:Boolean,controller:S
         scope.launch {
             busy=true;message="Preparando $format…"
             var file:File?=null
-            val temporaryPhotos=mutableListOf<File>()
             try {
                 val timestamp=SimpleDateFormat("yyyyMMdd_HHmmss",Locale.US).format(Date())
                 // Local document suggestion only. Does not touch final photo names or Drive routing.
                 val target=File(context.cacheDir,"${format}_${timestamp}_${UUID.randomUUID().toString().take(8)}.xlsx")
                 file=target
                 val saved=controller.savedSnapshot(s.inspection.id)
-                val delivery = if(format=="SCAP") saved.copy(photos=saved.photos.map { photo ->
-                    val directory=File(context.cacheDir,"watermark-export")
-                    val marked=com.tuempresa.inventariovial.camera.RequiredWatermark.prepare(
-                        context,photo.originalPath ?: photo.localPath,photo.stampedPath,directory)
-                    if(marked.parentFile?.canonicalPath==directory.canonicalPath) temporaryPhotos.add(marked)
-                    // If the prepared copy disappears, fail instead of exporting the original.
-                    photo.copy(localPath=marked.absolutePath,stampedPath=marked.absolutePath)
-                }) else saved
-                withContext(Dispatchers.IO){
-                    target.outputStream().use{out->if(format=="SCAP") exporter.write(out,delivery){readExportImage(context,it)} else ScapSicExporter.write(out,delivery,format)}
-                }
+                if(format=="SCAP") ScapDelivery.writeExcel(context,saved,target)
+                else withContext(Dispatchers.IO){target.outputStream().use{ScapSicExporter.write(it,saved,format)}}
                 prepared=target.absolutePath;message="Elige dónde guardar $format.";launcher.launch(target.name)
             } catch(e:CancellationException){file?.delete();throw e}
             catch(e:Exception){file?.delete();message="No se pudo preparar $format: ${e.message}"}
-            finally{temporaryPhotos.forEach {it.delete()};busy=false}
+            finally{busy=false}
         }
     }
     HorizontalDivider()
     Text("Exportación Excel",style=MaterialTheme.typography.titleLarge)
-    Text(DriveUploadPolicy.SCAP_LOCAL_MESSAGE)
+    Text("La ficha y su Excel se guardan localmente aunque Drive no esté disponible.")
     if(!ready) Text("Espera a que termine el guardado local y resuelve cualquier error antes de exportar.")
     review.errors.forEach{Text(it,color=MaterialTheme.colorScheme.error)}
     review.warnings.forEach{Text("• $it",style=MaterialTheme.typography.bodySmall)}
     Button(enabled=ready && !busy && prepared==null && review.errors.isEmpty(),onClick={export("SCAP")}){Text("Guardar Excel SCAP")}
+    val configurationError=DriveUploadPolicy.configurationError()
+    Text("Drive SCAP: " + if(configurationError!=null) "NO CONFIGURADO" else DriveUploadPolicy.statusLabel(s.inspection.syncStatus))
+    s.values("drive")["message"]?.takeIf{it.isNotBlank()}?.let{Text(it)}
+    Text("Se enviarán la ficha Excel, las fotografías con marca y los croquis. Cada versión queda identificada por puente e inspección.",style=MaterialTheme.typography.bodySmall)
+    OutlinedButton(enabled=ready && !busy && configurationError==null && review.errors.isEmpty() &&
+        s.inspection.syncStatus !in setOf("QUEUED","UPLOADING","SYNCED"),onClick={
+        scope.launch {
+            busy=true
+            try {
+                ScapDriveSync.enqueue(context,controller.savedSnapshot(s.inspection.id))
+                message="SCAP en cola. Se enviará cuando haya conexión."
+            } catch(e:CancellationException){throw e}
+            catch(e:Exception){message="No se pudo programar SCAP. Revisa la configuración de Drive."}
+            finally{busy=false}
+        }
+    }){Text(if(s.inspection.syncStatus=="ERROR") "Reintentar subida SCAP" else "Subir SCAP a Drive")}
     sic.forEach{p->
         Card(Modifier.fillMaxWidth().padding(vertical=4.dp)) {
             Column(Modifier.padding(12.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) {
@@ -101,14 +102,3 @@ internal fun ScapExportPanel(s:ScapInspectionSnapshot,ready:Boolean,controller:S
     message?.let{Text(it)}
 }
 
-/** Bounded image size in the workbook; original files and their names remain untouched. */
-private fun readExportImage(context:Context,path:String):ByteArray {
-    fun stream()=if(path.startsWith("content:")) requireNotNull(context.contentResolver.openInputStream(Uri.parse(path))) else File(path.removePrefix("file://")).inputStream()
-    val bounds=BitmapFactory.Options().apply{inJustDecodeBounds=true}
-    stream().use{BitmapFactory.decodeStream(it,null,bounds)}
-    require(bounds.outWidth>0 && bounds.outHeight>0){"Una imagen local no puede leerse."}
-    var sample=1
-    while(maxOf(bounds.outWidth,bounds.outHeight)/sample>1800) sample*=2
-    val bitmap=stream().use{BitmapFactory.decodeStream(it,null,BitmapFactory.Options().apply{inSampleSize=sample})} ?: error("Imagen ilegible.")
-    return try {ByteArrayOutputStream().use{out->check(bitmap.compress(Bitmap.CompressFormat.PNG,100,out));out.toByteArray()}} finally{bitmap.recycle()}
-}

@@ -24,9 +24,21 @@ object KmlExporter {
                 "progresivaM" to position.chainageM?.toString(),"fuenteProgresiva" to position.source.name,
                 "lado" to r.sideCode,"latitud" to r.latitude.toString(),"longitud" to r.longitude.toString(),
                 "condicion" to condition,"fecha" to r.surveyDate,"origenUbicacion" to r.locationSource)
-            val linear=r.sicCode in setOf("SIC-19","SIC-21") || r.assetType in setOf("MURO","TUNEL") ||
-                (r.sicCode=="SIC-20" && snapshot.sic20?.classCode in setOf("13","14")) ||
-                (r.sicCode=="SIC-23" && snapshot.sic23?.classCode !in setOf("23","24"))
+            val linear=com.tuempresa.inventariovial.validation.requiresEndLocation(r.sicCode,r.assetType,snapshot.sic20?.classCode,snapshot.sic23?.classCode)
+            fields["observaciones"]=r.observations
+            fields["condicionFuncional"]=snapshot.sic17?.functionalConditionCode ?: snapshot.sic18?.functionalConditionCode ?:
+                snapshot.sic19?.functionalConditionCode ?: snapshot.sic20?.functionalConditionCode
+            // Use the contractual projection for attributes as well as XLSX (same null/material/dimension rules).
+            val format=com.tuempresa.inventariovial.export.SicExportFormat.entries.find {it.code==r.sicCode}
+            val item=com.tuempresa.inventariovial.data.entity.InventoryRecordForExport(r,snapshot.sic17,snapshot.sic18,snapshot.sic19,snapshot.sic20,snapshot.sic21,snapshot.sic22,snapshot.sic23)
+            val hasDetail=when(r.sicCode) {"SIC-17"->snapshot.sic17!=null;"SIC-18"->snapshot.sic18!=null;"SIC-19"->snapshot.sic19!=null;"SIC-20"->snapshot.sic20!=null;"SIC-21"->snapshot.sic21!=null;"SIC-22"->snapshot.sic22!=null;"SIC-23"->snapshot.sic23!=null;else->false}
+            if(format!=null && hasDetail) format.values(item).forEachIndexed {i,value->fields["SIC_${i+1}_${format.columns[i].label}"]=value?.toString()}
+            snapshot.photos.sortedBy {it.photoIndex}.forEachIndexed {i,p->
+                fields["foto_${i+1}_UUID"]=p.id
+                fields["foto_${i+1}_categoria"]=p.photoCategory
+                fields["foto_${i+1}_descripcion"]=p.description
+                fields["foto_${i+1}_DriveId"]=p.driveFileId
+            }
             val track=snapshot.track.sortedBy { it.sequence }
             val geometries=when {
                 linear && track.size>=2 -> TrackContinuity.runs(track).map { run -> run.map { Triple(it.latitude,it.longitude,it.altitude) } }
